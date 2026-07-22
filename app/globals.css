@@ -24,3 +24,14 @@ body {
   color: var(--foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/* Browsers strip background colors on print/PDF by default; the report's
+   Validated Measure / Saati Insight badges rely on background color as
+   part of (not the sole basis for) their distinction, so it must survive
+   printing. See lib/pdf/render.ts. */
+@media print {
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}

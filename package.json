@@ -18,8 +18,10 @@
     "@prisma/client": "^7.9.0",
     "dotenv": "^17.4.2",
     "next": "16.2.11",
+    "playwright": "^1.61.1",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "resend": "^6.18.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -34,7 +36,6 @@
     "eslint-config-next": "16.2.11",
     "eslint-config-prettier": "^10.1.8",
     "jsdom": "^29.1.1",
-    "playwright": "^1.61.1",
     "prettier": "^3.9.6",
     "prisma": "^7.9.0",
     "tailwindcss": "^4",
@@ -46,6 +47,7 @@
     "prisma@7.9.0": true,
     "sharp@0.34.5": true,
     "unrs-resolver@1.12.2": true,
-    "fsevents@2.3.3": true
+    "fsevents@2.3.3": true,
+    "fsevents@2.3.2": true
   }
 }

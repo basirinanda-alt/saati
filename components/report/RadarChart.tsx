@@ -60,12 +60,16 @@ export function RadarChart({ axes }: RadarChartProps) {
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"
-        aria-labelledby="radar-chart-title"
+        aria-label={`Wellbeing profile across ${axes.length} dimensions`}
         className="mx-auto w-full max-w-sm overflow-visible"
       >
-        <title id="radar-chart-title">
-          Wellbeing profile across {axes.length} dimensions
-        </title>
+        {/* Deliberately no <title> child here — a literal <title> tag
+            inside inline SVG is misparsed by the browser's raw-HTML
+            parser during SSR (it gets treated as RAWTEXT before the
+            parser switches into SVG foreign-content mode), which sends
+            it to the client empty and causes a real hydration mismatch.
+            aria-label on the <svg> itself gives the same accessible name
+            without that footgun. */}
 
         {/* Grid rings — recessive, never competing with the data shape. */}
         {GRID_RINGS.map((fraction) => (
