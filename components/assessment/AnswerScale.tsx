@@ -25,7 +25,7 @@ export function AnswerScale({
 }: AnswerScaleProps) {
   return (
     <fieldset>
-      <legend className="mb-6 text-xl font-medium text-neutral-900 sm:text-2xl">
+      <legend className="mb-6 text-xl font-medium text-neutral-900 sm:text-2xl dark:text-neutral-100">
         {questionText}
       </legend>
       <div className="flex flex-col gap-3">
@@ -36,8 +36,8 @@ export function AnswerScale({
               key={option.value}
               className={`flex cursor-pointer items-center rounded-lg border px-4 py-3 text-base transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-teal-700 ${
                 isSelected
-                  ? "border-teal-700 bg-teal-50"
-                  : "border-neutral-300 hover:bg-neutral-50"
+                  ? "border-teal-700 bg-teal-50 dark:border-teal-400 dark:bg-teal-900/30"
+                  : "border-neutral-300 hover:bg-neutral-50 dark:border-neutral-600 dark:hover:bg-neutral-800"
               }`}
             >
               <input
@@ -46,7 +46,7 @@ export function AnswerScale({
                 value={option.value}
                 checked={isSelected}
                 onChange={() => onChange(option.value)}
-                className="mr-3 h-4 w-4 accent-teal-700"
+                className="mr-3 h-4 w-4 accent-teal-700 dark:accent-teal-400"
               />
               {option.label}
             </label>

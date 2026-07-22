@@ -124,7 +124,7 @@ export default function AssessmentPage() {
         />
       </div>
 
-      <p className="mb-2 text-sm text-neutral-500">
+      <p className="mb-2 text-sm text-neutral-500 dark:text-neutral-400">
         {isWho5Section ? "Over the last two weeks..." : "In general..."}
       </p>
 
@@ -148,7 +148,7 @@ export default function AssessmentPage() {
       )}
 
       {errorMessage && (
-        <p role="alert" className="mt-4 text-sm text-red-700">
+        <p role="alert" className="mt-4 text-sm text-red-700 dark:text-red-400">
           {errorMessage}
         </p>
       )}

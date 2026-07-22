@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/Button";
 export default function HomePage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center px-6 py-16 text-center">
-      <h1 className="text-4xl font-semibold text-neutral-900 sm:text-5xl">
+      <h1 className="text-4xl font-semibold text-neutral-900 sm:text-5xl dark:text-neutral-100">
         Understand your wellbeing, one honest question at a time.
       </h1>
-      <p className="mt-6 max-w-prose text-lg text-neutral-600">
+      <p className="mt-6 max-w-prose text-lg text-neutral-600 dark:text-neutral-400">
         Saati is a free, evidence-informed wellbeing check-in for students — not
         a diagnosis, not a therapy replacement. Just a clear, calm way to see
         how you&rsquo;re really doing.
@@ -20,7 +20,7 @@ export default function HomePage() {
           <Button variant="primary">Take the free assessment</Button>
         </Link>
       </div>
-      <p className="mt-4 text-sm text-neutral-500">
+      <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
         Takes about 6&ndash;8 minutes. WHO-5 Wellbeing Index &amp;
         PERMA-Profiler.
       </p>

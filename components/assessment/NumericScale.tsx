@@ -30,11 +30,11 @@ export function NumericScale({
 
   return (
     <fieldset>
-      <legend className="mb-6 text-xl font-medium text-neutral-900 sm:text-2xl">
+      <legend className="mb-6 text-xl font-medium text-neutral-900 sm:text-2xl dark:text-neutral-100">
         {questionText}
       </legend>
 
-      <div className="flex justify-between text-xs text-neutral-500">
+      <div className="flex justify-between text-xs text-neutral-500 dark:text-neutral-400">
         <span>{minLabel}</span>
         <span>{maxLabel}</span>
       </div>
@@ -48,8 +48,8 @@ export function NumericScale({
                 key={option}
                 className={`flex cursor-pointer flex-col items-center rounded-md border px-1 py-2 text-sm transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-teal-700 ${
                   isSelected
-                    ? "border-teal-700 bg-teal-50 font-semibold text-teal-900"
-                    : "border-neutral-300 text-neutral-700 hover:bg-neutral-50"
+                    ? "border-teal-700 bg-teal-50 font-semibold text-teal-900 dark:border-teal-400 dark:bg-teal-900/30 dark:text-teal-200"
+                    : "border-neutral-300 text-neutral-700 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800"
                 }`}
               >
                 <input

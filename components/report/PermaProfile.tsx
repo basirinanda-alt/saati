@@ -45,20 +45,23 @@ export function PermaProfile({ scores }: PermaProfileProps) {
   return (
     <section
       aria-labelledby="perma-profile-heading"
-      className="mt-6 rounded-xl border border-teal-700/30 bg-teal-50/60 p-6 sm:p-8"
+      className="mt-6 rounded-xl border border-teal-700/30 bg-teal-50/60 p-6 sm:p-8 dark:border-teal-400/30 dark:bg-teal-950/40"
     >
-      <span className="inline-block rounded-full bg-teal-700 px-3 py-1 text-xs font-semibold tracking-wide text-white uppercase">
+      <span className="inline-block rounded-full bg-teal-700 px-3 py-1 text-xs font-semibold tracking-wide text-white uppercase dark:bg-teal-600">
         Validated Measure
       </span>
 
-      <h2 id="perma-profile-heading" className="mt-4 text-lg font-medium text-neutral-700">
+      <h2
+        id="perma-profile-heading"
+        className="mt-4 text-lg font-medium text-neutral-700 dark:text-neutral-300"
+      >
         PERMA-Profiler — your wellbeing profile
       </h2>
 
       {overall && (
-        <p className="mt-2 text-sm text-neutral-600">
+        <p className="mt-2 text-sm text-neutral-600 dark:text-neutral-400">
           Overall wellbeing (Saati&rsquo;s average of the five domains below):{" "}
-          <span className="font-semibold text-teal-900">
+          <span className="font-semibold text-teal-900 dark:text-teal-200">
             {Math.round(overall.percentageScore)} / 100
           </span>
         </p>
@@ -71,12 +74,12 @@ export function PermaProfile({ scores }: PermaProfileProps) {
           return (
             <div key={domain}>
               <div className="flex items-baseline justify-between">
-                <dt className="font-medium text-neutral-900">
+                <dt className="font-medium text-neutral-900 dark:text-neutral-100">
                   {CORE_DOMAIN_NAMES[domain]}
                 </dt>
-                <dd className="text-lg font-semibold text-teal-900">
+                <dd className="text-lg font-semibold text-teal-900 dark:text-teal-200">
                   {Math.round(score.percentageScore)}
-                  <span className="text-sm font-normal text-neutral-500">
+                  <span className="text-sm font-normal text-neutral-500 dark:text-neutral-400">
                     {" "}
                     / 100
                   </span>
@@ -88,14 +91,14 @@ export function PermaProfile({ scores }: PermaProfileProps) {
                 aria-valuenow={Math.round(score.percentageScore)}
                 aria-valuemin={0}
                 aria-valuemax={100}
-                className="mt-1 h-2 w-full overflow-hidden rounded-full bg-neutral-200"
+                className="mt-1 h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700"
               >
                 <div
-                  className="h-full rounded-full bg-teal-700"
+                  className="h-full rounded-full bg-teal-700 dark:bg-teal-500"
                   style={{ width: `${score.percentageScore}%` }}
                 />
               </div>
-              <p className="mt-1 text-sm text-neutral-600">
+              <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
                 {describePermaDomain(domain, score.percentageScore)}
               </p>
             </div>
@@ -103,8 +106,8 @@ export function PermaProfile({ scores }: PermaProfileProps) {
         })}
       </dl>
 
-      <details className="mt-6 text-sm text-neutral-600">
-        <summary className="cursor-pointer font-medium text-neutral-700">
+      <details className="mt-6 text-sm text-neutral-600 dark:text-neutral-400">
+        <summary className="cursor-pointer font-medium text-neutral-700 dark:text-neutral-300">
           Supplementary scores
         </summary>
         <dl className="mt-3 flex flex-col gap-2">
@@ -114,7 +117,7 @@ export function PermaProfile({ scores }: PermaProfileProps) {
             return (
               <div key={domain} className="flex justify-between">
                 <dt>{SUPPLEMENTARY_NAMES[domain]}</dt>
-                <dd className="font-medium text-neutral-800">
+                <dd className="font-medium text-neutral-800 dark:text-neutral-200">
                   {Math.round(score.percentageScore)} / 100
                 </dd>
               </div>
@@ -123,7 +126,9 @@ export function PermaProfile({ scores }: PermaProfileProps) {
         </dl>
       </details>
 
-      <p className="mt-6 text-xs text-neutral-500">{PERMA_CITATION}</p>
+      <p className="mt-6 text-xs text-neutral-500 dark:text-neutral-500">
+        {PERMA_CITATION}
+      </p>
     </section>
   );
 }

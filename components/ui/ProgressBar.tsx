@@ -15,7 +15,7 @@ export function ProgressBar({ current, total, label }: ProgressBarProps) {
 
   return (
     <div className="w-full">
-      <div className="mb-2 flex justify-between text-sm text-neutral-600">
+      <div className="mb-2 flex justify-between text-sm text-neutral-600 dark:text-neutral-400">
         <span>{label}</span>
         <span>
           {current} of {total}
@@ -27,10 +27,10 @@ export function ProgressBar({ current, total, label }: ProgressBarProps) {
         aria-valuemin={1}
         aria-valuemax={total}
         aria-label={label}
-        className="h-2 w-full overflow-hidden rounded-full bg-neutral-200"
+        className="h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700"
       >
         <div
-          className="h-full rounded-full bg-teal-700 transition-[width] duration-300 ease-out motion-reduce:transition-none"
+          className="h-full rounded-full bg-teal-700 transition-[width] duration-300 ease-out motion-reduce:transition-none dark:bg-teal-500"
           style={{ width: `${percentage}%` }}
         />
       </div>

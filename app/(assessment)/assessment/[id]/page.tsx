@@ -5,7 +5,17 @@ import { WHO5_INSTRUMENT, describeWho5Score } from "@/lib/scoring/who5";
 import { PERMA_INSTRUMENT } from "@/lib/scoring/perma";
 import { ScoreSummary } from "@/components/report/ScoreSummary";
 import { PermaProfile } from "@/components/report/PermaProfile";
+import { RadarChart, type RadarAxis } from "@/components/report/RadarChart";
 import { SupportResources } from "@/components/report/SupportResources";
+
+const PERMA_CORE_DOMAIN_ORDER = ["P", "E", "R", "M", "A"] as const;
+const PERMA_CORE_DOMAIN_LABELS: Record<string, string> = {
+  P: "Positive Emotion",
+  E: "Engagement",
+  R: "Relationships",
+  M: "Meaning",
+  A: "Accomplishment",
+};
 
 interface ResultsPageProps {
   params: Promise<{ id: string }>;
@@ -42,12 +52,33 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
 
       <PermaProfile scores={permaScores} />
 
+      <RadarChart
+        axes={[
+          {
+            key: "who5",
+            label: "WHO-5",
+            percentageScore: who5Score.percentageScore,
+            type: "validated",
+          },
+          ...PERMA_CORE_DOMAIN_ORDER.map(
+            (domain): RadarAxis => ({
+              key: domain,
+              label: PERMA_CORE_DOMAIN_LABELS[domain],
+              percentageScore:
+                permaScores.find((s) => s.domain === domain)
+                  ?.percentageScore ?? 0,
+              type: "validated",
+            }),
+          ),
+        ]}
+      />
+
       {who5Score.percentageScore < 50 && <SupportResources />}
 
       <div className="mt-8 text-center">
         <Link
           href="/"
-          className="text-sm font-medium text-teal-800 underline underline-offset-2"
+          className="text-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
         >
           Back to home
         </Link>
