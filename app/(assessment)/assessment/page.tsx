@@ -208,6 +208,23 @@ export default function AssessmentPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-xl flex-col justify-center px-6 py-12">
+      {currentIndex === 0 && phase === "questions" && (
+        <p className="mb-6 max-w-prose text-xs text-neutral-500 dark:text-neutral-500">
+          Your answers help generate your report; we&rsquo;ll ask for your
+          email before showing results so we can send it to you. This
+          isn&rsquo;t medical advice.{" "}
+          <a
+            href="/privacy"
+            target="_blank"
+            rel="noreferrer"
+            className="underline underline-offset-2 hover:text-teal-800 dark:hover:text-teal-300"
+          >
+            Read our full privacy policy
+          </a>
+          .
+        </p>
+      )}
+
       <div className="mb-10">
         <ProgressBar
           current={phase === "email" ? FLOW_QUESTIONS.length : currentIndex + 1}

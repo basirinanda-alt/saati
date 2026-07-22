@@ -39,6 +39,14 @@ export default function HomePage() {
           Already checked in before? See your progress
         </Link>
       </p>
+      <p className="mt-10 text-xs text-neutral-400 dark:text-neutral-600">
+        <Link
+          href="/privacy"
+          className="underline underline-offset-2 hover:text-neutral-600 dark:hover:text-neutral-400"
+        >
+          Privacy Policy
+        </Link>
+      </p>
     </main>
   );
 }

@@ -2,7 +2,9 @@
  * The canonical production URL. Falls back to localhost for development.
  * Must be set to the real domain via NEXT_PUBLIC_SITE_URL before launch —
  * canonical URLs, sitemap entries, and JSON-LD all depend on this being
- * correct. Tracked in PROJECT_STATUS.md's pre-launch blockers.
+ * correct. Planned production value: https://wellness.atlanticbuddhist.com
+ * (a subdomain, deliberately not the root domain — see PROJECT_STATUS.md
+ * for why). Tracked in PROJECT_STATUS.md's pre-launch blockers.
  */
 export const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
