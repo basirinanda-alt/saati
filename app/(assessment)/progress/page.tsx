@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getVisitorToken } from "@/lib/visitor";
 import { getVisitorHistory } from "@/lib/report/getReportData";
 import { Button } from "@/components/ui/Button";
+
+// Personal check-in history, tied to this browser's cookie — same
+// Privacy by Design reasoning as the results page. See docs/08-seo.md.
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 function formatDate(date: Date): string {
   return new Intl.DateTimeFormat("en", {
@@ -24,8 +31,8 @@ export default async function ProgressPage() {
           No check-ins yet
         </h1>
         <p className="mt-3 max-w-prose text-neutral-600 dark:text-neutral-400">
-          Take the assessment once, then come back here after your next
-          check-in to see how things have changed over time.
+          Take the assessment once, then come back here after your next check-in
+          to see how things have changed over time.
         </p>
         <div className="mt-8">
           <Link href="/assessment">
@@ -42,8 +49,8 @@ export default async function ProgressPage() {
         Your check-ins
       </h1>
       <p className="mb-8 text-sm text-neutral-600 dark:text-neutral-400">
-        Recognized by this browser only — no account required. Clearing
-        cookies or switching devices will lose this history.
+        Recognized by this browser only — no account required. Clearing cookies
+        or switching devices will lose this history.
       </p>
 
       <ol className="flex flex-col gap-3">

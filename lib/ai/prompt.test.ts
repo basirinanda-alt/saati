@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { buildUserPrompt, type AiSummaryInput } from "./prompt";
 
 const baseInput: AiSummaryInput = {
-  who5: { percentageScore: 40, interpretationBand: "below threshold", belowThreshold: true },
+  who5: {
+    percentageScore: 40,
+    interpretationBand: "below threshold",
+    belowThreshold: true,
+  },
   perma: [
     { domain: "P", percentageScore: 60 },
     { domain: "E", percentageScore: 55 },
@@ -17,7 +21,9 @@ const baseInput: AiSummaryInput = {
 describe("buildUserPrompt", () => {
   it("includes the WHO-5 score and interpretation band", () => {
     const prompt = buildUserPrompt(baseInput);
-    expect(prompt).toMatch(/WHO-5 wellbeing score: 40\/100 \(below threshold\)/);
+    expect(prompt).toMatch(
+      /WHO-5 wellbeing score: 40\/100 \(below threshold\)/,
+    );
   });
 
   it("includes the belowThreshold flag as an explicit fact, not left for inference", () => {
@@ -44,8 +50,8 @@ describe("buildUserPrompt", () => {
 
   it("reflects whether this is a first or repeat assessment", () => {
     expect(buildUserPrompt(baseInput)).toMatch(/first assessment/);
-    expect(
-      buildUserPrompt({ ...baseInput, isFirstAssessment: false }),
-    ).toMatch(/repeat assessment/);
+    expect(buildUserPrompt({ ...baseInput, isFirstAssessment: false })).toMatch(
+      /repeat assessment/,
+    );
   });
 });

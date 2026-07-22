@@ -74,7 +74,11 @@ export function EmailResultsForm({ sessionId }: EmailResultsFormProps) {
           placeholder="you@university.edu"
           className="flex-1 rounded-lg border border-neutral-300 px-3 py-2 text-base text-neutral-900 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100"
         />
-        <Button type="submit" variant="secondary" disabled={status === "sending"}>
+        <Button
+          type="submit"
+          variant="secondary"
+          disabled={status === "sending"}
+        >
           {status === "sending" ? "Sending..." : "Send"}
         </Button>
       </div>

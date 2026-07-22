@@ -5,7 +5,11 @@ import type { AiSummaryInput } from "./prompt";
 const { violatesGuardrails } = __testing;
 
 const input: AiSummaryInput = {
-  who5: { percentageScore: 80, interpretationBand: "good", belowThreshold: false },
+  who5: {
+    percentageScore: 80,
+    interpretationBand: "good",
+    belowThreshold: false,
+  },
   perma: [{ domain: "P", percentageScore: 70 }],
   insights: [{ module: "SLEEP", percentageScore: 60 }],
   isFirstAssessment: true,
@@ -13,7 +17,9 @@ const input: AiSummaryInput = {
 
 describe("violatesGuardrails", () => {
   it("flags diagnostic language", () => {
-    expect(violatesGuardrails("This suggests a diagnosis of anxiety.")).toBe(true);
+    expect(violatesGuardrails("This suggests a diagnosis of anxiety.")).toBe(
+      true,
+    );
   });
 
   it("flags disorder/syndrome language", () => {

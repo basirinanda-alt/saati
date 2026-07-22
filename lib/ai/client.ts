@@ -10,7 +10,11 @@
  * choice should be swappable without a code change.
  */
 
-import { AI_SYSTEM_PROMPT, buildUserPrompt, type AiSummaryInput } from "./prompt";
+import {
+  AI_SYSTEM_PROMPT,
+  buildUserPrompt,
+  type AiSummaryInput,
+} from "./prompt";
 import { getFallbackSummary } from "./fallback";
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
@@ -75,26 +79,23 @@ export async function generateSummary(
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
   try {
-    const response = await fetch(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: OPENAI_MODEL,
-          messages: [
-            { role: "system", content: AI_SYSTEM_PROMPT },
-            { role: "user", content: buildUserPrompt(input) },
-          ],
-          temperature: 0.6,
-          max_completion_tokens: 400,
-        }),
-        signal: controller.signal,
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
       },
-    );
+      body: JSON.stringify({
+        model: OPENAI_MODEL,
+        messages: [
+          { role: "system", content: AI_SYSTEM_PROMPT },
+          { role: "user", content: buildUserPrompt(input) },
+        ],
+        temperature: 0.6,
+        max_completion_tokens: 400,
+      }),
+      signal: controller.signal,
+    });
 
     if (!response.ok) {
       const body = await response.text();
@@ -102,7 +103,8 @@ export async function generateSummary(
     }
 
     const data = await response.json();
-    const text: string | undefined = data.choices?.[0]?.message?.content?.trim();
+    const text: string | undefined =
+      data.choices?.[0]?.message?.content?.trim();
 
     if (!text) {
       throw new Error("OpenAI response contained no text.");

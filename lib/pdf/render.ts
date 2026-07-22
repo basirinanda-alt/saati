@@ -13,7 +13,9 @@ import { chromium, type Browser } from "playwright";
  * bundle small — tracked as a deployment follow-up, not solved here.
  */
 
-const globalForBrowser = globalThis as unknown as { browser: Browser | undefined };
+const globalForBrowser = globalThis as unknown as {
+  browser: Browser | undefined;
+};
 
 async function getBrowser(): Promise<Browser> {
   if (!globalForBrowser.browser) {

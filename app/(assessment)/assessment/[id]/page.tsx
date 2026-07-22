@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
 import { getReportData } from "@/lib/report/getReportData";
 import { ScoreCard } from "@/components/report/ScoreCard";
@@ -15,6 +16,13 @@ import { EmailResultsForm } from "@/components/report/EmailResultsForm";
 interface ResultsPageProps {
   params: Promise<{ id: string }>;
 }
+
+// Contains a student's own wellbeing data — must never be discoverable
+// via search. See docs/08-seo.md, "Canonical URLs" (Privacy by Design,
+// Principle 8, not just an SEO hygiene rule).
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 function formatCheckInDate(date: Date): string {
   return new Intl.DateTimeFormat("en", {
@@ -63,7 +71,10 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
       <PermaProfile
         scores={[
           ...report.perma,
-          { domain: "overall", percentageScore: report.permaOverallPercentageScore },
+          {
+            domain: "overall",
+            percentageScore: report.permaOverallPercentageScore,
+          },
         ]}
       />
 
@@ -107,27 +118,26 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             percentageScore: report.who5.percentageScore,
             type: "validated",
           },
-          ...report.perma.map(
-            (domain): RadarAxis => ({
-              key: domain.domain,
-              label: domain.label,
-              percentageScore: domain.percentageScore,
-              type: "validated",
-            }),
-          ),
-          ...report.insights.map(
-            (insight): RadarAxis => ({
-              key: insight.module,
-              label: insight.label,
-              percentageScore: insight.percentageScore,
-              type: "insight",
-            }),
-          ),
+          ...report.perma.map((domain): RadarAxis => ({
+            key: domain.domain,
+            label: domain.label,
+            percentageScore: domain.percentageScore,
+            type: "validated",
+          })),
+          ...report.insights.map((insight): RadarAxis => ({
+            key: insight.module,
+            label: insight.label,
+            percentageScore: insight.percentageScore,
+            type: "insight",
+          })),
         ]}
         comparison={comparison}
       />
 
-      <AiSummaryCard summary={report.aiSummary} source={report.aiSummarySource} />
+      <AiSummaryCard
+        summary={report.aiSummary}
+        source={report.aiSummarySource}
+      />
 
       {report.belowThreshold && <SupportResources />}
 

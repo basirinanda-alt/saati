@@ -44,12 +44,18 @@ export async function sendResultsEmail(
 
     if (error) {
       console.error("Resend returned an error:", error);
-      return { success: false, error: "Something went wrong sending your email." };
+      return {
+        success: false,
+        error: "Something went wrong sending your email.",
+      };
     }
 
     return { success: true };
   } catch (error) {
     console.error("Failed to send results email:", error);
-    return { success: false, error: "Something went wrong sending your email." };
+    return {
+      success: false,
+      error: "Something went wrong sending your email.",
+    };
   }
 }

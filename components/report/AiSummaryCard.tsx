@@ -41,8 +41,8 @@ export function AiSummaryCard({ summary, source }: AiSummaryCardProps) {
         {source === "fallback"
           ? "This summary is a pre-written reflection (our AI writer was unavailable when your report was generated). "
           : "This summary was written by an AI model from your scores above. "}
-        It&rsquo;s a wellbeing reflection, not medical advice or a
-        professional opinion.
+        It&rsquo;s a wellbeing reflection, not medical advice or a professional
+        opinion.
       </p>
     </section>
   );

@@ -151,8 +151,7 @@ export async function getReportData(
       insights: INSIGHT_MODULES.map((module) => ({
         module,
         percentageScore:
-          insightScores.find((s) => s.module === module)?.percentageScore ??
-          0,
+          insightScores.find((s) => s.module === module)?.percentageScore ?? 0,
       })),
       isFirstAssessment,
     };
