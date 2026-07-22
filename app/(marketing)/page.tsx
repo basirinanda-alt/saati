@@ -21,7 +21,8 @@ export default function HomePage() {
         </Link>
       </div>
       <p className="mt-4 text-sm text-neutral-500">
-        Takes about 2 minutes. WHO-5 Wellbeing Index.
+        Takes about 6&ndash;8 minutes. WHO-5 Wellbeing Index &amp;
+        PERMA-Profiler.
       </p>
     </main>
   );

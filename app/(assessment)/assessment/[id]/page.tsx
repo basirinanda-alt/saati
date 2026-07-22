@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { prisma } from "@/lib/db/client";
 import { WHO5_INSTRUMENT, describeWho5Score } from "@/lib/scoring/who5";
+import { PERMA_INSTRUMENT } from "@/lib/scoring/perma";
 import { ScoreSummary } from "@/components/report/ScoreSummary";
+import { PermaProfile } from "@/components/report/PermaProfile";
 import { SupportResources } from "@/components/report/SupportResources";
 
 interface ResultsPageProps {
@@ -16,16 +18,17 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
 
   const session = await prisma.assessmentSession.findUnique({
     where: { id },
-    include: {
-      validatedScores: {
-        where: { instrument: WHO5_INSTRUMENT },
-      },
-    },
+    include: { validatedScores: true },
   });
 
-  const who5Score = session?.validatedScores[0];
+  const who5Score = session?.validatedScores.find(
+    (s) => s.instrument === WHO5_INSTRUMENT,
+  );
+  const permaScores = session?.validatedScores.filter(
+    (s) => s.instrument === PERMA_INSTRUMENT,
+  );
 
-  if (!session || !who5Score) {
+  if (!session || !who5Score || !permaScores?.length) {
     notFound();
   }
 
@@ -36,6 +39,8 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
         percentageScore={who5Score.percentageScore}
         description={describeWho5Score(who5Score.percentageScore)}
       />
+
+      <PermaProfile scores={permaScores} />
 
       {who5Score.percentageScore < 50 && <SupportResources />}
 

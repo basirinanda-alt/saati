@@ -10,6 +10,15 @@ import {
   WHO5_SCORING_ALGORITHM_VERSION,
   calculateWho5Score,
 } from "@/lib/scoring/who5";
+import {
+  PERMA_INSTRUMENT,
+  PERMA_QUESTION_SET_VERSION,
+  PERMA_QUESTIONS,
+  PERMA_SCALE_MAX,
+  PERMA_SCALE_MIN,
+  PERMA_SCORING_ALGORITHM_VERSION,
+  calculatePermaScores,
+} from "@/lib/scoring/perma";
 
 // Every API response uses one envelope shape — see docs/03-system-architecture.md, 6.5.
 type ApiSuccess<T> = { success: true; data: T };
@@ -30,10 +39,19 @@ function fail(
   );
 }
 
+const permaItemSchema = z.number().int().min(PERMA_SCALE_MIN).max(PERMA_SCALE_MAX);
+
 const requestSchema = z.object({
-  responses: z
+  who5: z
     .array(z.number().int().min(WHO5_SCALE_MIN).max(WHO5_SCALE_MAX))
     .length(WHO5_QUESTIONS.length),
+  perma: z
+    .object(
+      Object.fromEntries(
+        PERMA_QUESTIONS.map((q) => [q.key, permaItemSchema]),
+      ),
+    )
+    .strict(),
 });
 
 export async function POST(request: Request) {
@@ -58,15 +76,18 @@ export async function POST(request: Request) {
     );
   }
 
-  const { responses } = parsed.data;
+  const { who5, perma } = parsed.data;
 
-  let score;
+  let who5Score;
+  let permaScores;
   try {
-    score = calculateWho5Score(responses);
+    // calculateWho5Score/calculatePermaScores's own guards should be
+    // unreachable once Zod has validated shape and range, but we never
+    // trust two layers to silently agree — see
+    // docs/03-system-architecture.md's validation-at-the-boundary rule.
+    who5Score = calculateWho5Score(who5);
+    permaScores = calculatePermaScores(perma);
   } catch (error) {
-    // calculateWho5Score's own guards should be unreachable once Zod has
-    // validated shape and range, but we never trust two layers to silently
-    // agree — see docs/03-system-architecture.md's validation-at-the-boundary rule.
     return fail(
       400,
       "VALIDATION_ERROR",
@@ -78,22 +99,39 @@ export async function POST(request: Request) {
   try {
     const session = await prisma.assessmentSession.create({
       data: {
-        questionSetVersion: WHO5_QUESTION_SET_VERSION,
+        questionSetVersion: `who5:${WHO5_QUESTION_SET_VERSION},perma:${PERMA_QUESTION_SET_VERSION}`,
         completedAt: new Date(),
         responses: {
-          create: WHO5_QUESTIONS.map((question, index) => ({
-            instrument: WHO5_INSTRUMENT,
-            questionKey: question.key,
-            value: responses[index],
-          })),
+          create: [
+            ...WHO5_QUESTIONS.map((question, index) => ({
+              instrument: WHO5_INSTRUMENT,
+              questionKey: question.key,
+              value: who5[index],
+            })),
+            ...PERMA_QUESTIONS.map((question) => ({
+              instrument: PERMA_INSTRUMENT,
+              questionKey: question.key,
+              value: perma[question.key],
+            })),
+          ],
         },
         validatedScores: {
-          create: {
-            instrument: WHO5_INSTRUMENT,
-            scoringAlgorithmVersion: WHO5_SCORING_ALGORITHM_VERSION,
-            rawScore: score.rawScore,
-            percentageScore: score.percentageScore,
-          },
+          create: [
+            {
+              instrument: WHO5_INSTRUMENT,
+              domain: "total",
+              scoringAlgorithmVersion: WHO5_SCORING_ALGORITHM_VERSION,
+              rawScore: who5Score.rawScore,
+              percentageScore: who5Score.percentageScore,
+            },
+            ...permaScores.map((score) => ({
+              instrument: PERMA_INSTRUMENT,
+              domain: score.domain,
+              scoringAlgorithmVersion: PERMA_SCORING_ALGORITHM_VERSION,
+              rawScore: score.rawScore,
+              percentageScore: score.percentageScore,
+            })),
+          ],
         },
       },
       select: { id: true },

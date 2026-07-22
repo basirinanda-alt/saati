@@ -59,10 +59,16 @@ model QuestionResponse {
   @@map("question_responses")
 }
 
-/// A computed score for a *validated* instrument (WHO-5, and PERMA later).
-/// Deliberately a separate model from any future "insight score" model so
-/// validated and proprietary scores can never be blended in one table —
-/// this is a non-negotiable rule in docs/02-engineering-constitution.md.
+/// A computed score for a *validated* instrument (WHO-5, PERMA). Deliberately
+/// a separate model from any future "insight score" model so validated and
+/// proprietary scores can never be blended in one table — this is a
+/// non-negotiable rule in docs/02-engineering-constitution.md.
+///
+/// Some instruments produce one score (WHO-5); others produce several
+/// sub-scores from the same questionnaire (PERMA: five domains plus
+/// supplementary Negative Emotion, Health, Loneliness, Happiness scores —
+/// see docs/05-assessment-engine.md). `domain` distinguishes these; WHO-5
+/// uses the sentinel value "total".
 model ValidatedScore {
   id        String @id @default(cuid())
   sessionId String
@@ -71,20 +77,29 @@ model ValidatedScore {
 
   instrument String
 
+  /// "total" for single-score instruments (WHO-5); a domain key ("P", "E",
+  /// "R", "M", "A", "N", "H", "Lon", "hap", "overall") for PERMA.
+  domain String
+
   /// Which version of the scoring algorithm produced this result. If the
   /// formula changes later, old rows keep the version that was actually
   /// used to compute them.
   scoringAlgorithmVersion String @default("v1")
 
-  /// Sum of raw Likert values (0-25 for WHO-5).
-  rawScore Int
+  /// Score in the instrument's own native scale (WHO-5: 0-25 raw sum;
+  /// PERMA domain: 0-10 item mean).
+  rawScore Float
 
-  /// Score converted to a 0-100 scale for display and comparison.
-  percentageScore Int
+  /// Score normalized to a common 0-100 scale, so instruments with
+  /// different native scales can be displayed and compared consistently
+  /// (e.g. on the radar chart in a later milestone). Never implies the
+  /// underlying measurements carry equivalent scientific weight — see
+  /// docs/05-assessment-engine.md §9.4.
+  percentageScore Float
 
   createdAt DateTime @default(now())
 
-  @@unique([sessionId, instrument])
+  @@unique([sessionId, instrument, domain])
   @@index([sessionId])
   @@map("validated_scores")
 }
