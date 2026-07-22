@@ -15,18 +15,27 @@ datasource db {
 }
 
 /// One attempt at the assessment, from start to (optionally) completion.
-/// A session is identified by an anonymous token until account support
-/// is added — see docs/04-database.md, "Anonymous vs account-linked".
+/// A session is identified by an anonymous browser token AND a required
+/// email (collected before results are shown — a deliberate product
+/// decision made 2026-07-22, moving away from the anonymous-only design
+/// of Milestones 1-7; see PROJECT_STATUS.md for the trade-off record).
 model AssessmentSession {
   id String @id @default(cuid())
 
   /// Shared by every assessment taken from the same browser (set via a
   /// long-lived cookie — see lib/visitor.ts), so a student's history can
-  /// be found again without an account. Deliberately NOT unique — unlike
-  /// Milestones 1-6, many sessions now share one token. Lost if cookies
-  /// are cleared or a different device/browser is used; a real account
-  /// system (docs/09-security.md) would remove that limitation.
+  /// be found again without a full account. Deliberately NOT unique —
+  /// many sessions share one token. Lost if cookies are cleared or a
+  /// different device/browser is used.
   anonymousToken String @default(cuid())
+
+  /// Required, collected right before results are shown (see the
+  /// assessment flow's email step) and used to auto-send the finished
+  /// report once generated — see getReportData and lib/email/send.ts.
+  /// This is real, retained personal data tied to sensitive wellbeing
+  /// answers; a retention/deletion policy is a documented pre-launch
+  /// blocker in PROJECT_STATUS.md, not yet implemented.
+  email String
 
   /// Which version of the question set was shown. Lets us change questions
   /// later without invalidating the meaning of past scores.
@@ -46,11 +55,16 @@ model AssessmentSession {
   /// instead. Null until a summary has been generated at least once.
   aiSummarySource String?
 
+  /// Set once the results email has actually been sent, so getReportData
+  /// never re-sends it on subsequent views of the same report.
+  emailSentAt DateTime?
+
   responses       QuestionResponse[]
   validatedScores ValidatedScore[]
   insightScores   InsightScore[]
 
   @@index([anonymousToken, createdAt])
+  @@index([email])
   @@map("assessment_sessions")
 }
 

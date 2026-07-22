@@ -75,6 +75,10 @@ const requestSchema = z.object({
       ),
     )
     .strict(),
+  // Required — collecting email before showing results is a deliberate
+  // product decision (2026-07-22) that trades away the anonymous-only
+  // design of Milestones 1-7. See PROJECT_STATUS.md.
+  email: z.string().email(),
 });
 
 export async function POST(request: Request) {
@@ -99,7 +103,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const { who5, perma, insights } = parsed.data;
+  const { who5, perma, insights, email } = parsed.data;
 
   let who5Score;
   let permaScores;
@@ -127,6 +131,7 @@ export async function POST(request: Request) {
     const session = await prisma.assessmentSession.create({
       data: {
         anonymousToken,
+        email,
         questionSetVersion: `who5:${WHO5_QUESTION_SET_VERSION},perma:${PERMA_QUESTION_SET_VERSION},insights:${INSIGHT_QUESTION_SET_VERSION}`,
         completedAt: new Date(),
         responses: {

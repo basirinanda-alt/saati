@@ -9,6 +9,8 @@ import {
 } from "@/lib/scoring/insights";
 import { generateSummary } from "@/lib/ai/client";
 import type { AiSummaryInput } from "@/lib/ai/prompt";
+import { sendResultsEmail } from "@/lib/email/send";
+import { SITE_URL } from "@/lib/seo/site";
 
 export const PERMA_CORE_DOMAIN_ORDER = ["P", "E", "R", "M", "A"] as const;
 export const PERMA_CORE_DOMAIN_LABELS: Record<string, string> = {
@@ -91,8 +93,13 @@ async function findPreviousSession(
  * docs/05-assessment-engine.md §9.6: "PDF export and email delivery reuse
  * the same assembled report object used for the on-screen result."
  *
- * Generates and caches the AI summary on first call for a given session,
- * exactly as before — see docs/06-ai.md.
+ * Generates and caches the AI summary on first call for a given session
+ * (docs/06-ai.md), and auto-sends the results email exactly once, to the
+ * required email collected at submission time (see the assessment flow's
+ * email step and PROJECT_STATUS.md for that product decision). Neither
+ * side effect ever blocks or fails the on-screen report: a failed email
+ * send is logged, not thrown — see docs/03-system-architecture.md, "the
+ * on-screen result must never depend on a third-party service succeeding."
  *
  * Returns null if the session doesn't exist or isn't complete (e.g. all
  * expected instrument scores aren't present yet).
@@ -168,7 +175,7 @@ export async function getReportData(
 
   const permaOverall = permaScores.find((s) => s.domain === "overall");
 
-  return {
+  const report: ReportData = {
     sessionId: session.id,
     who5: {
       percentageScore: who5Score.percentageScore,
@@ -197,6 +204,27 @@ export async function getReportData(
     isFirstAssessment,
     previous,
   };
+
+  if (!session.emailSentAt) {
+    const resultsUrl = `${SITE_URL}/assessment/${session.id}`;
+    const result = await sendResultsEmail(session.email, report, resultsUrl);
+    if (!result.success) {
+      console.error(
+        `Failed to auto-send results email for session ${session.id}:`,
+        result.error,
+      );
+    }
+    // Marked sent regardless of outcome — this is a best-effort, one-time
+    // send, not a retry queue (that's background-job territory, which
+    // this project doesn't have — see docs/03-system-architecture.md).
+    // The student can still request a resend via the on-page email form.
+    await prisma.assessmentSession.update({
+      where: { id: session.id },
+      data: { emailSentAt: new Date() },
+    });
+  }
+
+  return report;
 }
 
 export interface VisitorHistoryEntry {

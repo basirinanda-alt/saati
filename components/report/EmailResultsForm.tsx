@@ -8,11 +8,12 @@ interface EmailResultsFormProps {
 }
 
 /**
- * Lets a student opt in to receiving their results by email. The address
- * is only ever used for this one send (see app/api/assessments/[id]/email
- * and lib/email/send.ts) — it is never stored, per Principle 8 (Privacy
- * by Default): collecting and persisting an email address isn't necessary
- * to deliver this feature, so it isn't collected beyond the single request.
+ * Sends an EXTRA copy of the results to any address the student types
+ * here — distinct from the required email collected before results were
+ * shown, which is already stored with the session and already received
+ * an automatic copy (see getReportData). This form's address is used for
+ * exactly this one send and is not itself stored (see
+ * app/api/assessments/[id]/email and lib/email/send.ts).
  */
 export function EmailResultsForm({ sessionId }: EmailResultsFormProps) {
   const inputId = useId();
@@ -62,7 +63,7 @@ export function EmailResultsForm({ sessionId }: EmailResultsFormProps) {
         htmlFor={inputId}
         className="text-sm font-medium text-neutral-700 dark:text-neutral-300"
       >
-        Email me a copy of my results
+        Send an extra copy to another email
       </label>
       <div className="flex gap-2">
         <input
@@ -88,7 +89,8 @@ export function EmailResultsForm({ sessionId }: EmailResultsFormProps) {
         </p>
       )}
       <p className="text-xs text-neutral-500 dark:text-neutral-500">
-        We only use this to send your results once — it isn&rsquo;t stored.
+        This address is just used to send one more copy — it isn&rsquo;t
+        saved. (Your original email already received a copy automatically.)
       </p>
     </form>
   );
