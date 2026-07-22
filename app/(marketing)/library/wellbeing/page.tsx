@@ -3,6 +3,8 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd } from "@/lib/seo/jsonld";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { CitationList } from "@/components/marketing/CitationList";
+import { DirectAnswer } from "@/components/marketing/DirectAnswer";
+import { FaqSection } from "@/components/marketing/FaqSection";
 import { RelatedTopics } from "@/components/marketing/RelatedTopics";
 import { TopicCta } from "@/components/marketing/TopicCta";
 
@@ -40,6 +42,13 @@ export default function WellbeingTopicPage() {
         <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
           What the WHO-5 measures
         </h1>
+
+        <DirectAnswer>
+          The WHO-5 Well-Being Index is a five-item World Health Organization
+          questionnaire measuring general wellbeing over the past two weeks.
+          It is a general wellbeing signal, not a diagnosis of depression or
+          any other condition.
+        </DirectAnswer>
 
         <p className="mt-6 max-w-prose text-lg text-neutral-700 dark:text-neutral-300">
           The WHO-5 Well-Being Index is a short, five-item questionnaire
@@ -131,6 +140,31 @@ export default function WellbeingTopicPage() {
           full assessment alongside the other measures that make up your
           complete picture.
         </p>
+
+        <FaqSection
+          items={[
+            {
+              question: "What is the WHO-5?",
+              answer:
+                "A five-item questionnaire developed by the World Health Organization that measures general wellbeing — positive mood, vitality, and interest in daily life — over the preceding two weeks.",
+            },
+            {
+              question: "Does a low WHO-5 score mean I have depression?",
+              answer:
+                "No. A low score is a general wellbeing signal, not a diagnosis of depression or any other condition. Where it's used clinically, a trained professional interprets it alongside other information.",
+            },
+            {
+              question: "How is the WHO-5 scored?",
+              answer:
+                "Each of the five items is rated 0–5, the raw scores are summed to a total between 0 and 25, and that total is converted to a 0–100 percentage score by multiplying by four — the WHO's official formula.",
+            },
+            {
+              question: "Is the WHO-5 used in clinical practice?",
+              answer:
+                "In some settings, yes — but as a quick screening flag, not a standalone diagnostic tool, and always interpreted by a professional rather than the score in isolation.",
+            },
+          ]}
+        />
 
         <TopicCta />
 

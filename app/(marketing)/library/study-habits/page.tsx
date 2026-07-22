@@ -3,6 +3,8 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd } from "@/lib/seo/jsonld";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { CitationList } from "@/components/marketing/CitationList";
+import { DirectAnswer } from "@/components/marketing/DirectAnswer";
+import { FaqSection } from "@/components/marketing/FaqSection";
 import { RelatedTopics } from "@/components/marketing/RelatedTopics";
 import { TopicCta } from "@/components/marketing/TopicCta";
 
@@ -40,6 +42,12 @@ export default function StudyHabitsTopicPage() {
         <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
           Understanding Effective Study Habits
         </h1>
+
+        <DirectAnswer>
+          Practice testing and spaced (distributed) practice consistently
+          outperform re-reading and cramming for long-term retention,
+          according to research comparing common study techniques.
+        </DirectAnswer>
 
         <p className="mt-6 max-w-prose text-lg text-neutral-700 dark:text-neutral-300">
           Most students spend a lot of time studying without ever stopping to
@@ -153,6 +161,31 @@ export default function StudyHabitsTopicPage() {
           assessment is where study habits, wellbeing, and a few other areas
           come together into one honest picture.
         </p>
+
+        <FaqSection
+          items={[
+            {
+              question: "What's the most effective way to study?",
+              answer:
+                "Research consistently favors practice testing (quizzing yourself) and spaced, distributed practice over passively re-reading notes or a textbook.",
+            },
+            {
+              question: "Is highlighting an effective study technique?",
+              answer:
+                "Generally not on its own — it's a passive technique that research finds less effective for retention than active recall or spaced practice.",
+            },
+            {
+              question: "Does cramming work?",
+              answer:
+                "Last-minute cramming is common, but is generally associated with weaker long-term retention and higher reported stress than planned, spaced-out studying.",
+            },
+            {
+              question: "What does Saati's Study Habits Insight measure?",
+              answer:
+                "A short, Saati-authored reflection tool on your own study patterns, informed by learning-science research — it is not one of the validated instruments (WHO-5, PERMA) and is never presented as one.",
+            },
+          ]}
+        />
 
         <TopicCta />
 

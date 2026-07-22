@@ -3,6 +3,8 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd } from "@/lib/seo/jsonld";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { CitationList } from "@/components/marketing/CitationList";
+import { DirectAnswer } from "@/components/marketing/DirectAnswer";
+import { FaqSection } from "@/components/marketing/FaqSection";
 import { RelatedTopics } from "@/components/marketing/RelatedTopics";
 import { TopicCta } from "@/components/marketing/TopicCta";
 
@@ -40,6 +42,12 @@ export default function FocusTopicPage() {
         <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
           Understanding Focus and Concentration
         </h1>
+
+        <DirectAnswer>
+          Focus naturally fluctuates with fatigue, stress, sleep, and your
+          environment. Frequent task-switching and nearby phone notifications
+          both carry a well-documented cost to sustained concentration.
+        </DirectAnswer>
 
         <p className="mt-6 max-w-prose text-lg text-neutral-700 dark:text-neutral-300">
           Struggling to concentrate is one of the most common things students
@@ -153,6 +161,31 @@ export default function FocusTopicPage() {
           full assessment is where focus, wellbeing, and a few other areas come
           together into one honest picture.
         </p>
+
+        <FaqSection
+          items={[
+            {
+              question: "Why is it hard to focus while studying?",
+              answer:
+                "Sustained attention is generally understood as a limited resource that dips with fatigue, stress, and poor sleep, and is further disrupted by frequent task-switching and nearby notifications.",
+            },
+            {
+              question: "Does multitasking hurt focus?",
+              answer:
+                "Yes — frequent task-switching, like moving between studying and phone notifications, carries a well-documented cost to attention and productivity compared with focused, single-tasked work.",
+            },
+            {
+              question: "What is Saati's Focus Insight?",
+              answer:
+                "A short, Saati-authored set of questions about your concentration and study environment, informed by general attention research — it is not the WHO-5 or PERMA, and is never presented as a validated instrument.",
+            },
+            {
+              question: "Can taking breaks improve concentration?",
+              answer:
+                "Short, structured breaks during longer study sessions are generally considered a reasonable, low-risk way to help sustain attention, rather than pushing through in one long unbroken block.",
+            },
+          ]}
+        />
 
         <TopicCta />
 

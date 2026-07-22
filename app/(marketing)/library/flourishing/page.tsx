@@ -3,6 +3,8 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd } from "@/lib/seo/jsonld";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { CitationList } from "@/components/marketing/CitationList";
+import { DirectAnswer } from "@/components/marketing/DirectAnswer";
+import { FaqSection } from "@/components/marketing/FaqSection";
 import { RelatedTopics } from "@/components/marketing/RelatedTopics";
 import { TopicCta } from "@/components/marketing/TopicCta";
 
@@ -40,6 +42,13 @@ export default function FlourishingTopicPage() {
         <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
           What PERMA measures
         </h1>
+
+        <DirectAnswer>
+          PERMA is a model of wellbeing covering five domains — Positive
+          Emotion, Engagement, Relationships, Meaning, and Accomplishment —
+          measured by the PERMA-Profiler (Butler &amp; Kern, 2016) and
+          reported separately rather than as one composite score.
+        </DirectAnswer>
 
         <p className="mt-6 max-w-prose text-lg text-neutral-700 dark:text-neutral-300">
           PERMA is a model of wellbeing developed by psychologist Martin
@@ -148,6 +157,31 @@ export default function FlourishingTopicPage() {
           assessment is where all five PERMA domains, alongside WHO-5 wellbeing
           and a few other areas, come together into one honest picture.
         </p>
+
+        <FaqSection
+          items={[
+            {
+              question: "What does PERMA stand for?",
+              answer:
+                "Positive Emotion, Engagement, Relationships, Meaning, and Accomplishment — five domains of wellbeing measured separately rather than collapsed into one score.",
+            },
+            {
+              question: "Who created the PERMA model?",
+              answer:
+                "Psychologist Martin Seligman developed the PERMA model of flourishing; the PERMA-Profiler questionnaire used to measure it was developed by Butler & Kern (2016).",
+            },
+            {
+              question: "Does Saati combine the five PERMA domains into one score?",
+              answer:
+                "By default, no. Each domain is reported separately, consistent with how the instrument's authors designed it to be interpreted, and always labelled Validated Measure.",
+            },
+            {
+              question: "Is PERMA a clinical or diagnostic assessment?",
+              answer:
+                "No. PERMA is a wellbeing research instrument, not a diagnostic, clinical, or crisis-intervention tool.",
+            },
+          ]}
+        />
 
         <TopicCta />
 

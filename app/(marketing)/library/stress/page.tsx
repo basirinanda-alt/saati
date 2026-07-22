@@ -3,6 +3,8 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd } from "@/lib/seo/jsonld";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { CitationList } from "@/components/marketing/CitationList";
+import { DirectAnswer } from "@/components/marketing/DirectAnswer";
+import { FaqSection } from "@/components/marketing/FaqSection";
 import { RelatedTopics } from "@/components/marketing/RelatedTopics";
 import { TopicCta } from "@/components/marketing/TopicCta";
 
@@ -40,6 +42,12 @@ export default function StressTopicPage() {
         <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
           Understanding Student Stress
         </h1>
+
+        <DirectAnswer>
+          Stress is a normal response to demanding situations, not a sign
+          something is wrong. It becomes worth paying closer attention to when
+          it turns chronic or starts affecting sleep, mood, or concentration.
+        </DirectAnswer>
 
         <p className="mt-6 max-w-prose text-lg text-neutral-700 dark:text-neutral-300">
           Stress is one of the most universal experiences of student life — and
@@ -153,6 +161,31 @@ export default function StressTopicPage() {
           assessment is where stress, wellbeing, and a few other areas come
           together into one honest picture.
         </p>
+
+        <FaqSection
+          items={[
+            {
+              question: "Is feeling stressed as a student normal?",
+              answer:
+                "Yes. Stress is a normal, universal response to demanding situations — on its own, it is not a sign that something is wrong.",
+            },
+            {
+              question: "What causes student stress?",
+              answer:
+                "Research and resources from the American Psychological Association point to a common combination: academic workload, financial pressure, social and relationship demands, and uncertainty about the future.",
+            },
+            {
+              question: "Does Saati diagnose stress or anxiety?",
+              answer:
+                "No. Saati's Stress Insight is a proprietary, Saati-authored reflection tool informed by general research — it is not a clinical or diagnostic instrument.",
+            },
+            {
+              question: "When should stress be taken more seriously?",
+              answer:
+                "When it becomes chronic or unmanaged rather than passing — that's generally the point where research shows it starts affecting sleep, mood, and concentration.",
+            },
+          ]}
+        />
 
         <TopicCta />
 

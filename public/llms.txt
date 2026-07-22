@@ -1,0 +1,32 @@
+# Saati
+
+> Saati is a free, evidence-informed student wellbeing check-in. It is not a medical service, therapy platform, diagnostic tool, or crisis intervention service.
+
+Saati combines the WHO-5 Wellbeing Index and the PERMA-Profiler — both
+published, validated research instruments, reproduced with their official
+wording and scoring, unaltered — with Saati Insights: short, in-house,
+non-validated reflection questions on sleep, study habits, focus, and
+stress. Every result in a Saati report is labelled as one or the other and
+the two are never blended into a single unlabeled score. Saati never uses
+diagnostic, clinical, or medical language, and a low score is never framed
+as a diagnosis.
+
+## Assessment
+
+- [Take the assessment](/assessment): the free check-in itself — WHO-5, PERMA-Profiler, and Saati Insights, roughly 10-12 minutes.
+- [Your progress over time](/progress): a returning visitor's check-in history, recognized by browser cookie, no account required.
+
+## Wellbeing Library
+
+- [Library home](/library): index of all topic explainers below.
+- [Understanding the WHO-5 Wellbeing Index](/library/wellbeing): what the WHO-5 measures, its official scoring, and what a low score does and doesn't mean.
+- [What PERMA Measures](/library/flourishing): the five PERMA domains (Positive Emotion, Engagement, Relationships, Meaning, Accomplishment) and the PERMA-Profiler instrument.
+- [Understanding Sleep and Student Wellbeing](/library/sleep): sleep duration and consistency research, and Saati's Sleep Insight.
+- [Understanding Student Stress](/library/stress): why student stress happens and when it's worth paying closer attention to.
+- [Understanding Focus and Concentration](/library/focus): attention research and Saati's Focus Insight.
+- [Understanding Effective Study Habits](/library/study-habits): learning-science research on practice testing, spaced practice, and cramming.
+
+## Methodology
+
+- [Our Methodology](/methodology): how Saati distinguishes Validated Measures from Saati Insights, the sources for each, and how the AI-generated summary is produced and constrained.
+- [Privacy Policy](/privacy): what Saati collects, why, who it's shared with, and how to request deletion.

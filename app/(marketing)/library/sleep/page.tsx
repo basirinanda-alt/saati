@@ -3,6 +3,8 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd } from "@/lib/seo/jsonld";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { CitationList } from "@/components/marketing/CitationList";
+import { DirectAnswer } from "@/components/marketing/DirectAnswer";
+import { FaqSection } from "@/components/marketing/FaqSection";
 import { RelatedTopics } from "@/components/marketing/RelatedTopics";
 import { TopicCta } from "@/components/marketing/TopicCta";
 
@@ -40,6 +42,13 @@ export default function SleepTopicPage() {
         <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
           Understanding Sleep and Student Wellbeing
         </h1>
+
+        <DirectAnswer>
+          Most young adults need roughly 7&ndash;9 hours of sleep a night to
+          function well, and consistent sleep and wake times matter almost as
+          much as total hours. Sleep quality is closely linked to mood,
+          stress, and concentration in university students.
+        </DirectAnswer>
 
         <p className="mt-6 max-w-prose text-lg text-neutral-700 dark:text-neutral-300">
           Sleep is one of the most consistently studied factors in student
@@ -141,6 +150,32 @@ export default function SleepTopicPage() {
           assessment is where sleep, wellbeing, and a few other areas come
           together into one honest picture.
         </p>
+
+        <FaqSection
+          items={[
+            {
+              question: "How much sleep do students need?",
+              answer:
+                "Most young adults need roughly 7–9 hours of sleep per night to function well, according to National Sleep Foundation guidance — though a consistent bedtime and wake time matter almost as much as the total hours.",
+            },
+            {
+              question: "Does Saati's Sleep Insight diagnose sleep disorders?",
+              answer:
+                "No. The Sleep Insight is a short, Saati-authored reflection tool informed by general sleep research — it is not a validated clinical instrument and is never presented as one.",
+            },
+            {
+              question:
+                "What's the difference between the WHO-5 and Saati's Sleep Insight?",
+              answer:
+                "The WHO-5 is a validated research instrument used with its official wording and scoring. The Sleep Insight is Saati's own in-house set of reflection questions. Your report always labels the two separately and never blends them.",
+            },
+            {
+              question: "Can poor sleep affect mood and focus?",
+              answer:
+                "Yes — sleep quality is strongly associated with stress, mood, and the ability to concentrate in research on university students, though the relationship runs in both directions.",
+            },
+          ]}
+        />
 
         <TopicCta />
 

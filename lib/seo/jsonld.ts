@@ -78,3 +78,26 @@ export function breadcrumbJsonLd(items: BreadcrumbItem[]) {
     })),
   };
 }
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+/** Schema must mirror the page's own visible FAQ text exactly — see
+ * components/marketing/FaqSection.tsx, which renders both together so
+ * they can't drift apart. */
+export function faqPageJsonLd(items: FaqItem[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  };
+}

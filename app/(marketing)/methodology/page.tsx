@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Breadcrumbs } from "@/components/marketing/Breadcrumbs";
 import { CitationList } from "@/components/marketing/CitationList";
+import { DirectAnswer } from "@/components/marketing/DirectAnswer";
+import { FaqSection } from "@/components/marketing/FaqSection";
 import { TopicCta } from "@/components/marketing/TopicCta";
 
 export const metadata: Metadata = {
@@ -24,6 +26,14 @@ export default function MethodologyPage() {
         <h1 className="text-3xl font-semibold text-neutral-900 dark:text-neutral-100">
           Our Methodology
         </h1>
+
+        <DirectAnswer>
+          Saati labels every result as either a Validated Measure (WHO-5,
+          PERMA-Profiler, used exactly as published) or a Saati Insight (our
+          own informal reflection questions) — the two are never blended into
+          a single unlabeled score.
+        </DirectAnswer>
+
         <p className="mt-4 max-w-prose text-lg text-neutral-700 dark:text-neutral-300">
           Saati is not a medical or diagnostic service. It&rsquo;s a wellbeing
           check-in built on a mix of established research instruments and our
@@ -96,6 +106,33 @@ export default function MethodologyPage() {
           distinguished in its own wording. If it&rsquo;s ever unavailable, you
           still get a complete report: your full report never depends on the AI.
         </p>
+
+        <FaqSection
+          items={[
+            {
+              question:
+                "What's the difference between a Validated Measure and a Saati Insight?",
+              answer:
+                "Validated Measures (WHO-5, PERMA-Profiler) are published, independently researched instruments used exactly as their authors wrote them, with official scoring formulas. Saati Insights are questions we designed ourselves, informed by general research but not independently validated as a scored instrument.",
+            },
+            {
+              question:
+                "Does Saati ever combine these two types of scores together?",
+              answer:
+                "No. Every result in a Saati report is labelled by type, and the two are never combined into a single unlabeled number.",
+            },
+            {
+              question: "Does the AI summary compute your scores?",
+              answer:
+                "No. Scores are always calculated deterministically first, from the official formulas; the AI only writes a narrative about scores that already exist, and your report never depends on the AI being available.",
+            },
+            {
+              question: "Is Saati a diagnostic or medical tool?",
+              answer:
+                "No. Saati is not a medical service, therapy platform, diagnostic tool, or crisis intervention service.",
+            },
+          ]}
+        />
 
         <TopicCta />
 
