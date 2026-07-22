@@ -1,0 +1,58 @@
+interface AnswerOption {
+  value: number;
+  label: string;
+}
+
+interface AnswerScaleProps {
+  name: string;
+  questionText: string;
+  options: readonly AnswerOption[];
+  value: number | null;
+  onChange: (value: number) => void;
+}
+
+/**
+ * Renders a single question as a real radio-button group. Native <input
+ * type="radio"> gives keyboard navigation and screen reader support for
+ * free — see docs/07-ui-ux.md, "accessible by construction."
+ */
+export function AnswerScale({
+  name,
+  questionText,
+  options,
+  value,
+  onChange,
+}: AnswerScaleProps) {
+  return (
+    <fieldset>
+      <legend className="mb-6 text-xl font-medium text-neutral-900 sm:text-2xl">
+        {questionText}
+      </legend>
+      <div className="flex flex-col gap-3">
+        {options.map((option) => {
+          const isSelected = value === option.value;
+          return (
+            <label
+              key={option.value}
+              className={`flex cursor-pointer items-center rounded-lg border px-4 py-3 text-base transition-colors focus-within:outline focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-teal-700 ${
+                isSelected
+                  ? "border-teal-700 bg-teal-50"
+                  : "border-neutral-300 hover:bg-neutral-50"
+              }`}
+            >
+              <input
+                type="radio"
+                name={name}
+                value={option.value}
+                checked={isSelected}
+                onChange={() => onChange(option.value)}
+                className="mr-3 h-4 w-4 accent-teal-700"
+              />
+              {option.label}
+            </label>
+          );
+        })}
+      </div>
+    </fieldset>
+  );
+}

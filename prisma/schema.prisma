@@ -1,0 +1,90 @@
+// Saati database schema — Milestone 1 scope (WHO-5 only).
+//
+// This intentionally implements a subset of the full data model described in
+// docs/04-database.md. The `instrument` and `*Version` fields exist from day
+// one so that PERMA and Saati Insights can be added later without a breaking
+// schema change, and so historical scores stay comparable if scoring logic
+// changes (see docs/04-database.md, "Versioning approach").
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// One attempt at the assessment, from start to (optionally) completion.
+/// A session is identified by an anonymous token until account support
+/// is added — see docs/04-database.md, "Anonymous vs account-linked".
+model AssessmentSession {
+  id             String   @id @default(cuid())
+  anonymousToken String   @unique @default(cuid())
+
+  /// Which version of the question set was shown. Lets us change questions
+  /// later without invalidating the meaning of past scores.
+  questionSetVersion String @default("v1")
+
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  responses       QuestionResponse[]
+  validatedScores ValidatedScore[]
+
+  @@map("assessment_sessions")
+}
+
+/// A single answer to a single question, kept separate from the computed
+/// score so raw responses and derived scores never get confused with
+/// each other (see docs/05-assessment-engine.md).
+model QuestionResponse {
+  id        String @id @default(cuid())
+  sessionId String
+
+  session AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  /// Which validated instrument this answer belongs to, e.g. "WHO5".
+  instrument String
+
+  /// Stable key for the question within its instrument, e.g. "who5_1".
+  questionKey String
+
+  /// Raw Likert value as shown to the student (0-5 for WHO-5).
+  value Int
+
+  createdAt DateTime @default(now())
+
+  @@unique([sessionId, instrument, questionKey])
+  @@index([sessionId])
+  @@map("question_responses")
+}
+
+/// A computed score for a *validated* instrument (WHO-5, and PERMA later).
+/// Deliberately a separate model from any future "insight score" model so
+/// validated and proprietary scores can never be blended in one table —
+/// this is a non-negotiable rule in docs/02-engineering-constitution.md.
+model ValidatedScore {
+  id        String @id @default(cuid())
+  sessionId String
+
+  session AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  instrument String
+
+  /// Which version of the scoring algorithm produced this result. If the
+  /// formula changes later, old rows keep the version that was actually
+  /// used to compute them.
+  scoringAlgorithmVersion String @default("v1")
+
+  /// Sum of raw Likert values (0-25 for WHO-5).
+  rawScore Int
+
+  /// Score converted to a 0-100 scale for display and comparison.
+  percentageScore Int
+
+  createdAt DateTime @default(now())
+
+  @@unique([sessionId, instrument])
+  @@index([sessionId])
+  @@map("validated_scores")
+}
