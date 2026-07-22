@@ -2,22 +2,31 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  WHO5_QUESTIONS,
-  WHO5_RESPONSE_OPTIONS,
-} from "@/lib/scoring/who5";
+import { WHO5_QUESTIONS, WHO5_RESPONSE_OPTIONS } from "@/lib/scoring/who5";
 import {
   PERMA_ANCHOR_LABELS,
   PERMA_QUESTIONS,
   type PermaAnchor,
 } from "@/lib/scoring/perma";
+import {
+  INSIGHT_QUESTIONS,
+  INSIGHT_RESPONSE_OPTIONS,
+} from "@/lib/scoring/insights";
 import { AnswerScale } from "@/components/assessment/AnswerScale";
 import { NumericScale } from "@/components/assessment/NumericScale";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/Button";
 
+type FlowInstrument = "who5" | "perma" | "insight";
+
 type FlowQuestion =
-  | { id: string; instrument: "who5"; key: string; text: string; kind: "scale6" }
+  | {
+      id: string;
+      instrument: "who5";
+      key: string;
+      text: string;
+      kind: "scale6";
+    }
   | {
       id: string;
       instrument: "perma";
@@ -25,28 +34,50 @@ type FlowQuestion =
       text: string;
       kind: "scale11";
       anchor: PermaAnchor;
+    }
+  | {
+      id: string;
+      instrument: "insight";
+      key: string;
+      text: string;
+      kind: "scale5";
     };
 
+const SECTION_LABELS: Record<FlowInstrument, string> = {
+  who5: "WHO-5 Wellbeing Index",
+  perma: "PERMA-Profiler",
+  insight: "Saati Insights",
+};
+
+const SECTION_PREFIXES: Record<FlowInstrument, string> = {
+  who5: "Over the last two weeks...",
+  perma: "In general...",
+  insight: "Thinking about your day-to-day life...",
+};
+
 const FLOW_QUESTIONS: FlowQuestion[] = [
-  ...WHO5_QUESTIONS.map(
-    (q): FlowQuestion => ({
-      id: `who5:${q.key}`,
-      instrument: "who5",
-      key: q.key,
-      text: q.text,
-      kind: "scale6",
-    }),
-  ),
-  ...PERMA_QUESTIONS.map(
-    (q): FlowQuestion => ({
-      id: `perma:${q.key}`,
-      instrument: "perma",
-      key: q.key,
-      text: q.text,
-      kind: "scale11",
-      anchor: q.anchor,
-    }),
-  ),
+  ...WHO5_QUESTIONS.map((q): FlowQuestion => ({
+    id: `who5:${q.key}`,
+    instrument: "who5",
+    key: q.key,
+    text: q.text,
+    kind: "scale6",
+  })),
+  ...PERMA_QUESTIONS.map((q): FlowQuestion => ({
+    id: `perma:${q.key}`,
+    instrument: "perma",
+    key: q.key,
+    text: q.text,
+    kind: "scale11",
+    anchor: q.anchor,
+  })),
+  ...INSIGHT_QUESTIONS.map((q): FlowQuestion => ({
+    id: `insight:${q.key}`,
+    instrument: "insight",
+    key: q.key,
+    text: q.text,
+    kind: "scale5",
+  })),
 ];
 
 export default function AssessmentPage() {
@@ -61,7 +92,6 @@ export default function AssessmentPage() {
   const currentQuestion = FLOW_QUESTIONS[currentIndex];
   const currentAnswer = answers[currentQuestion.id];
   const isLastQuestion = currentIndex === FLOW_QUESTIONS.length - 1;
-  const isWho5Section = currentQuestion.instrument === "who5";
 
   function handleAnswer(value: number) {
     setAnswers((prev) => ({ ...prev, [currentQuestion.id]: value }));
@@ -84,11 +114,12 @@ export default function AssessmentPage() {
     setErrorMessage(null);
 
     try {
-      const who5Responses = WHO5_QUESTIONS.map(
-        (q) => answers[`who5:${q.key}`],
-      );
+      const who5Responses = WHO5_QUESTIONS.map((q) => answers[`who5:${q.key}`]);
       const permaResponses = Object.fromEntries(
         PERMA_QUESTIONS.map((q) => [q.key, answers[`perma:${q.key}`]]),
+      );
+      const insightResponses = Object.fromEntries(
+        INSIGHT_QUESTIONS.map((q) => [q.key, answers[`insight:${q.key}`]]),
       );
 
       const response = await fetch("/api/assessments", {
@@ -97,6 +128,7 @@ export default function AssessmentPage() {
         body: JSON.stringify({
           who5: who5Responses,
           perma: permaResponses,
+          insights: insightResponses,
         }),
       });
       const result = await response.json();
@@ -120,15 +152,15 @@ export default function AssessmentPage() {
         <ProgressBar
           current={currentIndex + 1}
           total={FLOW_QUESTIONS.length}
-          label={isWho5Section ? "WHO-5 Wellbeing Index" : "PERMA-Profiler"}
+          label={SECTION_LABELS[currentQuestion.instrument]}
         />
       </div>
 
       <p className="mb-2 text-sm text-neutral-500 dark:text-neutral-400">
-        {isWho5Section ? "Over the last two weeks..." : "In general..."}
+        {SECTION_PREFIXES[currentQuestion.instrument]}
       </p>
 
-      {currentQuestion.kind === "scale6" ? (
+      {currentQuestion.kind === "scale6" && (
         <AnswerScale
           name={currentQuestion.id}
           questionText={currentQuestion.text}
@@ -136,12 +168,22 @@ export default function AssessmentPage() {
           value={currentAnswer}
           onChange={handleAnswer}
         />
-      ) : (
+      )}
+      {currentQuestion.kind === "scale11" && (
         <NumericScale
           name={currentQuestion.id}
           questionText={currentQuestion.text}
           minLabel={PERMA_ANCHOR_LABELS[currentQuestion.anchor].min}
           maxLabel={PERMA_ANCHOR_LABELS[currentQuestion.anchor].max}
+          value={currentAnswer}
+          onChange={handleAnswer}
+        />
+      )}
+      {currentQuestion.kind === "scale5" && (
+        <AnswerScale
+          name={currentQuestion.id}
+          questionText={currentQuestion.text}
+          options={INSIGHT_RESPONSE_OPTIONS}
           value={currentAnswer}
           onChange={handleAnswer}
         />

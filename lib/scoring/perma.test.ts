@@ -18,7 +18,10 @@ function buildResponses(
   return { ...responses, ...overrides };
 }
 
-function scoreFor(scores: ReturnType<typeof calculatePermaScores>, domain: string) {
+function scoreFor(
+  scores: ReturnType<typeof calculatePermaScores>,
+  domain: string,
+) {
   const found = scores.find((s) => s.domain === domain);
   if (!found) throw new Error(`No score computed for domain ${domain}`);
   return found;
@@ -27,7 +30,18 @@ function scoreFor(scores: ReturnType<typeof calculatePermaScores>, domain: strin
 describe("calculatePermaScores", () => {
   it("scores all-minimum answers as 0 across every domain", () => {
     const scores = calculatePermaScores(buildResponses(0));
-    for (const domain of ["P", "E", "R", "M", "A", "N", "H", "Lon", "hap", "overall"]) {
+    for (const domain of [
+      "P",
+      "E",
+      "R",
+      "M",
+      "A",
+      "N",
+      "H",
+      "Lon",
+      "hap",
+      "overall",
+    ]) {
       expect(scoreFor(scores, domain).rawScore).toBe(0);
       expect(scoreFor(scores, domain).percentageScore).toBe(0);
     }
@@ -35,7 +49,18 @@ describe("calculatePermaScores", () => {
 
   it("scores all-maximum answers as 10 raw / 100 percentage across every domain", () => {
     const scores = calculatePermaScores(buildResponses(10));
-    for (const domain of ["P", "E", "R", "M", "A", "N", "H", "Lon", "hap", "overall"]) {
+    for (const domain of [
+      "P",
+      "E",
+      "R",
+      "M",
+      "A",
+      "N",
+      "H",
+      "Lon",
+      "hap",
+      "overall",
+    ]) {
       expect(scoreFor(scores, domain).rawScore).toBe(10);
       expect(scoreFor(scores, domain).percentageScore).toBe(100);
     }

@@ -21,7 +21,8 @@ export const PERMA_CITATION =
   "Butler, J., & Kern, M. L. (2016). The PERMA-Profiler: A brief multidimensional measure of flourishing. International Journal of Wellbeing, 6(3), 1-48. doi:10.5502/ijw.v6i3.1";
 
 /** Every official response scale used by the PERMA-Profiler. */
-export type PermaAnchor = "neverAlways" | "terribleExcellent" | "notAtAllCompletely";
+export type PermaAnchor =
+  "neverAlways" | "terribleExcellent" | "notAtAllCompletely";
 
 export const PERMA_ANCHOR_LABELS: Record<
   PermaAnchor,
@@ -42,16 +43,7 @@ export const PERMA_SCALE_MAX = 10;
  * composite, never as if it were its own directly-asked question.
  */
 export type PermaDomain =
-  | "P"
-  | "E"
-  | "R"
-  | "M"
-  | "A"
-  | "N"
-  | "H"
-  | "Lon"
-  | "hap"
-  | "overall";
+  "P" | "E" | "R" | "M" | "A" | "N" | "H" | "Lon" | "hap" | "overall";
 
 export interface PermaQuestion {
   key: string;
@@ -262,7 +254,10 @@ export function calculatePermaScores(
     return values.reduce((sum, v) => sum + v, 0) / values.length;
   }
 
-  function toDomainScore(domain: PermaDomain, rawScore: number): PermaDomainScore {
+  function toDomainScore(
+    domain: PermaDomain,
+    rawScore: number,
+  ): PermaDomainScore {
     return {
       domain,
       rawScore,
@@ -294,7 +289,10 @@ export function calculatePermaScores(
  * display only — never framed as ranking domains against each other. See
  * docs/05-assessment-engine.md, "UI framing rules for PERMA results."
  */
-export function describePermaDomain(domain: PermaDomain, percentageScore: number): string {
+export function describePermaDomain(
+  domain: PermaDomain,
+  percentageScore: number,
+): string {
   const level =
     percentageScore < 50
       ? "an area with more room to grow"

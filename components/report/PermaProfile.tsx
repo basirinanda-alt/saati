@@ -1,4 +1,9 @@
-import { PERMA_CITATION, describePermaDomain, type PermaDomain } from "@/lib/scoring/perma";
+import {
+  PERMA_CITATION,
+  describePermaDomain,
+  type PermaDomain,
+} from "@/lib/scoring/perma";
+import { TypeBadge } from "./TypeBadge";
 
 interface DomainScore {
   /** Loosely typed as `string` because it travels through Prisma's
@@ -47,9 +52,7 @@ export function PermaProfile({ scores }: PermaProfileProps) {
       aria-labelledby="perma-profile-heading"
       className="mt-6 rounded-xl border border-teal-700/30 bg-teal-50/60 p-6 sm:p-8 dark:border-teal-400/30 dark:bg-teal-950/40"
     >
-      <span className="inline-block rounded-full bg-teal-700 px-3 py-1 text-xs font-semibold tracking-wide text-white uppercase dark:bg-teal-600">
-        Validated Measure
-      </span>
+      <TypeBadge type="validated" />
 
       <h2
         id="perma-profile-heading"

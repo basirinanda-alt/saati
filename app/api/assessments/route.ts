@@ -19,6 +19,14 @@ import {
   PERMA_SCORING_ALGORITHM_VERSION,
   calculatePermaScores,
 } from "@/lib/scoring/perma";
+import {
+  INSIGHT_QUESTION_SET_VERSION,
+  INSIGHT_QUESTIONS,
+  INSIGHT_SCALE_MAX,
+  INSIGHT_SCALE_MIN,
+  INSIGHT_SCORING_ALGORITHM_VERSION,
+  calculateInsightScores,
+} from "@/lib/scoring/insights";
 
 // Every API response uses one envelope shape — see docs/03-system-architecture.md, 6.5.
 type ApiSuccess<T> = { success: true; data: T };
@@ -39,7 +47,16 @@ function fail(
   );
 }
 
-const permaItemSchema = z.number().int().min(PERMA_SCALE_MIN).max(PERMA_SCALE_MAX);
+const permaItemSchema = z
+  .number()
+  .int()
+  .min(PERMA_SCALE_MIN)
+  .max(PERMA_SCALE_MAX);
+const insightItemSchema = z
+  .number()
+  .int()
+  .min(INSIGHT_SCALE_MIN)
+  .max(INSIGHT_SCALE_MAX);
 
 const requestSchema = z.object({
   who5: z
@@ -47,8 +64,13 @@ const requestSchema = z.object({
     .length(WHO5_QUESTIONS.length),
   perma: z
     .object(
+      Object.fromEntries(PERMA_QUESTIONS.map((q) => [q.key, permaItemSchema])),
+    )
+    .strict(),
+  insights: z
+    .object(
       Object.fromEntries(
-        PERMA_QUESTIONS.map((q) => [q.key, permaItemSchema]),
+        INSIGHT_QUESTIONS.map((q) => [q.key, insightItemSchema]),
       ),
     )
     .strict(),
@@ -76,17 +98,19 @@ export async function POST(request: Request) {
     );
   }
 
-  const { who5, perma } = parsed.data;
+  const { who5, perma, insights } = parsed.data;
 
   let who5Score;
   let permaScores;
+  let insightScores;
   try {
-    // calculateWho5Score/calculatePermaScores's own guards should be
-    // unreachable once Zod has validated shape and range, but we never
-    // trust two layers to silently agree — see
-    // docs/03-system-architecture.md's validation-at-the-boundary rule.
+    // Each calculate*Score function's own guards should be unreachable
+    // once Zod has validated shape and range, but we never trust two
+    // layers to silently agree — see docs/03-system-architecture.md's
+    // validation-at-the-boundary rule.
     who5Score = calculateWho5Score(who5);
     permaScores = calculatePermaScores(perma);
+    insightScores = calculateInsightScores(insights);
   } catch (error) {
     return fail(
       400,
@@ -99,7 +123,7 @@ export async function POST(request: Request) {
   try {
     const session = await prisma.assessmentSession.create({
       data: {
-        questionSetVersion: `who5:${WHO5_QUESTION_SET_VERSION},perma:${PERMA_QUESTION_SET_VERSION}`,
+        questionSetVersion: `who5:${WHO5_QUESTION_SET_VERSION},perma:${PERMA_QUESTION_SET_VERSION},insights:${INSIGHT_QUESTION_SET_VERSION}`,
         completedAt: new Date(),
         responses: {
           create: [
@@ -112,6 +136,11 @@ export async function POST(request: Request) {
               instrument: PERMA_INSTRUMENT,
               questionKey: question.key,
               value: perma[question.key],
+            })),
+            ...INSIGHT_QUESTIONS.map((question) => ({
+              instrument: question.module,
+              questionKey: question.key,
+              value: insights[question.key],
             })),
           ],
         },
@@ -132,6 +161,14 @@ export async function POST(request: Request) {
               percentageScore: score.percentageScore,
             })),
           ],
+        },
+        insightScores: {
+          create: insightScores.map((score) => ({
+            module: score.module,
+            scoringAlgorithmVersion: INSIGHT_SCORING_ALGORITHM_VERSION,
+            rawScore: score.rawScore,
+            percentageScore: score.percentageScore,
+          })),
         },
       },
       select: { id: true },

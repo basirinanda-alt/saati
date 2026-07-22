@@ -12,8 +12,8 @@ must be recorded here with its citation, source, and licensing status.
 
 **Citation:**
 
-> World Health Organization, Regional Office for Europe. (1998). *WHO (Five)
-> Well-Being Index (1998 version)*. Psychiatric Research Unit, WHO
+> World Health Organization, Regional Office for Europe. (1998). _WHO (Five)
+> Well-Being Index (1998 version)_. Psychiatric Research Unit, WHO
 > Collaborating Center for Mental Health.
 
 **License:** Freely available for use, including non-commercial and
@@ -31,8 +31,8 @@ Psychology Center.
 **Citation:**
 
 > Butler, J., & Kern, M. L. (2016). The PERMA-Profiler: A brief
-> multidimensional measure of flourishing. *International Journal of
-> Wellbeing*, 6(3), 1-48. doi:10.5502/ijw.v6i3.1
+> multidimensional measure of flourishing. _International Journal of
+> Wellbeing_, 6(3), 1-48. doi:10.5502/ijw.v6i3.1
 
 **Instrument version used:** The full 23-item measure (dated October 14,
 2016), as published at

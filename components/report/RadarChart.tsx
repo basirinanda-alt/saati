@@ -130,7 +130,8 @@ export function RadarChart({ axes }: RadarChartProps) {
           const { x, y } = pointFor(i, axes.length, 1.22);
           const angle = (Math.PI * 2 * i) / axes.length - Math.PI / 2;
           const cos = Math.cos(angle);
-          const textAnchor = cos > 0.3 ? "start" : cos < -0.3 ? "end" : "middle";
+          const textAnchor =
+            cos > 0.3 ? "start" : cos < -0.3 ? "end" : "middle";
           return (
             <text
               key={axis.key}
@@ -162,8 +163,7 @@ export function RadarChart({ axes }: RadarChartProps) {
               aria-hidden="true"
               className="inline-block h-2.5 w-2.5 rounded-full border-2 border-[#2a78d6] bg-white dark:border-[#3987e5] dark:bg-neutral-900"
             />
-            Outline marker = Saati Insight (not a validated clinical
-            instrument)
+            Outline marker = Saati Insight (not a validated clinical instrument)
           </div>
         )}
       </div>
@@ -184,7 +184,9 @@ export function RadarChart({ axes }: RadarChartProps) {
             <tr key={axis.key}>
               <td>{axis.label}</td>
               <td>
-                {axis.type === "validated" ? "Validated Measure" : "Saati Insight"}
+                {axis.type === "validated"
+                  ? "Validated Measure"
+                  : "Saati Insight"}
               </td>
               <td>{Math.round(axis.percentageScore)}</td>
             </tr>

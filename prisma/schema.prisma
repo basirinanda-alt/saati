@@ -30,6 +30,7 @@ model AssessmentSession {
 
   responses       QuestionResponse[]
   validatedScores ValidatedScore[]
+  insightScores   InsightScore[]
 
   @@map("assessment_sessions")
 }
@@ -102,4 +103,37 @@ model ValidatedScore {
   @@unique([sessionId, instrument, domain])
   @@index([sessionId])
   @@map("validated_scores")
+}
+
+/// A computed score for a *Saati Insight* module (sleep, study habits,
+/// focus, stress). Deliberately its own table, never a shared one with
+/// ValidatedScore — the table itself is the type marker: a row existing
+/// here means "Saati Insight," structurally, not by convention. This is
+/// the non-negotiable separation rule from
+/// docs/02-engineering-constitution.md, enforced at the schema level.
+model InsightScore {
+  id        String @id @default(cuid())
+  sessionId String
+
+  session AssessmentSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  /// "SLEEP" | "STUDY" | "FOCUS" | "STRESS" — see lib/scoring/insights.ts.
+  module String
+
+  scoringAlgorithmVersion String @default("v1")
+
+  /// Mean of this module's items on their native 0-4 scale.
+  rawScore Float
+
+  /// Same value converted to 0-100 for display alongside validated scores
+  /// — a rendering convenience only, per docs/05-assessment-engine.md
+  /// §9.4; never implies equivalent scientific weight to a Validated
+  /// Measure.
+  percentageScore Float
+
+  createdAt DateTime @default(now())
+
+  @@unique([sessionId, module])
+  @@index([sessionId])
+  @@map("insight_scores")
 }
