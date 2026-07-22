@@ -3,13 +3,25 @@ import Link from "next/link";
 import { getReportData } from "@/lib/report/getReportData";
 import { ScoreCard } from "@/components/report/ScoreCard";
 import { PermaProfile } from "@/components/report/PermaProfile";
-import { RadarChart, type RadarAxis } from "@/components/report/RadarChart";
+import {
+  RadarChart,
+  type RadarAxis,
+  type RadarComparisonSeries,
+} from "@/components/report/RadarChart";
 import { AiSummaryCard } from "@/components/report/AiSummaryCard";
 import { SupportResources } from "@/components/report/SupportResources";
 import { EmailResultsForm } from "@/components/report/EmailResultsForm";
 
 interface ResultsPageProps {
   params: Promise<{ id: string }>;
+}
+
+function formatCheckInDate(date: Date): string {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
 }
 
 // Rendered server-side on first load so the student's own results are
@@ -21,6 +33,19 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
   if (!report) {
     notFound();
   }
+
+  const comparison: RadarComparisonSeries | undefined = report.previous
+    ? {
+        label: `your check-in on ${formatCheckInDate(report.previous.createdAt)}`,
+        axes: [
+          { key: "who5", percentageScore: report.previous.who5PercentageScore },
+          ...report.previous.perma.map((domain) => ({
+            key: domain.domain,
+            percentageScore: domain.percentageScore,
+          })),
+        ],
+      }
+    : undefined;
 
   return (
     <main className="mx-auto max-w-xl px-6 py-12">
@@ -62,6 +87,18 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
         Your full profile
       </h2>
 
+      {report.previous && (
+        <p className="mb-4 text-sm text-neutral-600 dark:text-neutral-400">
+          Compared with {comparison?.label} — dashed line below.{" "}
+          <Link
+            href="/progress"
+            className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+          >
+            See your full history
+          </Link>
+        </p>
+      )}
+
       <RadarChart
         axes={[
           {
@@ -87,6 +124,7 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             }),
           ),
         ]}
+        comparison={comparison}
       />
 
       <AiSummaryCard summary={report.aiSummary} source={report.aiSummarySource} />
@@ -102,6 +140,13 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
         >
           Download as PDF
         </a>
+
+        <Link
+          href="/progress"
+          className="text-center text-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+        >
+          View your progress over time
+        </Link>
 
         <Link
           href="/"

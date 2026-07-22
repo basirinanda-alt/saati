@@ -19,6 +19,12 @@ export const PERMA_CORE_DOMAIN_LABELS: Record<string, string> = {
   A: "Accomplishment",
 };
 
+export interface PreviousReportSummary {
+  createdAt: Date;
+  who5PercentageScore: number;
+  perma: { domain: string; label: string; percentageScore: number }[];
+}
+
 export interface ReportData {
   sessionId: string;
   who5: { percentageScore: number; description: string };
@@ -33,6 +39,48 @@ export interface ReportData {
   aiSummary: string;
   aiSummarySource: "ai" | "fallback";
   belowThreshold: boolean;
+  isFirstAssessment: boolean;
+  /** The visitor's most recent prior completed assessment, if any — see
+   * docs/05-assessment-engine.md §9.5, "Progress Over Time". Used to
+   * overlay a second series on the radar chart and to give the AI
+   * "since your last check-in" context. */
+  previous: PreviousReportSummary | null;
+}
+
+async function findPreviousSession(
+  anonymousToken: string,
+  beforeCreatedAt: Date,
+): Promise<PreviousReportSummary | null> {
+  const previous = await prisma.assessmentSession.findFirst({
+    where: {
+      anonymousToken,
+      createdAt: { lt: beforeCreatedAt },
+    },
+    orderBy: { createdAt: "desc" },
+    include: { validatedScores: true },
+  });
+
+  const who5Score = previous?.validatedScores.find(
+    (s) => s.instrument === WHO5_INSTRUMENT,
+  );
+  const permaScores = previous?.validatedScores.filter(
+    (s) => s.instrument === PERMA_INSTRUMENT,
+  );
+
+  if (!previous || !who5Score || !permaScores?.length) {
+    return null;
+  }
+
+  return {
+    createdAt: previous.createdAt,
+    who5PercentageScore: who5Score.percentageScore,
+    perma: PERMA_CORE_DOMAIN_ORDER.map((domain) => ({
+      domain,
+      label: PERMA_CORE_DOMAIN_LABELS[domain],
+      percentageScore:
+        permaScores.find((s) => s.domain === domain)?.percentageScore ?? 0,
+    })),
+  };
 }
 
 /**
@@ -75,6 +123,11 @@ export async function getReportData(
   }
 
   const belowThreshold = who5Score.percentageScore < 50;
+  const previous = await findPreviousSession(
+    session.anonymousToken,
+    session.createdAt,
+  );
+  const isFirstAssessment = previous === null;
 
   let aiSummary = session.aiSummary;
   let aiSummarySource = session.aiSummarySource;
@@ -101,9 +154,7 @@ export async function getReportData(
           insightScores.find((s) => s.module === module)?.percentageScore ??
           0,
       })),
-      // Real "first vs. repeat" detection needs account/progress-tracking
-      // support — Milestone 7. Every assessment is first until then.
-      isFirstAssessment: true,
+      isFirstAssessment,
     };
 
     const result = await generateSummary(summaryInput);
@@ -144,5 +195,36 @@ export async function getReportData(
     aiSummary,
     aiSummarySource: aiSummarySource === "ai" ? "ai" : "fallback",
     belowThreshold,
+    isFirstAssessment,
+    previous,
   };
+}
+
+export interface VisitorHistoryEntry {
+  sessionId: string;
+  createdAt: Date;
+  who5PercentageScore: number;
+}
+
+/**
+ * A lightweight history list for the /progress page — deliberately not
+ * built on getReportData (which would trigger an AI-summary-generation
+ * check for every past entry just to render a list of dates and scores).
+ */
+export async function getVisitorHistory(
+  anonymousToken: string,
+): Promise<VisitorHistoryEntry[]> {
+  const sessions = await prisma.assessmentSession.findMany({
+    where: { anonymousToken },
+    orderBy: { createdAt: "desc" },
+    include: { validatedScores: { where: { instrument: WHO5_INSTRUMENT } } },
+  });
+
+  return sessions
+    .filter((s) => s.validatedScores.length > 0)
+    .map((s) => ({
+      sessionId: s.id,
+      createdAt: s.createdAt,
+      who5PercentageScore: s.validatedScores[0].percentageScore,
+    }));
 }

@@ -18,8 +18,15 @@ datasource db {
 /// A session is identified by an anonymous token until account support
 /// is added — see docs/04-database.md, "Anonymous vs account-linked".
 model AssessmentSession {
-  id             String   @id @default(cuid())
-  anonymousToken String   @unique @default(cuid())
+  id String @id @default(cuid())
+
+  /// Shared by every assessment taken from the same browser (set via a
+  /// long-lived cookie — see lib/visitor.ts), so a student's history can
+  /// be found again without an account. Deliberately NOT unique — unlike
+  /// Milestones 1-6, many sessions now share one token. Lost if cookies
+  /// are cleared or a different device/browser is used; a real account
+  /// system (docs/09-security.md) would remove that limitation.
+  anonymousToken String @default(cuid())
 
   /// Which version of the question set was shown. Lets us change questions
   /// later without invalidating the meaning of past scores.
@@ -43,6 +50,7 @@ model AssessmentSession {
   validatedScores ValidatedScore[]
   insightScores   InsightScore[]
 
+  @@index([anonymousToken, createdAt])
   @@map("assessment_sessions")
 }
 

@@ -4,6 +4,12 @@ import { Button } from "@/components/ui/Button";
 // Public marketing page — see docs/03-system-architecture.md, 6.4. At
 // Milestone 1 this is a plain server-rendered page; static generation and
 // SEO content (docs/08-seo.md) are addressed in a later milestone.
+//
+// Deliberately does NOT check the visitor cookie to show a "see your
+// progress" link here — doing so would force this page to render
+// dynamically per-request, undermining the static-generation choice this
+// page is built on. /progress is still reachable directly and via the
+// results page's own link once a student has checked in.
 export default function HomePage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-2xl flex-col items-center justify-center px-6 py-16 text-center">
@@ -23,6 +29,14 @@ export default function HomePage() {
       <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
         Takes about 10&ndash;12 minutes. WHO-5 Wellbeing Index, PERMA-Profiler
         &amp; Saati Insights.
+      </p>
+      <p className="mt-6 text-sm">
+        <Link
+          href="/progress"
+          className="font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+        >
+          Already checked in before? See your progress
+        </Link>
       </p>
     </main>
   );

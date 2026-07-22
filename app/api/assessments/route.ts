@@ -27,6 +27,7 @@ import {
   INSIGHT_SCORING_ALGORITHM_VERSION,
   calculateInsightScores,
 } from "@/lib/scoring/insights";
+import { getOrCreateVisitorToken } from "@/lib/visitor";
 
 // Every API response uses one envelope shape — see docs/03-system-architecture.md, 6.5.
 type ApiSuccess<T> = { success: true; data: T };
@@ -121,8 +122,11 @@ export async function POST(request: Request) {
   }
 
   try {
+    const anonymousToken = await getOrCreateVisitorToken();
+
     const session = await prisma.assessmentSession.create({
       data: {
+        anonymousToken,
         questionSetVersion: `who5:${WHO5_QUESTION_SET_VERSION},perma:${PERMA_QUESTION_SET_VERSION},insights:${INSIGHT_QUESTION_SET_VERSION}`,
         completedAt: new Date(),
         responses: {

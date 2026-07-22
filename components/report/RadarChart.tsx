@@ -4,16 +4,29 @@ export interface RadarAxis {
   /** Normalized 0-100 score — see docs/05-assessment-engine.md §9.4. */
   percentageScore: number;
   /**
-   * "validated" axes get a solid marker; "insight" axes (added in a later
-   * milestone) get a hollow/outline marker. This is a shape distinction,
-   * not just a color one, so it survives grayscale printing and colorblind
-   * vision — see docs/07-ui-ux.md.
+   * "validated" axes get a solid marker; "insight" axes get a
+   * hollow/outline marker. This is a shape distinction, not just a color
+   * one, so it survives grayscale printing and colorblind vision — see
+   * docs/07-ui-ux.md.
    */
   type: "validated" | "insight";
 }
 
+export interface RadarComparisonSeries {
+  label: string;
+  /** Matched to the primary `axes` by `key`; axes without a match are
+   * skipped for this series rather than plotted at 0, so a shorter
+   * historical axis set never draws a misleading dip to the center. */
+  axes: { key: string; percentageScore: number }[];
+}
+
 interface RadarChartProps {
   axes: RadarAxis[];
+  /** An optional second, overlaid series — e.g. the visitor's previous
+   * assessment — per docs/05-assessment-engine.md §9.5, "Progress Over
+   * Time": "the chart must clearly label which shape/colour belongs to
+   * which date." */
+  comparison?: RadarComparisonSeries;
 }
 
 const SIZE = 460;
@@ -39,6 +52,23 @@ function polygonPoints(axes: RadarAxis[]) {
     .join(" ");
 }
 
+/** Plots the comparison series at the SAME angular positions as the
+ * primary axes (matched by key), so both series share one set of spokes
+ * even if the comparison series is missing an axis the primary has. */
+function comparisonPolygonPoints(
+  primaryAxes: RadarAxis[],
+  comparison: RadarComparisonSeries,
+) {
+  return primaryAxes
+    .map((axis, i) => {
+      const match = comparison.axes.find((a) => a.key === axis.key);
+      const fraction = (match?.percentageScore ?? axis.percentageScore) / 100;
+      const { x, y } = pointFor(i, primaryAxes.length, fraction);
+      return `${x},${y}`;
+    })
+    .join(" ");
+}
+
 /**
  * A radar/spider chart plotting every axis on one shared 0-100 scale — see
  * docs/05-assessment-engine.md §9.4. Sharing a scale is a rendering
@@ -52,7 +82,7 @@ function polygonPoints(axes: RadarAxis[]) {
  * something this small — see docs/03-system-architecture.md, "Simplicity
  * Wins."
  */
-export function RadarChart({ axes }: RadarChartProps) {
+export function RadarChart({ axes, comparison }: RadarChartProps) {
   const hasInsightAxes = axes.some((a) => a.type === "insight");
 
   return (
@@ -60,7 +90,7 @@ export function RadarChart({ axes }: RadarChartProps) {
       <svg
         viewBox={`0 0 ${SIZE} ${SIZE}`}
         role="img"
-        aria-label={`Wellbeing profile across ${axes.length} dimensions`}
+        aria-label={`Wellbeing profile across ${axes.length} dimensions${comparison ? `, compared with ${comparison.label}` : ""}`}
         className="mx-auto w-full max-w-sm overflow-visible"
       >
         {/* Deliberately no <title> child here — a literal <title> tag
@@ -102,7 +132,20 @@ export function RadarChart({ axes }: RadarChartProps) {
           );
         })}
 
-        {/* Data shape */}
+        {/* Comparison series (e.g. previous assessment) — rendered behind
+            the current series, in a neutral color and dashed stroke so
+            the two dates are distinguishable by more than color alone. */}
+        {comparison && (
+          <polygon
+            points={comparisonPolygonPoints(axes, comparison)}
+            className="fill-none stroke-neutral-400 dark:stroke-neutral-500"
+            strokeWidth={2}
+            strokeDasharray="6 4"
+            strokeLinejoin="round"
+          />
+        )}
+
+        {/* Current data shape */}
         <polygon
           points={polygonPoints(axes)}
           className="fill-[#2a78d6]/15 stroke-[#2a78d6] dark:fill-[#3987e5]/20 dark:stroke-[#3987e5]"
@@ -170,31 +213,65 @@ export function RadarChart({ axes }: RadarChartProps) {
             Outline marker = Saati Insight (not a validated clinical instrument)
           </div>
         )}
+        {comparison && (
+          <>
+            <div className="mt-1 flex items-center gap-2">
+              <span
+                aria-hidden="true"
+                className="inline-block h-0.5 w-4 bg-[#2a78d6] dark:bg-[#3987e5]"
+              />
+              Solid line = this check-in
+            </div>
+            <div className="flex items-center gap-2">
+              <span
+                aria-hidden="true"
+                className="inline-block h-0.5 w-4 border-t-2 border-dashed border-neutral-400 dark:border-neutral-500"
+              />
+              Dashed line = {comparison.label}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Non-visual equivalent for screen reader users — see
           docs/07-ui-ux.md, "a non-visual data-table equivalent." */}
       <table className="sr-only">
-        <caption>Wellbeing profile scores by dimension</caption>
+        <caption>
+          Wellbeing profile scores by dimension
+          {comparison ? `, this check-in vs. ${comparison.label}` : ""}
+        </caption>
         <thead>
           <tr>
             <th scope="col">Dimension</th>
             <th scope="col">Type</th>
             <th scope="col">Score out of 100</th>
+            {comparison && <th scope="col">{comparison.label} score</th>}
           </tr>
         </thead>
         <tbody>
-          {axes.map((axis) => (
-            <tr key={axis.key}>
-              <td>{axis.label}</td>
-              <td>
-                {axis.type === "validated"
-                  ? "Validated Measure"
-                  : "Saati Insight"}
-              </td>
-              <td>{Math.round(axis.percentageScore)}</td>
-            </tr>
-          ))}
+          {axes.map((axis) => {
+            const comparisonScore = comparison?.axes.find(
+              (a) => a.key === axis.key,
+            )?.percentageScore;
+            return (
+              <tr key={axis.key}>
+                <td>{axis.label}</td>
+                <td>
+                  {axis.type === "validated"
+                    ? "Validated Measure"
+                    : "Saati Insight"}
+                </td>
+                <td>{Math.round(axis.percentageScore)}</td>
+                {comparison && (
+                  <td>
+                    {comparisonScore === undefined
+                      ? "—"
+                      : Math.round(comparisonScore)}
+                  </td>
+                )}
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </div>

@@ -19,6 +19,8 @@ function buildReport(overrides: Partial<ReportData> = {}): ReportData {
     aiSummary: "A warm, safe summary.",
     aiSummarySource: "ai",
     belowThreshold: false,
+    isFirstAssessment: true,
+    previous: null,
     ...overrides,
   };
 }

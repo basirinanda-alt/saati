@@ -18,6 +18,8 @@ const report: ReportData = {
   aiSummary: "A safe summary.",
   aiSummarySource: "ai",
   belowThreshold: false,
+  isFirstAssessment: true,
+  previous: null,
 };
 
 describe("sendResultsEmail", () => {
