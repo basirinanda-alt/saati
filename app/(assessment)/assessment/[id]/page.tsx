@@ -8,9 +8,12 @@ import {
   INSIGHT_MODULES,
   describeInsightScore,
 } from "@/lib/scoring/insights";
+import { generateSummary } from "@/lib/ai/client";
+import type { AiSummaryInput } from "@/lib/ai/prompt";
 import { ScoreCard } from "@/components/report/ScoreCard";
 import { PermaProfile } from "@/components/report/PermaProfile";
 import { RadarChart, type RadarAxis } from "@/components/report/RadarChart";
+import { AiSummaryCard } from "@/components/report/AiSummaryCard";
 import { SupportResources } from "@/components/report/SupportResources";
 
 const PERMA_CORE_DOMAIN_ORDER = ["P", "E", "R", "M", "A"] as const;
@@ -51,6 +54,51 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
     insightScores?.length !== INSIGHT_MODULES.length
   ) {
     notFound();
+  }
+
+  // Generated once, on first view, then cached — see docs/06-ai.md. The
+  // numeric report above never depends on this; a slow or failed AI call
+  // only affects this one section, via generateSummary's built-in
+  // fallback. A true background job (so this never adds latency to the
+  // first view either) is Milestone 6 scope.
+  let aiSummary = session.aiSummary;
+  let aiSummarySource = session.aiSummarySource;
+
+  if (!aiSummary) {
+    const belowThreshold = who5Score.percentageScore < 50;
+    const summaryInput: AiSummaryInput = {
+      who5: {
+        percentageScore: who5Score.percentageScore,
+        interpretationBand: belowThreshold
+          ? "below threshold"
+          : who5Score.percentageScore < 75
+            ? "moderate"
+            : "good",
+        belowThreshold,
+      },
+      perma: PERMA_CORE_DOMAIN_ORDER.map((domain) => ({
+        domain,
+        percentageScore:
+          permaScores.find((s) => s.domain === domain)?.percentageScore ?? 0,
+      })),
+      insights: INSIGHT_MODULES.map((module) => ({
+        module,
+        percentageScore:
+          insightScores.find((s) => s.module === module)?.percentageScore ?? 0,
+      })),
+      // Real "first vs. repeat" detection needs account/progress-tracking
+      // support — Milestone 7. Every assessment is treated as first until then.
+      isFirstAssessment: true,
+    };
+
+    const result = await generateSummary(summaryInput);
+    aiSummary = result.text;
+    aiSummarySource = result.source;
+
+    await prisma.assessmentSession.update({
+      where: { id: session.id },
+      data: { aiSummary, aiSummarySource },
+    });
   }
 
   return (
@@ -117,6 +165,11 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             type: "insight",
           })),
         ]}
+      />
+
+      <AiSummaryCard
+        summary={aiSummary}
+        source={aiSummarySource === "ai" ? "ai" : "fallback"}
       />
 
       {who5Score.percentageScore < 50 && <SupportResources />}

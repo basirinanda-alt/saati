@@ -28,6 +28,17 @@ model AssessmentSession {
   createdAt   DateTime  @default(now())
   completedAt DateTime?
 
+  /// Cached AI-generated (or fallback) narrative summary — generated once,
+  /// on first view of the results page, and reused after that. Null until
+  /// generated. See docs/06-ai.md and lib/ai/.
+  aiSummary String?
+
+  /// "ai" if the model call succeeded and passed the guardrail check,
+  /// "fallback" if the AI call failed/timed out or was rejected by the
+  /// runtime guardrail check and the pre-written generic text was used
+  /// instead. Null until a summary has been generated at least once.
+  aiSummarySource String?
+
   responses       QuestionResponse[]
   validatedScores ValidatedScore[]
   insightScores   InsightScore[]
