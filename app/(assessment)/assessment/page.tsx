@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { reportEmailSignupConversion } from "@/lib/analytics/gtag";
 import { WHO5_QUESTIONS, WHO5_RESPONSE_OPTIONS } from "@/lib/scoring/who5";
 import {
   PERMA_ANCHOR_LABELS,
@@ -199,6 +200,7 @@ export default function AssessmentPage() {
         return;
       }
 
+      reportEmailSignupConversion();
       router.push(`/assessment/${result.data.sessionId}`);
     } catch {
       setErrorMessage("Something went wrong on our side, please try again.");
