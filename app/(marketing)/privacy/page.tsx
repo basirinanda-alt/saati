@@ -63,7 +63,8 @@ export default function PrivacyPage() {
           Your answers are used only to calculate your results and generate
           your personalised report. Your email is used to send you that
           report and to show you your check-in history if you come back.
-          We do not use your data for advertising, and we do not sell it.
+          We never use your wellbeing answers, scores, or email for
+          advertising, and we do not sell them.
         </p>
 
         <h2 className="mt-10 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
@@ -98,8 +99,31 @@ export default function PrivacyPage() {
           </li>
         </ul>
         <p className="mt-3 max-w-prose text-neutral-700 dark:text-neutral-300">
-          We do not share your data with advertisers, data brokers, or any
-          other third party.
+          We do not share your wellbeing answers, scores, or email with
+          advertisers, data brokers, or any other third party.
+        </p>
+
+        <h2 className="mt-10 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+          Advertising measurement
+        </h2>
+        <p className="mt-3 max-w-prose text-neutral-700 dark:text-neutral-300">
+          We run ad campaigns to let students know Saati exists, and we use{" "}
+          <strong>Google Ads</strong> conversion tracking to measure whether
+          those campaigns are working. This sets a cookie and shares
+          general visit information (such as the page you landed on and
+          whether you arrived from an ad) with Google — it never includes
+          your assessment answers, scores, or email address. You can control
+          or opt out of this tracking through your browser&rsquo;s cookie
+          settings or{" "}
+          <a
+            href="https://myadcenter.google.com/"
+            className="underline underline-offset-2 hover:text-teal-800 dark:hover:text-teal-300"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Google&rsquo;s Ad Settings
+          </a>
+          .
         </p>
 
         <h2 className="mt-10 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
