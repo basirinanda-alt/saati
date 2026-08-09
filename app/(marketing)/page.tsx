@@ -27,15 +27,13 @@ export default function HomePage() {
             Quick check-in
           </h2>
           <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
-            About 3 minutes. A short PERMA + WHO-5 check-in with instant
-            on-screen results from Saati.
+            About 5&ndash;7 minutes. The WHO-5 and PERMA-Profiler
+            (Validated Measures) only &mdash; skips the Saati Insight
+            questions.
           </p>
-          <a
-            href="https://cities.saati.ai/wellness-checkin/"
-            className="mt-4"
-          >
+          <Link href="/quick-checkin" className="mt-4">
             <Button variant="secondary">Start the quick check-in</Button>
-          </a>
+          </Link>
         </div>
         <div className="flex flex-col items-center rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
           <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">

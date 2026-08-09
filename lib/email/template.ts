@@ -39,6 +39,15 @@ export function buildResultsEmailHtml(
     )
     .join("");
 
+  const insightsBlock =
+    report.insights.length > 0
+      ? `
+          <div style="padding:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:16px;">
+            <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#b45309;">Saati Insights (not a validated instrument)</p>
+            <table role="presentation" width="100%">${insightRows}</table>
+          </div>`
+      : "";
+
   const supportBlock = report.belowThreshold
     ? `
     <div style="margin-top:24px;padding:16px;border:1px solid #e5e5e5;border-radius:8px;">
@@ -75,10 +84,7 @@ export function buildResultsEmailHtml(
             <table role="presentation" width="100%">${permaRows}</table>
           </div>
 
-          <div style="padding:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;margin-bottom:16px;">
-            <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#b45309;">Saati Insights (not a validated instrument)</p>
-            <table role="presentation" width="100%">${insightRows}</table>
-          </div>
+          ${insightsBlock}
 
           <div style="padding:16px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;margin-bottom:16px;">
             <p style="margin:0 0 8px;font-size:12px;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;color:#334155;">AI Summary</p>

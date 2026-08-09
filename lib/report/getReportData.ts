@@ -120,11 +120,19 @@ export async function getReportData(
   );
   const insightScores = session?.insightScores;
 
+  // A session either has every Saati Insight module scored (the "full"
+  // assessment path) or none at all (the "quick" path, WHO-5 + PERMA
+  // only) — see components/assessment/AssessmentFlow.tsx. Anything in
+  // between would mean a genuinely incomplete submission, which is the
+  // one case this still treats as "not ready."
+  const hasAllInsights = insightScores?.length === INSIGHT_MODULES.length;
+  const hasNoInsights = insightScores?.length === 0;
+
   if (
     !session ||
     !who5Score ||
     !permaScores?.length ||
-    insightScores?.length !== INSIGHT_MODULES.length
+    !(hasAllInsights || hasNoInsights)
   ) {
     return null;
   }
@@ -155,11 +163,14 @@ export async function getReportData(
         percentageScore:
           permaScores.find((s) => s.domain === domain)?.percentageScore ?? 0,
       })),
-      insights: INSIGHT_MODULES.map((module) => ({
-        module,
-        percentageScore:
-          insightScores.find((s) => s.module === module)?.percentageScore ?? 0,
-      })),
+      insights: hasAllInsights
+        ? INSIGHT_MODULES.map((module) => ({
+            module,
+            percentageScore:
+              insightScores.find((s) => s.module === module)
+                ?.percentageScore ?? 0,
+          }))
+        : [],
       isFirstAssessment,
     };
 
@@ -188,16 +199,20 @@ export async function getReportData(
         permaScores.find((s) => s.domain === domain)?.percentageScore ?? 0,
     })),
     permaOverallPercentageScore: permaOverall?.percentageScore ?? 0,
-    insights: INSIGHT_MODULES.map((module) => ({
-      module,
-      label: INSIGHT_MODULE_LABELS[module],
-      percentageScore:
-        insightScores.find((s) => s.module === module)?.percentageScore ?? 0,
-      description: describeInsightScore(
-        module,
-        insightScores.find((s) => s.module === module)?.percentageScore ?? 0,
-      ),
-    })),
+    insights: hasAllInsights
+      ? INSIGHT_MODULES.map((module) => ({
+          module,
+          label: INSIGHT_MODULE_LABELS[module],
+          percentageScore:
+            insightScores.find((s) => s.module === module)
+              ?.percentageScore ?? 0,
+          description: describeInsightScore(
+            module,
+            insightScores.find((s) => s.module === module)
+              ?.percentageScore ?? 0,
+          ),
+        }))
+      : [],
     aiSummary,
     aiSummarySource: aiSummarySource === "ai" ? "ai" : "fallback",
     belowThreshold,

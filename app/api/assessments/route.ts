@@ -68,13 +68,18 @@ const requestSchema = z.object({
       Object.fromEntries(PERMA_QUESTIONS.map((q) => [q.key, permaItemSchema])),
     )
     .strict(),
+  // Omitted entirely by the quick-checkin flow (WHO-5 + PERMA only) — see
+  // components/assessment/AssessmentFlow.tsx. A session with no Saati
+  // Insight rows means "this student chose the quick path," not
+  // "incomplete data"; see getReportData's completeness check.
   insights: z
     .object(
       Object.fromEntries(
         INSIGHT_QUESTIONS.map((q) => [q.key, insightItemSchema]),
       ),
     )
-    .strict(),
+    .strict()
+    .optional(),
   // Required — collecting email before showing results is a deliberate
   // product decision (2026-07-22) that trades away the anonymous-only
   // design of Milestones 1-7. See PROJECT_STATUS.md.
@@ -115,7 +120,7 @@ export async function POST(request: Request) {
     // validation-at-the-boundary rule.
     who5Score = calculateWho5Score(who5);
     permaScores = calculatePermaScores(perma);
-    insightScores = calculateInsightScores(insights);
+    insightScores = insights ? calculateInsightScores(insights) : [];
   } catch (error) {
     return fail(
       400,
@@ -132,7 +137,9 @@ export async function POST(request: Request) {
       data: {
         anonymousToken,
         email,
-        questionSetVersion: `who5:${WHO5_QUESTION_SET_VERSION},perma:${PERMA_QUESTION_SET_VERSION},insights:${INSIGHT_QUESTION_SET_VERSION}`,
+        questionSetVersion:
+          `who5:${WHO5_QUESTION_SET_VERSION},perma:${PERMA_QUESTION_SET_VERSION}` +
+          (insights ? `,insights:${INSIGHT_QUESTION_SET_VERSION}` : ""),
         completedAt: new Date(),
         responses: {
           create: [
@@ -146,11 +153,13 @@ export async function POST(request: Request) {
               questionKey: question.key,
               value: perma[question.key],
             })),
-            ...INSIGHT_QUESTIONS.map((question) => ({
-              instrument: question.module,
-              questionKey: question.key,
-              value: insights[question.key],
-            })),
+            ...(insights
+              ? INSIGHT_QUESTIONS.map((question) => ({
+                  instrument: question.module,
+                  questionKey: question.key,
+                  value: insights[question.key],
+                }))
+              : []),
           ],
         },
         validatedScores: {
