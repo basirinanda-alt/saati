@@ -84,9 +84,19 @@ export function buildUserPrompt(input: AiSummaryInput): string {
     lines.push(`- ${domain.domain}: ${Math.round(domain.percentageScore)}`);
   }
 
-  lines.push("Saati Insight scores (0-100 each, NOT validated instruments):");
-  for (const insight of input.insights) {
-    lines.push(`- ${insight.module}: ${Math.round(insight.percentageScore)}`);
+  if (input.insights.length > 0) {
+    lines.push(
+      "Saati Insight scores (0-100 each, NOT validated instruments):",
+    );
+    for (const insight of input.insights) {
+      lines.push(
+        `- ${insight.module}: ${Math.round(insight.percentageScore)}`,
+      );
+    }
+  } else {
+    lines.push(
+      "This student took the quick check-in: no Saati Insight modules (sleep/study/focus/stress) were included. Do not reference or speculate about sleep, study habits, focus, or stress — you were given no data for them.",
+    );
   }
 
   lines.push(

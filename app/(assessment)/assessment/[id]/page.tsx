@@ -78,21 +78,25 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
         ]}
       />
 
-      <h2 className="mt-10 mb-6 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
-        Saati Insights
-      </h2>
+      {report.insights.length > 0 && (
+        <>
+          <h2 className="mt-10 mb-6 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+            Saati Insights
+          </h2>
 
-      <div className="flex flex-col gap-6">
-        {report.insights.map((insight) => (
-          <ScoreCard
-            key={insight.module}
-            instrumentType="insight"
-            instrumentName={insight.label}
-            percentageScore={insight.percentageScore}
-            description={insight.description}
-          />
-        ))}
-      </div>
+          <div className="flex flex-col gap-6">
+            {report.insights.map((insight) => (
+              <ScoreCard
+                key={insight.module}
+                instrumentType="insight"
+                instrumentName={insight.label}
+                percentageScore={insight.percentageScore}
+                description={insight.description}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       <h2 className="mt-10 mb-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
         Your full profile

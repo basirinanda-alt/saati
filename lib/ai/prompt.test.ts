@@ -54,4 +54,11 @@ describe("buildUserPrompt", () => {
       /repeat assessment/,
     );
   });
+
+  it("tells the model no Saati Insight data exists for a quick check-in, instead of an empty section", () => {
+    const prompt = buildUserPrompt({ ...baseInput, insights: [] });
+    expect(prompt).not.toMatch(/Saati Insight scores/);
+    expect(prompt).toMatch(/took the quick check-in/);
+    expect(prompt).toMatch(/Do not reference or speculate about sleep/);
+  });
 });

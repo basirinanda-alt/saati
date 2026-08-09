@@ -63,6 +63,14 @@ describe("buildResultsEmailHtml", () => {
     expect(withoutSupport).not.toMatch(/If you'd like to talk to someone/);
   });
 
+  it("omits the Saati Insights block entirely for a quick check-in (no insight rows)", () => {
+    const html = buildResultsEmailHtml(
+      buildReport({ insights: [] }),
+      "https://saati.app/r/1",
+    );
+    expect(html).not.toMatch(/Saati Insights/);
+  });
+
   it("escapes HTML special characters in AI summary text", () => {
     const html = buildResultsEmailHtml(
       buildReport({ aiSummary: "<script>alert(1)</script> & friends" }),
