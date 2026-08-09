@@ -21,16 +21,35 @@ export default function HomePage() {
         a diagnosis, not a therapy replacement. Just a clear, calm way to see
         how you&rsquo;re really doing.
       </p>
-      <div className="mt-10">
-        <Link href="/assessment">
-          <Button variant="primary">Take the free assessment</Button>
-        </Link>
+      <div className="mt-10 grid w-full gap-6 sm:grid-cols-2">
+        <div className="flex flex-col items-center rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
+          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            Quick check-in
+          </h2>
+          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+            About 3 minutes. A short PERMA + WHO-5 check-in with instant
+            on-screen results from Saati.
+          </p>
+          <a
+            href="https://cities.saati.ai/wellness-checkin/"
+            className="mt-4"
+          >
+            <Button variant="secondary">Start the quick check-in</Button>
+          </a>
+        </div>
+        <div className="flex flex-col items-center rounded-xl border border-neutral-200 p-6 dark:border-neutral-800">
+          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            Full assessment
+          </h2>
+          <p className="mt-2 text-sm text-neutral-500 dark:text-neutral-400">
+            About 10&ndash;12 minutes. WHO-5 Wellbeing Index, PERMA-Profiler
+            &amp; Saati Insights. We&rsquo;ll email you your results.
+          </p>
+          <Link href="/assessment" className="mt-4">
+            <Button variant="primary">Start the full assessment</Button>
+          </Link>
+        </div>
       </div>
-      <p className="mt-4 text-sm text-neutral-500 dark:text-neutral-400">
-        Takes about 10&ndash;12 minutes. WHO-5 Wellbeing Index, PERMA-Profiler
-        &amp; Saati Insights. We&rsquo;ll ask for your email at the end to
-        send you your results.
-      </p>
       <p className="mt-6 text-sm">
         <Link
           href="/progress"
