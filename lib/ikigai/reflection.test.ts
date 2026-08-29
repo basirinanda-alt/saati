@@ -2,9 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   buildPrompt,
   CIRCLE_KEYS,
+  CIRCLE_COLORS,
   crisisResult,
   fallbackResult,
   hasCrisisLanguage,
+  isSupportKey,
+  resolvePlan,
+  SUPPORT_KEYS,
+  SUPPORTS,
   violatesGuardrails,
   type IkigaiInput,
   type IkigaiResult,
@@ -186,7 +191,126 @@ describe("buildPrompt", () => {
 
   it("forbids the model mentioning the product at all", () => {
     const p = buildPrompt(baseInput());
-    expect(p).toContain("Never mention Saati");
-    expect(p).toContain("never yours to improvise");
+    /* The rule now has to hold across the plan lines and the closing too,
+       which is where a product claim would be most tempting to improvise. */
+    expect(p).toContain("Never name Saati");
+    expect(p).toContain("including the plan lines and the closing");
+    expect(p).toContain("never describe, extend, or invent a capability");
+  });
+});
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   THE PLAN — the model chooses which fixed Saati copy fits; it never writes
+   the copy. These cover the boundary where a model's output becomes a claim
+   about a product.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+describe("the support catalogue", () => {
+  it("has copy for every key, and every key is recognised", () => {
+    for (const k of SUPPORT_KEYS) {
+      expect(isSupportKey(k)).toBe(true);
+      expect(SUPPORTS[k].title.length).toBeGreaterThan(0);
+      expect(SUPPORTS[k].body.length).toBeGreaterThan(0);
+      expect(SUPPORTS[k].dimension.length).toBeGreaterThan(0);
+    }
+  });
+
+  it("only recognises ids that exist", () => {
+    expect(isSupportKey("therapy")).toBe(false);
+    expect(isSupportKey("")).toBe(false);
+    expect(isSupportKey(null)).toBe(false);
+    expect(isSupportKey("__proto__")).toBe(false);
+  });
+
+  it("lists every id to the model, but never the body copy", () => {
+    const prompt = buildPrompt(baseInput());
+    for (const k of SUPPORT_KEYS) {
+      expect(prompt).toContain(k);
+      expect(prompt).toContain(SUPPORTS[k].title);
+      /* The model must choose among capabilities, never paraphrase or extend
+         one — so it is not shown the sentence that describes what each does. */
+      expect(prompt).not.toContain(SUPPORTS[k].body);
+    }
+  });
+});
+
+describe("resolvePlan", () => {
+  it("attaches the fixed copy to a chosen id", () => {
+    const [item] = resolvePlan([{ id: "meditation", line: "You said the evenings drag." }]);
+    expect(item.title).toBe(SUPPORTS.meditation.title);
+    expect(item.body).toBe(SUPPORTS.meditation.body);
+    expect(item.dimension).toBe(SUPPORTS.meditation.dimension);
+    expect(item.line).toBe("You said the evenings drag.");
+  });
+
+  it("drops an id that is not in the catalogue rather than rendering an empty card", () => {
+    const out = resolvePlan([
+      { id: "hypnotherapy" as never, line: "invented" },
+      { id: "people", line: "real" },
+    ]);
+    expect(out).toHaveLength(1);
+    expect(out[0].id).toBe("people");
+  });
+
+  it("survives an undefined plan", () => {
+    expect(resolvePlan(undefined)).toEqual([]);
+  });
+});
+
+describe("guardrails reach the new free text", () => {
+  it("catches a product claim the model improvised into a plan line", () => {
+    expect(
+      violatesGuardrails(
+        okResult({ plan: [{ id: "mood", line: "Saati will diagnose what is going on." }] }),
+      ),
+    ).toBe(true);
+  });
+
+  it("catches a verdict smuggled into the closing", () => {
+    expect(violatesGuardrails(okResult({ closing: "Your true purpose is caring for others." })).valueOf()).toBe(true);
+  });
+
+  it("passes an honest plan and closing", () => {
+    expect(
+      violatesGuardrails(
+        okResult({
+          plan: [{ id: "people", line: "You named your kids before anything you do for yourself." }],
+          closing: "Keeping hold of it through an ordinary week is the difficult part.",
+        }),
+      ),
+    ).toBe(false);
+  });
+});
+
+describe("fallbackResult plan", () => {
+  it("still offers something when no provider answered", () => {
+    const r = fallbackResult(baseInput());
+    expect(r.plan?.length).toBeGreaterThan(0);
+    expect(r.closing).toBeTruthy();
+    for (const item of r.plan ?? []) expect(isSupportKey(item.id)).toBe(true);
+  });
+
+  it("offers the people card only when a person was actually named", () => {
+    const withPerson = fallbackResult(baseInput({ person: "Ade" }));
+    expect(withPerson.plan?.some((p) => p.id === "people")).toBe(true);
+    expect(withPerson.plan?.find((p) => p.id === "people")?.line).toContain("Ade");
+
+    const without = fallbackResult(baseInput({ person: "" }));
+    expect(without.plan?.some((p) => p.id === "people")).toBe(false);
+  });
+
+  it("never repeats a card", () => {
+    const r = fallbackResult(baseInput({ person: "Ade" }));
+    const ids = (r.plan ?? []).map((p) => p.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+});
+
+describe("circle colours", () => {
+  it("has a distinct colour for each circle", () => {
+    const values = CIRCLE_KEYS.map((k) => CIRCLE_COLORS[k]);
+    expect(new Set(values).size).toBe(CIRCLE_KEYS.length);
+    for (const v of values) expect(v).toMatch(/^#[0-9A-Fa-f]{6}$/);
   });
 });
