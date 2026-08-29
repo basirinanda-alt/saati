@@ -19,6 +19,7 @@ const report: ReportData = {
   aiSummarySource: "ai",
   belowThreshold: false,
   isFirstAssessment: true,
+    hasEmail: true,
   previous: null,
 };
 

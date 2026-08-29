@@ -9,8 +9,6 @@ import {
 } from "@/lib/scoring/insights";
 import { generateSummary } from "@/lib/ai/client";
 import type { AiSummaryInput } from "@/lib/ai/prompt";
-import { sendResultsEmail } from "@/lib/email/send";
-import { SITE_URL } from "@/lib/seo/site";
 
 export const PERMA_CORE_DOMAIN_ORDER = ["P", "E", "R", "M", "A"] as const;
 export const PERMA_CORE_DOMAIN_LABELS: Record<string, string> = {
@@ -40,6 +38,11 @@ export interface ReportData {
   }[];
   aiSummary: string;
   aiSummarySource: "ai" | "fallback";
+  /** Whether this student has given us an email yet. Drives the results
+   * page gate: the summary, headline score and focus area are always
+   * shown; the full dimension breakdown is revealed once this is true.
+   * See app/(assessment)/assessment/[id]/page.tsx. */
+  hasEmail: boolean;
   belowThreshold: boolean;
   isFirstAssessment: boolean;
   /** The visitor's most recent prior completed assessment, if any — see
@@ -215,29 +218,11 @@ export async function getReportData(
       : [],
     aiSummary,
     aiSummarySource: aiSummarySource === "ai" ? "ai" : "fallback",
+    hasEmail: Boolean(session.email),
     belowThreshold,
     isFirstAssessment,
     previous,
   };
-
-  if (!session.emailSentAt) {
-    const resultsUrl = `${SITE_URL}/assessment/${session.id}`;
-    const result = await sendResultsEmail(session.email, report, resultsUrl);
-    if (!result.success) {
-      console.error(
-        `Failed to auto-send results email for session ${session.id}:`,
-        result.error,
-      );
-    }
-    // Marked sent regardless of outcome — this is a best-effort, one-time
-    // send, not a retry queue (that's background-job territory, which
-    // this project doesn't have — see docs/03-system-architecture.md).
-    // The student can still request a resend via the on-page email form.
-    await prisma.assessmentSession.update({
-      where: { id: session.id },
-      data: { emailSentAt: new Date() },
-    });
-  }
 
   return report;
 }

@@ -2,11 +2,15 @@ import { Resend } from "resend";
 import type { ReportData } from "@/lib/report/getReportData";
 import { buildResultsEmailHtml } from "./template";
 
-// Resend's shared test sender — delivers only to the account owner's own
-// verified email, useful for development. A verified custom domain is
-// required before this can email real students (tracked as a pre-launch
-// blocker in the project's status doc).
-const FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS || "onboarding@resend.dev";
+// `saati.ai` is a verified sending domain in Resend, so this default can
+// reach real students. It deliberately replaces the old
+// `onboarding@resend.dev` fallback: that is Resend's shared *test* sender,
+// which is rejected with a 403 for every recipient except the Resend
+// account owner — and rejected at the API boundary, so the failure never
+// even appears in the Resend dashboard. Between 2026-07-22 and 2026-08-28
+// that default silently meant nobody but the account owner ever received a
+// report. Override with EMAIL_FROM_ADDRESS if the sending domain changes.
+const FROM_ADDRESS = process.env.EMAIL_FROM_ADDRESS || "hello@saati.ai";
 
 export interface SendResultsEmailResult {
   success: boolean;

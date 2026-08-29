@@ -80,10 +80,12 @@ const requestSchema = z.object({
     )
     .strict()
     .optional(),
-  // Required — collecting email before showing results is a deliberate
-  // product decision (2026-07-22) that trades away the anonymous-only
-  // design of Milestones 1-7. See PROJECT_STATUS.md.
-  email: z.string().email(),
+  // Optional as of 2026-08-28, reversing the 2026-07-22 decision to
+  // collect it up front. The email is now asked for on the results page,
+  // after the student has seen their summary and focus area, and is
+  // attached to this session by PATCH /api/assessments/[id]/email. A
+  // session with no email is complete, not partial.
+  email: z.string().email().optional(),
 });
 
 export async function POST(request: Request) {
@@ -136,7 +138,9 @@ export async function POST(request: Request) {
     const session = await prisma.assessmentSession.create({
       data: {
         anonymousToken,
-        email,
+        // Explicit null rather than a bare `undefined`, so "no email yet"
+        // is a stated value in the row and not an accident of omission.
+        email: email ?? null,
         questionSetVersion:
           `who5:${WHO5_QUESTION_SET_VERSION},perma:${PERMA_QUESTION_SET_VERSION}` +
           (insights ? `,insights:${INSIGHT_QUESTION_SET_VERSION}` : ""),

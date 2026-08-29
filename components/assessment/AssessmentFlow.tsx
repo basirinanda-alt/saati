@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { reportEmailSignupConversion } from "@/lib/analytics/gtag";
 import { WHO5_QUESTIONS, WHO5_RESPONSE_OPTIONS } from "@/lib/scoring/who5";
 import {
   PERMA_ANCHOR_LABELS,
@@ -107,16 +106,15 @@ const VARIANT_QUESTIONS: Record<AssessmentVariant, FlowQuestion[]> = {
 };
 
 const VARIANT_INTRO: Record<AssessmentVariant, string> = {
-  full: "Your answers help generate your report; we'll ask for your email before showing results so we can send it to you. This isn't medical advice.",
+  full: "Your answers generate your report, which you'll see straight away \u2014 no sign-up needed. This isn't medical advice.",
   quick:
-    "This is the quick path: just the WHO-5 and PERMA-Profiler (both Validated Measures), skipping the Saati Insight questions. We'll ask for your email before showing results so we can send it to you. This isn't medical advice.",
+    "This is the quick path: just the WHO-5 and PERMA-Profiler (both Validated Measures), skipping the Saati Insight questions. You'll see your results straight away \u2014 no sign-up needed. This isn't medical advice.",
 };
 
 // Selecting an answer auto-advances after this delay — long enough to see
 // the selection register, short enough not to feel sluggish.
 const AUTO_ADVANCE_DELAY_MS = 300;
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
   const router = useRouter();
@@ -125,14 +123,13 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
     Object.fromEntries(flowQuestions.map((q) => [q.id, null])),
   );
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [phase, setPhase] = useState<"questions" | "email">("questions");
-  const [email, setEmail] = useState("");
+  const [phase, setPhase] = useState<"questions" | "ready">("questions");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const advanceTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // A plain callback ref (rather than a single RefObject) so the same
   // function can be attached to different element types across renders
-  // (the question <legend> vs. the email step's <h1>) without a type
+  // (the question <legend> vs. the review step's <h1>) without a type
   // mismatch — RefObject<T> is invariant in T, but a ref callback typed
   // to the common HTMLElement supertype is accepted by both via normal
   // function-parameter contravariance.
@@ -160,9 +157,9 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
     };
   }, []);
 
-  function goToNextQuestionOrEmailStep() {
+  function goToNextQuestionOrReview() {
     if (isLastQuestion) {
-      setPhase("email");
+      setPhase("ready");
     } else {
       setCurrentIndex((index) => index + 1);
     }
@@ -173,7 +170,7 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
 
     if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
     advanceTimeoutRef.current = setTimeout(() => {
-      goToNextQuestionOrEmailStep();
+      goToNextQuestionOrReview();
     }, AUTO_ADVANCE_DELAY_MS);
   }
 
@@ -181,7 +178,7 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
     setErrorMessage(null);
     if (advanceTimeoutRef.current) clearTimeout(advanceTimeoutRef.current);
 
-    if (phase === "email") {
+    if (phase === "ready") {
       setPhase("questions");
       return;
     }
@@ -189,11 +186,6 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
   }
 
   async function handleSubmit() {
-    if (!EMAIL_PATTERN.test(email)) {
-      setErrorMessage("Please enter a valid email address.");
-      return;
-    }
-
     setIsSubmitting(true);
     setErrorMessage(null);
 
@@ -205,10 +197,11 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
         PERMA_QUESTIONS.map((q) => [q.key, answers[`perma:${q.key}`]]),
       );
 
+      // No email — it is asked for on the results page now, once the
+      // student has seen what they are signing up for.
       const body: Record<string, unknown> = {
         who5: who5Responses,
         perma: permaResponses,
-        email,
       };
 
       // Omit `insights` entirely for the quick variant, rather than sending
@@ -237,7 +230,11 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
         return;
       }
 
-      reportEmailSignupConversion();
+      // The Google Ads conversion is NOT fired here any more. This point
+      // used to be the email signup; it no longer is, and counting it as
+      // one would report a conversion for every completed quiz. It now
+      // fires from the results page's unlock form, at the moment an
+      // address is actually captured. See components/report/UnlockForm.tsx.
       router.push(`/assessment/${result.data.sessionId}`);
     } catch {
       setErrorMessage("Something went wrong on our side, please try again.");
@@ -264,11 +261,11 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
 
       <div className="mb-10">
         <ProgressBar
-          current={phase === "email" ? flowQuestions.length : currentIndex + 1}
+          current={phase === "ready" ? flowQuestions.length : currentIndex + 1}
           total={flowQuestions.length}
           label={
-            phase === "email"
-              ? "Almost done"
+            phase === "ready"
+              ? "All done"
               : SECTION_LABELS[currentQuestion.instrument]
           }
         />
@@ -319,25 +316,11 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
             tabIndex={-1}
             className="text-xl font-medium text-neutral-900 outline-none dark:text-neutral-100"
           >
-            Where should we send your results?
+            That&rsquo;s everything — your results are ready.
           </h1>
           <p className="mt-2 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
-            We&rsquo;ll save this email with your report so we can send it to
-            you and keep it linked if you come back later.
+            No sign-up needed. Your results appear on the next screen.
           </p>
-          <label htmlFor="assessment-email" className="sr-only">
-            Email address
-          </label>
-          <input
-            id="assessment-email"
-            type="email"
-            required
-            autoFocus
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@university.edu"
-            className="mt-4 w-full rounded-lg border border-neutral-300 px-3 py-2 text-base text-neutral-900 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-teal-700 dark:border-neutral-600 dark:bg-neutral-800 dark:text-neutral-100"
-          />
         </div>
       )}
 
@@ -356,14 +339,14 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
         >
           Back
         </Button>
-        {phase === "email" && (
+        {phase === "ready" && (
           <Button
             type="button"
             variant="primary"
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Saving..." : "See my results"}
+            {isSubmitting ? "Preparing..." : "See my results"}
           </Button>
         )}
       </div>
