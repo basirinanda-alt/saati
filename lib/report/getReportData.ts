@@ -9,8 +9,6 @@ import {
 } from "@/lib/scoring/insights";
 import { generateSummary } from "@/lib/ai/client";
 import type { AiSummaryInput } from "@/lib/ai/prompt";
-import { sendAdminNotification, sendResultsEmail } from "@/lib/email/send";
-import { SITE_URL } from "@/lib/seo/site";
 
 export const PERMA_CORE_DOMAIN_ORDER = ["P", "E", "R", "M", "A"] as const;
 export const PERMA_CORE_DOMAIN_LABELS: Record<string, string> = {
@@ -225,46 +223,6 @@ export async function getReportData(
     isFirstAssessment,
     previous,
   };
-
-  // `session.email` is null until the student enters one on the results
-  // page, so there is simply nobody to send to on the first render. The
-  // send is triggered instead by POST /api/assessments/[id]/email, which
-  // is also what unlocks the full breakdown.
-  if (session.email && !session.emailSentAt) {
-    const studentEmail = session.email;
-    const resultsUrl = `${SITE_URL}/assessment/${session.id}`;
-    // Both sends are awaited rather than floated — an un-awaited promise in
-    // a serverless function can be killed the moment the response is
-    // returned — but they run concurrently, not in sequence. This render
-    // already carries a Neon cold start (~2.5s observed) and an AI call
-    // before it reaches this point, so a second serial network round-trip
-    // here would spend the platform's function budget for no reason.
-    // Neither send is allowed to affect the student's report.
-    const [result, adminResult] = await Promise.all([
-      sendResultsEmail(studentEmail, report, resultsUrl),
-      sendAdminNotification(studentEmail, report, resultsUrl),
-    ]);
-    if (!result.success) {
-      console.error(
-        `Failed to auto-send results email for session ${session.id}:`,
-        result.error,
-      );
-    }
-    if (!adminResult.success) {
-      console.error(
-        `Failed to send admin notification for session ${session.id}:`,
-        adminResult.error,
-      );
-    }
-    // Marked sent regardless of outcome — this is a best-effort, one-time
-    // send, not a retry queue (that's background-job territory, which
-    // this project doesn't have — see docs/03-system-architecture.md).
-    // The student can still request a resend via the on-page email form.
-    await prisma.assessmentSession.update({
-      where: { id: session.id },
-      data: { emailSentAt: new Date() },
-    });
-  }
 
   return report;
 }

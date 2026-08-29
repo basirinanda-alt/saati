@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getReportData } from "@/lib/report/getReportData";
 import { prisma } from "@/lib/db/client";
 import { sendResultsEmail } from "@/lib/email/send";
+import { addContactToAudience } from "@/lib/email/audience";
 
 type ApiSuccess<T> = { success: true; data: T };
 type ApiFailure = {
@@ -63,12 +64,14 @@ export async function POST(request: Request, { params }: RouteParams) {
   // session at their own address.
   const existing = await prisma.assessmentSession.findUnique({
     where: { id },
-    select: { email: true },
+    select: { email: true, emailSentAt: true },
   });
   if (!existing) {
     return fail(404, "NOT_FOUND", "We couldn't find that assessment.");
   }
-  if (!existing.email) {
+
+  const isUnlock = !existing.email;
+  if (isUnlock) {
     await prisma.assessmentSession.update({
       where: { id },
       data: { email: parsed.data.email },
@@ -81,7 +84,20 @@ export async function POST(request: Request, { params }: RouteParams) {
   }
 
   const resultsUrl = new URL(`/assessment/${id}`, request.url).toString();
-  const result = await sendResultsEmail(parsed.data.email, report, resultsUrl);
+
+  // This route is now the ONLY place a results email is sent. getReportData
+  // used to auto-send on render, which — once the email began arriving here
+  // rather than at submission — would have fired on the getReportData call
+  // just above and sent the student two identical copies.
+  const [result] = await Promise.all([
+    sendResultsEmail(parsed.data.email, report, resultsUrl),
+    // Only the student's own address is collected, never an address they
+    // typed in to forward a copy to a friend: that person did not ask to
+    // hear from Saati, and a marketing list is not the place to put them.
+    isUnlock
+      ? addContactToAudience(parsed.data.email)
+      : Promise.resolve({ success: true as const }),
+  ]);
 
   if (!result.success) {
     return fail(
@@ -89,6 +105,13 @@ export async function POST(request: Request, { params }: RouteParams) {
       "EMAIL_UNAVAILABLE",
       result.error ?? "Something went wrong sending your email.",
     );
+  }
+
+  if (isUnlock && !existing.emailSentAt) {
+    await prisma.assessmentSession.update({
+      where: { id },
+      data: { emailSentAt: new Date() },
+    });
   }
 
   return NextResponse.json<ApiSuccess<{ sent: true }>>({
