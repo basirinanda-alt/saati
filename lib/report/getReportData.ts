@@ -222,23 +222,23 @@ export async function getReportData(
 
   if (!session.emailSentAt) {
     const resultsUrl = `${SITE_URL}/assessment/${session.id}`;
-    const result = await sendResultsEmail(session.email, report, resultsUrl);
+    // Both sends are awaited rather than floated — an un-awaited promise in
+    // a serverless function can be killed the moment the response is
+    // returned — but they run concurrently, not in sequence. This render
+    // already carries a Neon cold start (~2.5s observed) and an AI call
+    // before it reaches this point, so a second serial network round-trip
+    // here would spend the platform's function budget for no reason.
+    // Neither send is allowed to affect the student's report.
+    const [result, adminResult] = await Promise.all([
+      sendResultsEmail(session.email, report, resultsUrl),
+      sendAdminNotification(session.email, report, resultsUrl),
+    ]);
     if (!result.success) {
       console.error(
         `Failed to auto-send results email for session ${session.id}:`,
         result.error,
       );
     }
-
-    // Sent alongside the student's copy, and awaited rather than floated:
-    // an un-awaited promise in a serverless function can be killed when the
-    // response is returned. Its outcome is deliberately not allowed to
-    // affect the student's report.
-    const adminResult = await sendAdminNotification(
-      session.email,
-      report,
-      resultsUrl,
-    );
     if (!adminResult.success) {
       console.error(
         `Failed to send admin notification for session ${session.id}:`,
