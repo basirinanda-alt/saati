@@ -9,7 +9,7 @@ import {
 } from "@/lib/scoring/insights";
 import { generateSummary } from "@/lib/ai/client";
 import type { AiSummaryInput } from "@/lib/ai/prompt";
-import { sendResultsEmail } from "@/lib/email/send";
+import { sendAdminNotification, sendResultsEmail } from "@/lib/email/send";
 import { SITE_URL } from "@/lib/seo/site";
 
 export const PERMA_CORE_DOMAIN_ORDER = ["P", "E", "R", "M", "A"] as const;
@@ -227,6 +227,22 @@ export async function getReportData(
       console.error(
         `Failed to auto-send results email for session ${session.id}:`,
         result.error,
+      );
+    }
+
+    // Sent alongside the student's copy, and awaited rather than floated:
+    // an un-awaited promise in a serverless function can be killed when the
+    // response is returned. Its outcome is deliberately not allowed to
+    // affect the student's report.
+    const adminResult = await sendAdminNotification(
+      session.email,
+      report,
+      resultsUrl,
+    );
+    if (!adminResult.success) {
+      console.error(
+        `Failed to send admin notification for session ${session.id}:`,
+        adminResult.error,
       );
     }
     // Marked sent regardless of outcome — this is a best-effort, one-time
