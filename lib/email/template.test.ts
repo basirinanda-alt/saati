@@ -20,6 +20,7 @@ function buildReport(overrides: Partial<ReportData> = {}): ReportData {
     aiSummarySource: "ai",
     belowThreshold: false,
     isFirstAssessment: true,
+    hasEmail: true,
     previous: null,
     ...overrides,
   };

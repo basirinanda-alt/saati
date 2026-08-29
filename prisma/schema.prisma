@@ -29,13 +29,16 @@ model AssessmentSession {
   /// different device/browser is used.
   anonymousToken String @default(cuid())
 
-  /// Required, collected right before results are shown (see the
-  /// assessment flow's email step) and used to auto-send the finished
-  /// report once generated — see getReportData and lib/email/send.ts.
+  /// Optional, and collected AFTER the results are shown, not before
+  /// (changed 2026-08-28, reversing the 2026-07-22 decision). A student
+  /// sees their summary, headline score and focus area first; the email
+  /// unlocks the full dimension breakdown and sends the written report.
+  /// Null therefore means "has not entered an email yet," which is a
+  /// valid, completed session — never treat it as incomplete data.
   /// This is real, retained personal data tied to sensitive wellbeing
   /// answers; a retention/deletion policy is a documented pre-launch
   /// blocker in PROJECT_STATUS.md, not yet implemented.
-  email String
+  email String?
 
   /// Which version of the question set was shown. Lets us change questions
   /// later without invalidating the meaning of past scores.

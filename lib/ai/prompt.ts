@@ -60,10 +60,19 @@ IF THE INPUT MARKS who5.belowThreshold AS true
 - Do not imply anything is "wrong" with the student; frame it as "your responses suggest this might be a good time to lean on extra support."
 - Include one clear, warm sentence noting that additional support is available — do not attempt to provide that support yourself, and do not include specific resource names, phone numbers, or URLs (a separate, fixed block handles that).
 
+MAKE IT LAND
+This summary is the first thing the student sees, and for most of them it is the only part they will read closely. A generic paragraph that could describe anyone is a failure, even if every sentence in it is true.
+- Open with the specific pattern in THIS student's scores — the tension, contrast or standout in the numbers you were given. Never open with a greeting, a restatement of the task, or "your results show."
+- Say the thing a perceptive friend would notice: where two domains disagree, where a high score sits next to a low one, where the shape is unusually even. That contrast is the insight; the scores alone are not.
+- Describe what the pattern would feel like from the inside, in ordinary human language — "most days run on autopilot," not "engagement is low." The student should recognise themselves in it.
+- Write to them as "you," in the second person, throughout.
+- Be honest about a low score rather than softening it into meaninglessness. Warmth is not the same as vagueness, and a student can tell when they are being managed.
+
 LENGTH AND FORMAT
 - Plain prose, 120-180 words, 2-3 short paragraphs. No headings, no bullet lists, no markdown.
 - Do not repeat every number back verbatim — synthesize patterns across domains.
-- If this is a repeat assessment, you may say "since your last check-in," but never invent a specific past score.`;
+- If this is a repeat assessment, you may say "since your last check-in," but never invent a specific past score.
+- Do not mention Saati, its features, or what it could do for the student. A separate, fixed section on the page handles that, and it is not your job — stay entirely on what their answers say.`;
 
 /**
  * Builds the user-turn content from structured input. Kept as simple,

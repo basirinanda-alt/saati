@@ -40,6 +40,11 @@ export interface ReportData {
   }[];
   aiSummary: string;
   aiSummarySource: "ai" | "fallback";
+  /** Whether this student has given us an email yet. Drives the results
+   * page gate: the summary, headline score and focus area are always
+   * shown; the full dimension breakdown is revealed once this is true.
+   * See app/(assessment)/assessment/[id]/page.tsx. */
+  hasEmail: boolean;
   belowThreshold: boolean;
   isFirstAssessment: boolean;
   /** The visitor's most recent prior completed assessment, if any — see
@@ -215,12 +220,18 @@ export async function getReportData(
       : [],
     aiSummary,
     aiSummarySource: aiSummarySource === "ai" ? "ai" : "fallback",
+    hasEmail: Boolean(session.email),
     belowThreshold,
     isFirstAssessment,
     previous,
   };
 
-  if (!session.emailSentAt) {
+  // `session.email` is null until the student enters one on the results
+  // page, so there is simply nobody to send to on the first render. The
+  // send is triggered instead by POST /api/assessments/[id]/email, which
+  // is also what unlocks the full breakdown.
+  if (session.email && !session.emailSentAt) {
+    const studentEmail = session.email;
     const resultsUrl = `${SITE_URL}/assessment/${session.id}`;
     // Both sends are awaited rather than floated — an un-awaited promise in
     // a serverless function can be killed the moment the response is
@@ -230,8 +241,8 @@ export async function getReportData(
     // here would spend the platform's function budget for no reason.
     // Neither send is allowed to affect the student's report.
     const [result, adminResult] = await Promise.all([
-      sendResultsEmail(session.email, report, resultsUrl),
-      sendAdminNotification(session.email, report, resultsUrl),
+      sendResultsEmail(studentEmail, report, resultsUrl),
+      sendAdminNotification(studentEmail, report, resultsUrl),
     ]);
     if (!result.success) {
       console.error(
