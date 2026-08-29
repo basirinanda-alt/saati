@@ -20,8 +20,19 @@ export interface AddContactResult {
   error?: string;
 }
 
+export interface AddContactOptions {
+  /**
+   * Which list to add to. Defaults to "Wellbeing Check-in" — the assessment's
+   * own audience. Other features pass their own so their subscribers do not
+   * get mixed into the assessment list (Find Your Ikigai uses "General").
+   */
+  audienceId?: string;
+  firstName?: string;
+}
+
 export async function addContactToAudience(
   email: string,
+  options: AddContactOptions = {},
 ): Promise<AddContactResult> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -32,8 +43,9 @@ export async function addContactToAudience(
   try {
     const resend = new Resend(apiKey);
     const { error } = await resend.contacts.create({
-      audienceId: AUDIENCE_ID,
+      audienceId: options.audienceId || AUDIENCE_ID,
       email,
+      ...(options.firstName ? { firstName: options.firstName } : {}),
       // Never pre-marked as unsubscribed: the student entered this address
       // to receive their report, and Resend's own unsubscribe link is what
       // moves them out of the audience later.
