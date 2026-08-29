@@ -39,9 +39,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saati · Find Your Ikigai</title>
-<meta name="description" content="A warm four-minute reflection on what makes your days worth getting up for. Not a personality test — your own words, given back to you. From Saati.">
+<meta name="description" content="A warm four-minute reflection on what gives your life meaning. Not a personality test — your own words, given back to you. From Saati.">
 <meta property="og:title" content="Saati · Find Your Ikigai">
-<meta property="og:description" content="A warm four-minute reflection on what makes your days worth getting up for.">
+<meta property="og:description" content="A warm four-minute reflection on what gives your life meaning.">
 <meta name="robots" content="index,follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -134,22 +134,21 @@
   :focus-visible{outline:2px solid var(--hearth-amber);outline-offset:3px}
 
   /* ── header ──────────────────────────────────────────────────────── */
-  /* position+z-index because the hero's aurora is a positioned element
-     later in the DOM — without this it paints over the wordmark. */
+  /* position+z-index because the hero's aurora and ink branch are both
+     positioned elements later in the DOM — without this they paint over
+     the wordmark. Must stay above .hero-art's z-index:2. */
   header{
-    position:relative;z-index:2;
+    position:relative;z-index:3;
     display:flex;align-items:center;justify-content:space-between;gap:24px;
     width:100%;max-width:1140px;margin:0 auto;padding:28px 24px 0;
   }
   @media(min-width:900px){ header{padding:28px 64px 0} }
   .brand{display:flex;flex-direction:column;gap:4px}
   .brand-name{font-family:var(--font-serif);font-size:20px;line-height:1;color:var(--deep-sage)}
-  .brand-eyebrow,.brand-link{
-    font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;line-height:1;
+  .brand-eyebrow{
+    font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+    line-height:1;color:var(--hearth-amber);
   }
-  .brand-eyebrow{color:var(--hearth-amber)}
-  .brand-link{color:var(--muted);text-decoration:none;transition:color .18s var(--ease)}
-  .brand-link:hover{color:var(--hearth-amber)}
 
   /* ── layout ──────────────────────────────────────────────────────── */
   main{flex:1;width:100%}
@@ -209,8 +208,21 @@
   .btn svg{width:16px;height:16px;flex-shrink:0}
 
   /* ── the intro hero ──────────────────────────────────────────────── */
-  .hero-wrap{position:relative;padding:56px 24px 0}
-  @media(min-width:900px){ .hero-wrap{padding:64px 64px 0} }
+  .hero-wrap{position:relative;padding:clamp(32px,6vw,64px) clamp(20px,5vw,64px) 0}
+  /* The artwork's field is a faint blue-white rather than transparent, so
+     under multiply its bounding box shows as a rectangular seam against the
+     cream. The mockup fades only the bottom edge; fading the right as well
+     (intersecting the two masks) is what actually removes the seam. */
+  .hero-art{
+    position:absolute;top:-150px;left:-120px;width:min(700px,84%);
+    opacity:.4;pointer-events:none;mix-blend-mode:multiply;z-index:2;
+    -webkit-mask-image:linear-gradient(to bottom,#000 42%,transparent 76%),
+                       linear-gradient(to right,#000 55%,transparent 94%);
+    mask-image:linear-gradient(to bottom,#000 42%,transparent 76%),
+               linear-gradient(to right,#000 55%,transparent 94%);
+    -webkit-mask-composite:source-in;
+    mask-composite:intersect;
+  }
   /* Full-bleed and soft-edged. Clipped to the 1140px card it drew a visible
      hard-cornered rectangle across the hero; the radial mask means the wash
      has no edge at all, at any viewport width. */
@@ -230,8 +242,8 @@
     position:relative;z-index:1;display:flex;flex-wrap:wrap;
     gap:56px 56px;align-items:center;justify-content:center;
   }
-  .hero-copy{flex:1 1 380px;min-width:280px}
-  .hero-copy h1{margin:20px 0 0;max-width:600px;font-size:clamp(36px,5.4vw,60px)}
+  .hero-copy{flex:1 1 380px;min-width:min(100%,320px)}
+  .hero-copy h1{margin:20px 0 0;max-width:600px;font-size:clamp(34px,7vw,64px)}
   .hero-copy .lead{margin:26px 0 0;max-width:520px;font-size:18px}
   .hero-copy .lead-sm{margin-top:16px;font-size:16px;color:var(--muted);max-width:500px}
   .hero-actions{display:flex;align-items:center;gap:20px;margin-top:36px;flex-wrap:wrap}
@@ -246,7 +258,7 @@
 
   /* Decorative four-circle mark. Percentages, not the design system's
      fixed 460px, so it scales; geometry is otherwise the mockup's. */
-  .hero-venn{position:relative;width:460px;max-width:100%;aspect-ratio:1;flex:0 1 460px}
+  .hero-venn{position:relative;width:min(460px,100%);aspect-ratio:1;flex:0 1 460px}
   .hv{
     position:absolute;width:56.52%;aspect-ratio:1;border-radius:50%;opacity:.76;
     mix-blend-mode:multiply;animation:breathe 11s ease-in-out infinite;
@@ -261,22 +273,16 @@
   @keyframes breathe{0%,100%{opacity:.66}50%{opacity:.86}}
   .hv-label{
     position:absolute;text-align:center;
-    font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
-    line-height:1.4;
+    font-size:clamp(9px,2.2vw,11px);font-weight:600;letter-spacing:.12em;
+    text-transform:uppercase;line-height:1.4;
   }
   .hv-l-love    {left:0;top:7.4%;   width:100%;   color:#8a5f20}
   .hv-l-good    {left:69.6%;top:47%; width:30.4%; color:#2f4139}
   .hv-l-need    {left:0;top:86.5%;  width:100%;   color:#375966}
   .hv-l-sustain {left:0;top:47%;    width:30.4%; color:#7a4a41}
   .hv-centre{
-    position:absolute;left:32.6%;top:44.8%;width:34.8%;text-align:center;
-    font-family:var(--font-serif);font-size:clamp(22px,3vw,30px);color:var(--ink);
-  }
-  /* On a phone the four side labels wrap into each other and shove the
-     CTA off-screen. Keep the circles, drop the labels. */
-  @media(max-width:660px){
-    .hero-venn{max-width:300px;margin:0 auto}
-    .hv-label:not(.hv-centre){display:none}
+    position:absolute;left:32.6%;top:43.5%;width:34.8%;text-align:center;
+    font-family:var(--font-serif);font-size:clamp(22px,6vw,30px);color:var(--ink);
   }
 
   /* ── notice / disclaimer card ────────────────────────────────────── */
@@ -510,7 +516,6 @@
     <span class="brand-name">Saati</span>
     <span class="brand-eyebrow">Find your ikigai</span>
   </div>
-  <a class="brand-link" href="https://saati.ca">saati.ca</a>
 </header>
 
 <main>
@@ -524,18 +529,25 @@
            copy at z-index 0 and is switched off by prefers-reduced-motion. -->
       <div class="aurora" aria-hidden="true"><span></span><span></span><span></span></div>
 
+      <!-- Absolute path, like the two endpoints: the page is reachable as
+           both /ikigai and /ikigai/, and a relative src resolves to /art.png
+           from the former. Decorative, so a miss costs nothing. -->
+      <img class="hero-art" src="/ikigai/art.png" alt="" aria-hidden="true">
+
       <div class="hero">
         <div class="hero-copy">
           <div class="section-label">A four-minute reflection</div>
-          <h1>What makes your days worth getting up for?</h1>
+          <h1>What gives your life meaning?</h1>
           <p class="lead">
-            <em>Ikigai</em> is an everyday Japanese word. It doesn't mean a grand destiny or a job
-            title — in Japan it's used about ordinary things. A garden. A grandchild. The walk you
-            take each morning.
+            <em>Ikigai</em> is a Japanese idea about the things that make life feel worth living.
+            It doesn't have to be a big purpose or a career. It can be something simple — a person
+            you love, a place that brings you peace, a small thing you look forward to each day.
           </p>
           <p class="lead lead-sm">
-            Four questions about your own life. No score, no right answer. At the end you get your
-            four circles drawn, and a few sentences built from what you actually said.
+            Take a few moments to reflect on four simple questions about your life. There are no
+            right or wrong answers, and nothing to score. When you're finished, Saati will bring
+            your reflections together into your own ikigai map — and a few words that reflect what
+            matters to you.
           </p>
 
           <div class="hero-actions">
