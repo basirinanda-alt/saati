@@ -128,3 +128,63 @@ describe("the plan and closing are covered by the signature", () => {
     expect(verifyResult({ ...r, closing: "something else entirely" }, token)).toBe(false);
   });
 });
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   REGRESSION — the deliver route rebuilds the result from only the fields we
+   sign, so extra keys in the body cannot ride into the email. That rebuild
+   and the signed field list are coupled: adding a signed field without
+   extending the rebuild silently drops it, canonical() diverges, and every
+   valid pair fails to verify. That is exactly what happened when `plan` and
+   `closing` were added — delivery returned unverified_result on a reflection
+   the server had just signed itself.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+describe("a signed result survives the deliver route's rebuild", () => {
+  /** Mirrors the normalisation in app/api/ikigai/deliver/route.ts. */
+  const rebuildLikeDeliver = (raw: IkigaiResult): IkigaiResult => {
+    const cut = (v: unknown, n: number) =>
+      typeof v === "string" ? v.trim().slice(0, n) : "";
+    const circles = {} as Record<string, string>;
+    for (const k of ["love", "good", "need", "sustains"]) {
+      circles[k] = cut((raw.circles as Record<string, string>)?.[k], 320);
+    }
+    return {
+      centre: cut(raw.centre, 70),
+      circles: circles as IkigaiResult["circles"],
+      thread: cut(raw.thread, 900),
+      step: cut(raw.step, 500),
+      plan: (raw.plan ?? []).slice(0, 4).map((p) => ({ id: p.id, line: cut(p.line, 260) })),
+      closing: cut(raw.closing, 700),
+    };
+  };
+
+  it("verifies after the round trip, with a plan and a closing", () => {
+    const generated: IkigaiResult = {
+      centre: "keeping an eye on the people nearby",
+      circles: { love: "l", good: "g", need: "n", sustains: "s" },
+      thread: "t",
+      step: "st",
+      plan: [
+        { id: "people", line: "You named Joan before anything you do for yourself." },
+        { id: "steps", line: "You said your own week never gets put first." },
+      ],
+      closing: "Keeping hold of it through an ordinary week is the difficult part.",
+    };
+    const token = signResult(generated);
+    expect(verifyResult(rebuildLikeDeliver(generated), token)).toBe(true);
+  });
+
+  it("verifies when the plan is empty, as it is on the fallback path", () => {
+    const generated: IkigaiResult = {
+      centre: "c",
+      circles: { love: "l", good: "g", need: "n", sustains: "s" },
+      thread: "t",
+      step: "st",
+      plan: [],
+      closing: "",
+    };
+    const token = signResult(generated);
+    expect(verifyResult(rebuildLikeDeliver(generated), token)).toBe(true);
+  });
+});

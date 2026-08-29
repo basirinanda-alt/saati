@@ -18,7 +18,9 @@
 import { NextResponse } from "next/server";
 import {
   CIRCLE_KEYS,
+  isSupportKey,
   type CircleKey,
+  type PlanItem,
   type IkigaiResult,
 } from "@/lib/ikigai/reflection";
 import { verifyResult } from "@/lib/ikigai/signing";
@@ -70,11 +72,28 @@ export async function POST(request: Request) {
   const circles = {} as Record<CircleKey, string>;
   for (const k of CIRCLE_KEYS) circles[k] = str(rawCircles[k], 320);
 
+  /* The plan is rebuilt under the SAME whitelist and the SAME clamp the
+     generate step applied, because the signature is computed over it. Anything
+     looser and a valid pair fails to verify; anything stricter and an id the
+     model never chose could reach the email. */
+  const rawPlan = Array.isArray(raw.plan) ? raw.plan : [];
+  const plan: PlanItem[] = [];
+  const seen = new Set<string>();
+  for (const item of rawPlan.slice(0, 4)) {
+    if (!item || typeof item !== "object") continue;
+    const id = (item as Record<string, unknown>).id;
+    if (!isSupportKey(id) || seen.has(id)) continue;
+    seen.add(id);
+    plan.push({ id, line: str((item as Record<string, unknown>).line, 260) });
+  }
+
   const result: IkigaiResult = {
     centre: str(raw.centre, 70),
     circles,
     thread: str(raw.thread, 900),
     step: str(raw.step, 500),
+    plan,
+    closing: str(raw.closing, 700),
   };
 
   if (!verifyResult(result, b.token)) {
