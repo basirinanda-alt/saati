@@ -8,6 +8,10 @@ import type { FocusArea } from "@/lib/report/focusArea";
  * tell which is which at a glance. The copy is fixed per focus area (see
  * lib/report/focusArea.ts) rather than model-generated, so the claim it
  * makes is reviewable and identical for every student who lands here.
+ *
+ * Deliberately has NO call to action of its own. The email capture that
+ * follows it is the page's single CTA — a second button here competed with
+ * it for the same click and sent that click off-site instead.
  */
 export function SaatiInvitation({ focusArea }: { focusArea: FocusArea }) {
   return (
@@ -33,13 +37,6 @@ export function SaatiInvitation({ focusArea }: { focusArea: FocusArea }) {
       <p className="mt-3 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
         {focusArea.saatiOffer}
       </p>
-
-      <a
-        href="https://saati.ai/"
-        className="mt-5 inline-flex items-center justify-center rounded-lg bg-teal-700 px-6 py-3 text-base font-medium text-white transition-colors hover:bg-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 dark:bg-teal-600 dark:hover:bg-teal-500"
-      >
-        See how Saati works
-      </a>
 
       {/* Saati is not a clinical service and this page must never read as
           though a score has been treated. See docs/06-ai.md. */}
