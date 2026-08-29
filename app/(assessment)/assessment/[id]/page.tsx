@@ -90,6 +90,19 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
 
       <SaatiInvitation focusArea={focusArea} />
 
+      {/* The page's single call to action, sitting directly under the
+          invitation it follows from — the student has just been told which
+          area needs attention and that Saati addresses it, and the next
+          thing they can do is hand over an address. The invitation used to
+          carry its own "See how Saati works" button, which competed for the
+          same click and sent it off-site. */}
+      {!report.hasEmail && (
+        <UnlockForm
+          sessionId={report.sessionId}
+          lockedItemLabel="full breakdown across all five areas"
+        />
+      )}
+
       {/* Deliberately outside the gate. If a student's responses suggest
           they need support, they see that whether or not they ever give us
           an email — signposting to help is not a thing to be traded for. */}
@@ -171,12 +184,7 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             comparison={comparison}
           />
         </>
-      ) : (
-        <UnlockForm
-          sessionId={report.sessionId}
-          lockedItemLabel="full breakdown across all five areas"
-        />
-      )}
+      ) : null}
 
       <div className="mt-10 flex flex-col gap-6 print:hidden">
         {/* Both of these restate the whole report, so they belong on the
