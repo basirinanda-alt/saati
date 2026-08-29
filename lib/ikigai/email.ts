@@ -10,8 +10,10 @@ import { Resend } from "resend";
 import {
   CIRCLE_KEYS,
   CIRCLE_LABELS,
+  SUPPORTS,
   type IkigaiResult,
 } from "./reflection";
+import { buildEmailHtml } from "./email-html";
 
 const SEND_TIMEOUT_MS = 8_000;
 
@@ -29,6 +31,25 @@ const ADMIN_ADDRESS = process.env.ADMIN_NOTIFICATION_EMAIL || "info@saati.ca";
 export interface SendResult {
   sent: boolean;
   error?: string;
+}
+
+/** Plain-text twin of the plan cards in the HTML body. */
+function planText(result: IkigaiResult): string {
+  const plan = result.plan ?? [];
+  if (!plan.length) return "";
+  const items = plan
+    .map((item, i) => {
+      const s = SUPPORTS[item.id];
+      if (!s) return "";
+      return (
+        `${i + 1}. ${s.title.toUpperCase()}  [${s.dimension}]\n` +
+        (item.line ? `   ${item.line}\n` : "") +
+        `   ${s.body}\n`
+      );
+    })
+    .filter(Boolean)
+    .join("\n");
+  return `WHERE SAATI COULD COME IN\nChosen for what you wrote, not for everyone.\n\n${items}\n`;
 }
 
 export function buildEmailText(
@@ -49,9 +70,9 @@ export function buildEmailText(
     `  better than four questions ever could.\n\n` +
     `ONE SMALL STEP THIS WEEK\n  ${result.step}\n\n` +
     `─────────────────────────────────────────────\n\n` +
-    `Noticing the thread is one thing. Keeping hold of it through an ordinary week is another.\n` +
-    `That is what Saati is built for — a companion that remembers what matters to you, checks in\n` +
-    `without nagging, and helps you take the next small step. You can read more at https://saati.ca\n\n` +
+    planText(result) +
+    (result.closing ? `${result.closing}\n\n` : "") +
+    `You can read more at https://saati.ca\n\n` +
     `With warmth,\nSaati — a companion for life's quieter moments\nhttps://saati.ca\n\n` +
     `This is a reflection, not a diagnosis. Saati is a wellbeing companion, not a therapist or\n` +
     `medical service. In Canada you can call or text 9-8-8 any time if you need to talk to someone.\n`
@@ -62,6 +83,7 @@ async function send(
   to: string,
   subject: string,
   text: string,
+  html?: string,
 ): Promise<SendResult> {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -85,6 +107,7 @@ async function send(
         to,
         subject,
         text,
+        ...(html ? { html } : {}),
       });
       if (error) {
         console.error("ikigai: Resend returned an error:", error);
@@ -122,8 +145,12 @@ export async function sendResults(
     `Added to audience: ${meta.contactAdded ? "yes" : `NO — ${meta.contactError ?? "unknown"}`}\n\n` +
     text;
 
+  /* The participant gets text + HTML; the admin copy stays plain text — it is
+     an operational notice, and the metadata header above it matters more than
+     the styling. Every client that refuses HTML still gets the full plan from
+     the text part, so the promise of a plan is never rendered-dependent. */
   const [participant] = await Promise.all([
-    send(to, "Your ikigai — what you told us", text),
+    send(to, "Your ikigai — what you told us", text, buildEmailHtml(name || "there", result)),
     send(ADMIN_ADDRESS, `New ikigai reflection: ${to}`, adminBody),
   ]);
 

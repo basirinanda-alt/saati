@@ -38,6 +38,27 @@ export const CIRCLE_LABELS: Record<CircleKey, string> = {
   sustains: "What sustains you",
 };
 
+/**
+ * The four circles' identity colours — one source of truth for the email.
+ * The page carries the same four as the --c-* tokens in public/ikigai/index.html
+ * and the CIRCLES constant inside it; ikigai_lib.php carries them for the PHP
+ * host. All three must match.
+ *
+ * These are a VALIDATED categorical set, not a taste call. The earlier brand-
+ * tinted four (#D4872C/#4A645A/#4E7A8C/#A9695E) failed the normal-vision
+ * separation floor — sage against slate-blue came out at ΔE 8.9, i.e. hard to
+ * tell apart even with full colour vision, on the four marks whose entire job
+ * is telling four things apart. This set passes lightness, chroma, CVD
+ * separation, normal-vision separation and contrast against the #fff8f4
+ * surface. Re-run the check before changing any of them.
+ */
+export const CIRCLE_COLORS: Record<CircleKey, string> = {
+  love: "#C2811A",
+  good: "#0D7A4E",
+  need: "#2668A8",
+  sustains: "#9C4667",
+};
+
 export type AgeBand = "youth" | "adult" | "senior";
 
 export interface IkigaiInput {
@@ -47,12 +68,132 @@ export interface IkigaiInput {
   person: string;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   WHAT SAATI OFFERS — a FIXED, human-written catalogue.
+
+   The model never writes a claim about what Saati does. It only chooses
+   which of these genuinely fit what the person wrote, and writes the one
+   sentence joining their life to it. `title` and `body` below are our copy,
+   reviewed once, identical for everyone; only `line` is personal.
+
+   That split is the whole point. buildPrompt() still forbids the model from
+   naming Saati or any product, so a hallucinated capability cannot reach a
+   reader — the worst a bad pick can do is offer a real thing to someone it
+   suits less well.
+
+   Every entry is grounded in FEATURES.md Part 1 (built) or in the research
+   doctrine in CLAUDE.md. Nothing from Part 2 (proposed) is described here as
+   though it exists. Dimensions are PERMA, per Design Specification/06.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+export const SUPPORT_KEYS = [
+  "companionship",
+  "people",
+  "meaning",
+  "meditation",
+  "mindfulness",
+  "mood",
+  "steps",
+] as const;
+export type SupportKey = (typeof SUPPORT_KEYS)[number];
+
+export interface Support {
+  /** PERMA dimension, per Design Specification/06_Wellness_Scoring_System.md */
+  dimension: string;
+  title: string;
+  body: string;
+}
+
+export const SUPPORTS: Record<SupportKey, Support> = {
+  companionship: {
+    dimension: "Relationships",
+    title: "Someone to talk to, at any hour",
+    body:
+      "Saati holds an unhurried conversation whenever you want one, and remembers what " +
+      "matters to you — so next week it asks after the thing you mentioned this week.",
+  },
+  people: {
+    dimension: "Relationships",
+    title: "Pointed back toward your people",
+    body:
+      "Saati is built to move you toward the people in your life, not to replace them. " +
+      "It notices when you mention someone, and it treats a call you made as the win.",
+  },
+  meaning: {
+    dimension: "Meaning",
+    title: "Purpose, picked up over weeks",
+    body:
+      "Four questions can only go so far. Saati carries this on as a conversation you can " +
+      "leave and come back to, rather than a page you finish once.",
+  },
+  meditation: {
+    dimension: "Engagement",
+    title: "Guided meditation, at your pace",
+    body:
+      "Recorded sessions you can follow without hurrying, including a full body scan — " +
+      "no streaks to keep, nothing to complete.",
+  },
+  mindfulness: {
+    dimension: "Positive Emotion",
+    title: "Something for the loud moments",
+    body:
+      "Short grounding and breathing practices for when a day gets away from you. " +
+      "They work offline, and they take a couple of minutes.",
+  },
+  mood: {
+    dimension: "Positive Emotion",
+    title: "A way through a circling thought",
+    body:
+      "Mood Check is a quiet, optional walk around a thought that keeps coming back — " +
+      "spoken, not a form, with no scores and no labels.",
+  },
+  steps: {
+    dimension: "Accomplishment",
+    title: "The next small step, and the one after",
+    body:
+      "Keeping hold of a thread through an ordinary week is the hard part. Saati helps you " +
+      "pick the next small step, and notices when you have taken it.",
+  },
+};
+
+export interface PlanItem {
+  id: SupportKey;
+  /** One sentence, in the person's own words, joining their life to the support. */
+  line: string;
+}
+
 export interface IkigaiResult {
   centre: string;
   circles: Record<CircleKey, string>;
   thread: string;
   step: string;
+  /** 2-4 supports chosen for this person. Never present on a crisis result. */
+  plan?: PlanItem[];
+  /** The closing statement — written fresh for this person, not a template. */
+  closing?: string;
   crisis?: boolean;
+}
+
+export function isSupportKey(v: unknown): v is SupportKey {
+  return typeof v === "string" && (SUPPORT_KEYS as readonly string[]).includes(v);
+}
+
+/**
+ * Attaches the fixed copy to each chosen support so the PAGE can render the
+ * plan without carrying its own copy of the catalogue. Keeping it here rather
+ * than in public/ikigai/index.html means the wording exists in two places
+ * (this file and ikigai_lib.php for the PHP host) instead of three.
+ *
+ * Display only. The email never trusts these fields — it re-resolves from
+ * SUPPORTS by id, so what we send from our own domain is always our copy even
+ * if the round trip through the browser were tampered with.
+ */
+export function resolvePlan(
+  plan: PlanItem[] | undefined,
+): Array<PlanItem & Support> {
+  return (plan ?? [])
+    .filter((p) => isSupportKey(p?.id))
+    .map((p) => ({ ...p, ...SUPPORTS[p.id] }));
 }
 
 const OPENAI_MODEL = process.env.OPENAI_MODEL || "gpt-5.4-mini";
@@ -191,10 +332,24 @@ NEVER, UNDER ANY CIRCUMSTANCES
 - Never explain what ikigai is, mention Venn diagrams, circles, frameworks, or Japan.
 - Never promise an outcome, and never imply this is therapy, diagnosis, or treatment.
 - Never create an obligation to come back.
-- Never mention Saati, this website, an app, a companion, or any product or service,
-  and never suggest anything the person should sign up for or use. You are writing only
-  about their life. Claims about what any product does for someone are written and
-  reviewed separately, and are never yours to improvise.
+- Never name Saati, this website, an app, or any product or service, in ANY field —
+  including the plan lines and the closing. You write only about their life. What the
+  product does is fixed copy written and reviewed elsewhere; you choose which of it fits
+  and say why, and you never describe, extend, or invent a capability.
+
+═══════════════════════════════════════════════════════════════════
+CHOOSING WHAT WOULD HELP
+
+Below is a fixed list. Choose the 3 that genuinely fit what THIS person wrote — not the
+3 that sound best. If their answers point at loneliness, choose the ones about people.
+If they wrote about a mind that will not settle, choose the quieter ones. A wrong-but-
+flattering pick is worse than an obvious one.
+
+${SUPPORT_KEYS.map((k) => `  ${k} — ${SUPPORTS[k].title} (${SUPPORTS[k].dimension})`).join("\n")}
+
+For each one you choose, write ONE sentence saying why it fits THEM, quoting their own
+words. "You said the evenings are the long part of the day" — not "this supports your
+wellbeing journey". Do not describe what the thing does; that is already written.
 
 ═══════════════════════════════════════════════════════════════════
 RETURN EXACTLY THIS JSON
@@ -209,7 +364,15 @@ circles:  one sentence for each of love / good / need / sustains. Each one refle
 thread:   2 to 4 sentences. Hedged at the start. Built only from what they wrote. Names the
           pattern across their answers as an activity. Modest and true beats impressive and invented.
 step:     1 to 2 sentences. One small, finishable thing this week. Points at the named person if
-          there is one. No scheduling, no reminders, no asking to hear how it went.`;
+          there is one. No scheduling, no reminders, no asking to hear how it went.
+plan:     an array of exactly 3 objects, each {"id": <one id from the list above>, "line": <one
+          sentence, their words, why it fits them>}. Ids must be spelled exactly as listed and
+          must not repeat. Order them most-relevant first.
+closing:  2 to 3 sentences, written fresh for this person — not a template, and it must not read
+          like it could be sent to anyone else. Name what they are already doing, in their words.
+          Say plainly that keeping hold of it through an ordinary week is the difficult part and
+          that they do not have to do it alone. No product, no promise, no exclamation mark, and
+          no instruction to sign up for anything.`;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -243,6 +406,8 @@ export function violatesGuardrails(result: IkigaiResult): boolean {
     result.centre,
     result.thread,
     result.step,
+    result.closing ?? "",
+    ...(result.plan ?? []).map((p) => p.line),
     ...CIRCLE_KEYS.map((k) => result.circles[k] ?? ""),
   ].join(" \n ");
   return BANNED_PATTERNS.some((p) => p.test(blob));
@@ -279,6 +444,32 @@ export function fallbackResult(input: IkigaiInput): IkigaiResult {
 
   const blank = "You left this one open, which is fair enough.";
 
+  /* The plan has a deterministic fallback too, so a provider outage costs the
+     personal LINE but never the offer itself. Chosen from what they actually
+     filled in rather than a fixed three: someone who named a person gets the
+     people card, someone who left it all blank does not. */
+  const plan: PlanItem[] = [];
+  const push = (id: SupportKey, line: string) => {
+    if (plan.length < 3 && !plan.some((p) => p.id === id)) plan.push({ id, line });
+  };
+  if (person) {
+    push("people", `You mentioned ${person}, and that is worth more than anything a page can tell you.`);
+  }
+  if (snip(answers.sustains)) {
+    push("mindfulness", `You wrote about what gets in the way — "${snip(answers.sustains)}".`);
+  }
+  if (snip(answers.love)) {
+    push("steps", `Keeping "${snip(answers.love)}" in an ordinary week is the difficult part.`);
+  }
+  push("companionship", "Somewhere to think out loud, on the days you want to.");
+  push("meaning", "Four questions is a start rather than an answer.");
+
+  const closing = bits.length
+    ? "What you wrote is already yours — nobody handed it to you and nobody can take it back. " +
+      "The hard part was never noticing it. It is holding on to it through a week that has other plans."
+    : "There is no rush on any of this. The questions will still be here on a quieter day, " +
+      "and so will whatever you would have said.";
+
   return {
     centre: snip(answers.love)
       ? snip(answers.love).toLowerCase()
@@ -291,6 +482,8 @@ export function fallbackResult(input: IkigaiInput): IkigaiResult {
     },
     thread,
     step,
+    plan,
+    closing,
   };
 }
 
@@ -313,11 +506,29 @@ function parseResult(text: string): IkigaiResult | null {
     for (const k of CIRCLE_KEYS) {
       circles[k] = typeof o.circles[k] === "string" ? o.circles[k] : "";
     }
+    /* Ids are whitelisted, never trusted. An unknown id is dropped rather than
+       rendered: it would otherwise reach the page as an empty card, or worse,
+       as a capability nobody wrote. Duplicates collapse for the same reason. */
+    const plan: PlanItem[] = [];
+    const seen = new Set<string>();
+    if (Array.isArray(o.plan)) {
+      for (const item of o.plan) {
+        if (!item || typeof item !== "object") continue;
+        const id = (item as Record<string, unknown>).id;
+        const line = (item as Record<string, unknown>).line;
+        if (!isSupportKey(id) || seen.has(id)) continue;
+        seen.add(id);
+        plan.push({ id, line: typeof line === "string" ? line : "" });
+      }
+    }
+
     return {
       centre: o.centre,
       circles,
       thread: o.thread,
       step: typeof o.step === "string" ? o.step : "",
+      plan: plan.slice(0, 4),
+      closing: typeof o.closing === "string" ? o.closing : "",
     };
   } catch {
     return null;
@@ -444,6 +655,8 @@ export async function generateReflection(
         },
         thread: clamp(out.thread, 900),
         step: clamp(out.step, 500),
+        plan: (out.plan ?? []).map((p) => ({ id: p.id, line: clamp(p.line, 260) })),
+        closing: clamp(out.closing ?? "", 700),
       },
       source: attempt.source,
     };

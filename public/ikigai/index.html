@@ -109,14 +109,20 @@
     --gradient-cta-hover:linear-gradient(135deg,#D4872C,#e8a85a);
     --gradient-dash:linear-gradient(90deg,#4a645a,#D4872C);
 
-    /* The four circles. Brand-family hues, paired warm/cool on each axis
-       so all four stay tellable apart at the Venn's multiply opacity —
-       two sages or two ambers would collapse into each other once the
-       person's own answers are hanging off them. */
-    --c-love:#D4872C;
-    --c-good:#4A645A;
-    --c-need:#4E7A8C;
-    --c-sustain:#A9695E;
+    /* The four circles — a VALIDATED categorical set, not a taste call.
+       These carry identity for four marks whose whole job is being told
+       apart, so they were checked rather than eyeballed. The earlier
+       brand-tinted four (#D4872C/#4A645A/#4E7A8C/#A9695E) failed: sage
+       against slate-blue came out at ΔE 8.9 in NORMAL vision — hard to
+       separate even with full colour vision, before considering CVD.
+       This set passes lightness, chroma, colour-blind separation,
+       normal-vision separation and contrast against the cream ground.
+       They also live in lib/ikigai/reflection.ts (CIRCLE_COLORS, for the
+       email) and in ikigai_lib.php. Re-validate before changing one. */
+    --c-love:#C2811A;
+    --c-good:#0D7A4E;
+    --c-need:#2668A8;
+    --c-sustain:#9C4667;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -266,10 +272,10 @@
   /* Light tints of the four --c-* hues, not the hues themselves: four
      saturated fills under mix-blend-multiply stack to near-black exactly
      where the word "ikigai" sits. */
-  .hv-love    {left:21.74%;top:0;        background:#f6e3c8;border:1px solid rgba(212,135,44,.22);animation-duration:9s}
-  .hv-good    {left:43.48%;top:21.74%;   background:#bcd6ca;border:1px solid rgba(74,100,90,.2);  animation-delay:1s}
-  .hv-need    {left:21.74%;top:43.48%;   background:#cfe1e8;border:1px solid rgba(78,122,140,.2); animation-duration:13s;animation-delay:2s}
-  .hv-sustain {left:0;     top:21.74%;   background:#f0dbd4;border:1px solid rgba(169,105,94,.2); animation-duration:10s;animation-delay:3s}
+  .hv-love    {left:21.74%;top:0;        background:#f4e2c4;border:1px solid rgba(194,129,26,.22);animation-duration:9s}
+  .hv-good    {left:43.48%;top:21.74%;   background:#c4e0d1;border:1px solid rgba(13,122,78,.2);   animation-delay:1s}
+  .hv-need    {left:21.74%;top:43.48%;   background:#ccdcee;border:1px solid rgba(38,104,168,.2);  animation-duration:13s;animation-delay:2s}
+  .hv-sustain {left:0;     top:21.74%;   background:#efd6de;border:1px solid rgba(156,70,103,.2);  animation-duration:10s;animation-delay:3s}
   @keyframes breathe{0%,100%{opacity:.66}50%{opacity:.86}}
   .hv-label{
     position:absolute;text-align:center;
@@ -277,9 +283,9 @@
     text-transform:uppercase;line-height:1.4;
   }
   .hv-l-love    {left:0;top:7.4%;   width:100%;   color:#8a5f20}
-  .hv-l-good    {left:69.6%;top:47%; width:30.4%; color:#2f4139}
-  .hv-l-need    {left:0;top:86.5%;  width:100%;   color:#375966}
-  .hv-l-sustain {left:0;top:47%;    width:30.4%; color:#7a4a41}
+  .hv-l-good    {left:69.6%;top:47%; width:30.4%; color:#0b5c3b}
+  .hv-l-need    {left:0;top:86.5%;  width:100%;   color:#1d4e7e}
+  .hv-l-sustain {left:0;top:47%;    width:30.4%; color:#76354e}
   .hv-centre{
     position:absolute;left:32.6%;top:43.5%;width:34.8%;text-align:center;
     font-family:var(--font-serif);font-size:clamp(22px,6vw,30px);color:var(--ink);
@@ -463,6 +469,32 @@
     border-bottom:1.5px solid transparent;transition:color .18s var(--ease),border-color .18s var(--ease);
   }
   .xlink a:hover{color:var(--hearth-amber);border-bottom-color:var(--hearth-amber)}
+
+  /* ── the plan ─────────────────────────────────────────────────────
+     No meters or bars on these cards. Nothing here is scored — a filled
+     bar would claim a magnitude the page does not have and must not
+     invent. The PERMA dimension is a name, so it reads as a name. */
+  .plan-card{
+    background:var(--surface-glass);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 24px;margin-top:12px;box-shadow:var(--shadow-card);
+  }
+  .plan-dim{
+    display:inline-block;background:var(--panel);border-radius:var(--radius-full);
+    padding:5px 12px;margin-bottom:12px;
+    font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--deep-sage);
+  }
+  .plan-card h3{font-size:20px;margin-bottom:10px}
+  .plan-why{
+    border-left:2px solid var(--hearth-amber);padding-left:14px;margin-bottom:12px;
+    font-size:16px;line-height:1.6;color:var(--ink);
+  }
+  .plan-body{font-size:15px;line-height:1.6;color:var(--body)}
+  .closing{
+    margin-top:30px;padding:28px;border-radius:var(--radius);
+    background:var(--wash);border:1px solid var(--line);box-shadow:var(--shadow-card);
+    font-family:var(--font-serif);font-size:19px;line-height:1.55;color:var(--ink);
+  }
+  .closing:empty{display:none}
 
   .disclaimer{margin-top:26px;font-size:13px;color:var(--muted);line-height:1.6}
 
@@ -716,29 +748,37 @@
       <p id="r-step"></p>
     </div>
 
-    <div class="cta">
-      <h2>This is the part that's hard to do alone</h2>
-      <p>
-        Noticing the thread is one thing. Keeping hold of it through an ordinary week is another.
-        Saati is a companion built for exactly that — it remembers what matters to you, checks in
-        without nagging, and helps you take the next small step toward the life you just described.
-      </p>
-      <a class="btn" href="https://saati.ca" style="display:inline-block;text-decoration:none">Learn about Saati &nbsp;→</a>
+    <!-- ── Where Saati could come in ──────────────────────────────────
+         The card copy is FIXED and written by us; the model only chooses
+         which cards fit this person and writes the one italic line saying
+         why. It never describes a capability — see buildPrompt() in
+         lib/ikigai/reflection.ts and ikigai_build_prompt() in ikigai_lib.php.
+    ──────────────────────────────────────────────────────────────── -->
+    <div id="plan-block" style="display:none">
+      <h2 style="margin-top:34px">Where Saati could come in</h2>
+      <p class="muted" style="margin-top:6px">Chosen for what you wrote, not for everyone.</p>
+      <div id="r-plan"></div>
     </div>
 
-    <!-- Email is asked for AFTER the results, never before, and never for the
-         crisis path. The confirmation below renders off the real send result —
-         never off the fact that an attempt was made. -->
+    <p class="closing" id="r-closing"></p>
+
+    <!-- ── The ONE call to action on this page ────────────────────────
+         Everything that used to compete with it (a "Learn about Saati"
+         button, a cross-link to the other quiz) is gone. Asked for AFTER
+         the results and never on the crisis path; the confirmation renders
+         off the real send result, never off the fact that an attempt was
+         made.
+    ──────────────────────────────────────────────────────────────── -->
     <div class="gate" id="email-card">
-      <h2>Want a copy to keep?</h2>
+      <h2>Send me my complete plan</h2>
       <p class="lead">
-        We'll email you this reflection, plus a few gentle ideas for what to do with it.
-        Entirely optional — your results are already yours, above.
+        Your reflection, your four circles and the plan above — laid out properly, in your inbox,
+        to keep. Entirely optional: everything is already on this page.
       </p>
       <form class="gate-form" id="gate-form" onsubmit="deliverEmail(event)">
         <input type="text" id="f-name" placeholder="Your first name (optional)" autocomplete="given-name">
         <input type="email" id="f-email" placeholder="you@example.com" autocomplete="email" required>
-        <button class="btn" type="submit" id="gate-btn">Email me a copy</button>
+        <button class="btn" type="submit" id="gate-btn">Send my plan</button>
       </form>
       <p class="err" id="gate-err"></p>
       <p class="muted">
@@ -747,14 +787,14 @@
       </p>
     </div>
 
+    <p class="muted" id="no-email-note" style="display:none;margin-top:26px">
+      We couldn't reach the server to prepare an emailable copy, so this one stays on the page —
+      it's still yours to keep or copy from above.
+    </p>
+
     <div class="gate" id="email-done" style="display:none;text-align:center">
       <h2 id="done-head">Sent</h2>
       <p class="lead" id="done-body"></p>
-    </div>
-
-    <div class="xlink">
-      Curious how the rest of your wellbeing is doing?
-      <a href="#" id="x-link">Take the 3-minute wellbeing check-in →</a>
     </div>
 
     <div class="disclaimer">
@@ -850,10 +890,10 @@ const WELLNESS_LINK = location.hostname.indexOf('atlanticbuddhist') !== -1
    CSS colours the decorative hero circles, these colour the real Venn and
    are also fed through shade()/hexA() for labels, dots and card borders. */
 const CIRCLES = [
-  { id:'love',     label:'What you love',        color:'var(--c-love)',    hex:'#D4872C' },
-  { id:'good',     label:"What you're good at",  color:'var(--c-good)',    hex:'#4A645A' },
-  { id:'need',     label:'What the world needs', color:'var(--c-need)',    hex:'#4E7A8C' },
-  { id:'sustains', label:'What sustains you',    color:'var(--c-sustain)', hex:'#A9695E' },
+  { id:'love',     label:'What you love',        color:'var(--c-love)',    hex:'#C2811A' },
+  { id:'good',     label:"What you're good at",  color:'var(--c-good)',    hex:'#0D7A4E' },
+  { id:'need',     label:'What the world needs', color:'var(--c-need)',    hex:'#2668A8' },
+  { id:'sustains', label:'What sustains you',    color:'var(--c-sustain)', hex:'#9C4667' },
 ];
 
 /* ── QUESTIONS, by age band ────────────────────────────────────────────
@@ -927,6 +967,7 @@ const state = {
   chips:   { love:[], good:[], need:[], sustains:[] },
   person: '',
   result: null,
+  plan: [],          /* server-resolved plan cards; display copy, not signed */
   token: null,      /* signature from the generate step; required to email */
   source: '',
   submissionId: '',
@@ -1187,6 +1228,7 @@ async function generate(){
 
   if(data && data.ok && data.result){
     state.result = data.result;
+    state.plan   = Array.isArray(data.plan_resolved) ? data.plan_resolved : [];
     state.token  = data.token || null;
     state.source = data.source || '';
     state.submissionId = data.submission_id || '';
@@ -1311,6 +1353,10 @@ function localFallback(){
     },
     thread: thread,
     step: step,
+    closing: bits.length
+      ? 'What you wrote is already yours. The hard part was never noticing it — it is holding on '
+        + 'to it through a week that has other plans.'
+      : 'There is no rush on any of this. The questions will still be here on a quieter day.',
   };
 }
 
@@ -1332,7 +1378,34 @@ function renderResult(){
 
   qs('r-thread').textContent = r.thread || '';
   qs('r-step').textContent   = r.step || '';
-  qs('x-link').href = WELLNESS_LINK;
+
+  /* The card copy arrives already resolved from the server's catalogue, so
+     this file holds no second copy of it to drift out of sync. An empty or
+     missing plan hides the whole block rather than showing a bare heading. */
+  const plan = Array.isArray(state.plan) ? state.plan : [];
+  const planWrap = qs('r-plan');
+  planWrap.innerHTML = '';
+  plan.forEach((item, i)=>{
+    if(!item || !item.title) return;
+    const div = document.createElement('div');
+    div.className = 'plan-card';
+    div.innerHTML =
+        (item.dimension ? '<div class="plan-dim">'+esc(item.dimension)+'</div>' : '')
+      + '<h3>'+(i+1)+'. '+esc(item.title)+'</h3>'
+      + (item.line ? '<div class="plan-why">'+esc(item.line)+'</div>' : '')
+      + '<div class="plan-body">'+esc(item.body)+'</div>';
+    planWrap.appendChild(div);
+  });
+  qs('plan-block').style.display = planWrap.children.length ? 'block' : 'none';
+
+  qs('r-closing').textContent = r.closing || '';
+
+  /* No token means the reflection was never signed, so deliver.php will refuse
+     it. Withdraw the CTA rather than leave it promising a plan we cannot send;
+     the reflection itself is still on the page, which is the part that matters. */
+  const canEmail = !!state.token;
+  qs('email-card').style.display = canEmail ? '' : 'none';
+  qs('no-email-note').style.display = canEmail ? 'none' : 'block';
 
   buildVenn('venn-final-wrap', true);
 }

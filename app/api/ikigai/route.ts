@@ -19,6 +19,7 @@ import {
   generateReflection,
   hasCrisisLanguage,
   crisisResult,
+  resolvePlan,
   type AgeBand,
   type CircleKey,
   type IkigaiInput,
@@ -103,10 +104,14 @@ export async function POST(request: Request) {
     );
   }
 
+  /* The token signs `result` as generated. `plan_resolved` is display copy for
+     the page only — it is deliberately OUTSIDE `result` so it cannot drift into
+     the signed payload, and the deliver route ignores it entirely. */
   return NextResponse.json({
     ok: true,
     crisis: false,
     result,
+    plan_resolved: resolvePlan(result.plan),
     token,
     source,
     /* Surfaces a misconfigured deployment to anyone looking at the response,

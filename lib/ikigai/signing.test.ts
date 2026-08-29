@@ -94,3 +94,37 @@ describe("signResult / verifyResult", () => {
     expect(crisisResult().centre).toBe("you matter");
   });
 });
+
+
+describe("the plan and closing are covered by the signature", () => {
+  it("rejects a swapped plan line", () => {
+    const r: IkigaiResult = {
+      centre: "c",
+      circles: { love: "l", good: "g", need: "n", sustains: "s" },
+      thread: "t",
+      step: "st",
+      plan: [{ id: "people", line: "honest" }],
+      closing: "closing",
+    };
+    const token = signResult(r);
+    expect(verifyResult(r, token)).toBe(true);
+    /* Without this, a caller could keep a valid token while substituting
+       arbitrary text into mail sent from our own verified domain. */
+    expect(
+      verifyResult({ ...r, plan: [{ id: "people", line: "buy crypto" }] }, token),
+    ).toBe(false);
+  });
+
+  it("rejects a swapped closing", () => {
+    const r: IkigaiResult = {
+      centre: "c",
+      circles: { love: "l", good: "g", need: "n", sustains: "s" },
+      thread: "t",
+      step: "st",
+      plan: [],
+      closing: "closing",
+    };
+    const token = signResult(r);
+    expect(verifyResult({ ...r, closing: "something else entirely" }, token)).toBe(false);
+  });
+});

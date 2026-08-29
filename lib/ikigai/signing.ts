@@ -30,13 +30,23 @@ function secret(): string | null {
   );
 }
 
-/** Stable serialisation — key order must not depend on object construction. */
+/**
+ * Stable serialisation — key order must not depend on object construction.
+ *
+ * The plan and the closing are covered deliberately. They round-trip through
+ * the browser like everything else, and they are the fields that say what
+ * Saati offers this person; leaving them unsigned would let a caller keep a
+ * valid token while substituting arbitrary text into the email we send from
+ * our own verified domain.
+ */
 function canonical(result: IkigaiResult): string {
   return JSON.stringify([
     result.centre ?? "",
     ...CIRCLE_KEYS.map((k) => result.circles?.[k] ?? ""),
     result.thread ?? "",
     result.step ?? "",
+    (result.plan ?? []).map((p) => [p?.id ?? "", p?.line ?? ""]),
+    result.closing ?? "",
   ]);
 }
 
