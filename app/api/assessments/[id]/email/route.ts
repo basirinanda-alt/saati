@@ -89,7 +89,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   // used to auto-send on render, which — once the email began arriving here
   // rather than at submission — would have fired on the getReportData call
   // just above and sent the student two identical copies.
-  const [result] = await Promise.all([
+  const [result, collected] = await Promise.all([
     sendResultsEmail(parsed.data.email, report, resultsUrl),
     // Only the student's own address is collected, never an address they
     // typed in to forward a copy to a friend: that person did not ask to
@@ -107,6 +107,18 @@ export async function POST(request: Request, { params }: RouteParams) {
     );
   }
 
+  // Surfaced in the response rather than only console.error'd. Adding a
+  // contact must never block a student's report, but a silent failure here
+  // is invisible in the Resend dashboard too — the first time this failed
+  // in production, nothing anywhere said so. `collected: false` is the one
+  // signal that the API key lacks contact permission or the audience id is
+  // wrong. It intentionally does not make the request unsuccessful.
+  if (!collected.success) {
+    console.error(
+      `Contact not recorded for session ${id}: ${collected.error ?? "unknown"}`,
+    );
+  }
+
   if (isUnlock && !existing.emailSentAt) {
     await prisma.assessmentSession.update({
       where: { id },
@@ -114,8 +126,8 @@ export async function POST(request: Request, { params }: RouteParams) {
     });
   }
 
-  return NextResponse.json<ApiSuccess<{ sent: true }>>({
+  return NextResponse.json<ApiSuccess<{ sent: true; collected: boolean }>>({
     success: true,
-    data: { sent: true },
+    data: { sent: true, collected: collected.success },
   });
 }
