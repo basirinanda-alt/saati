@@ -39,9 +39,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Saati · Find Your Ikigai</title>
-<meta name="description" content="A warm four-minute reflection on what gives your life meaning. Not a personality test — your own words, given back to you. From Saati.">
+<meta name="description" content="A warm six-minute reflection on what gives your life meaning. Not a personality test — your own words, given back to you. From Saati.">
 <meta property="og:title" content="Saati · Find Your Ikigai">
-<meta property="og:description" content="A warm four-minute reflection on what gives your life meaning.">
+<meta property="og:description" content="A warm six-minute reflection on what gives your life meaning.">
 <meta name="robots" content="index,follow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -495,6 +495,14 @@
     font-family:var(--font-serif);font-size:19px;line-height:1.55;color:var(--ink);
   }
   .closing:empty{display:none}
+  .explainer{
+    margin-top:26px;padding:26px 28px;border-radius:var(--radius);
+    background:transparent;border:1px solid var(--line);
+  }
+  .explainer h3{font-size:19px;margin-bottom:12px}
+  .explainer p{font-size:15px;line-height:1.65;color:var(--body);margin-bottom:12px}
+  .explainer p:last-child{margin-bottom:0}
+  .explainer strong{color:var(--ink)}
 
   .disclaimer{margin-top:26px;font-size:13px;color:var(--muted);line-height:1.6}
 
@@ -568,7 +576,7 @@
 
       <div class="hero">
         <div class="hero-copy">
-          <div class="section-label">A four-minute reflection</div>
+          <div class="section-label">A six-minute reflection</div>
           <h1>What gives your life meaning?</h1>
           <p class="lead">
             <em>Ikigai</em> is a Japanese idea about the things that make life feel worth living.
@@ -576,10 +584,10 @@
             you love, a place that brings you peace, a small thing you look forward to each day.
           </p>
           <p class="lead lead-sm">
-            Take a few moments to reflect on four simple questions about your life. There are no
-            right or wrong answers, and nothing to score. When you're finished, Saati will bring
-            your reflections together into your own ikigai map — and a few words that reflect what
-            matters to you.
+            Eight short questions about your own life — what you do, what has lasted, how it
+            actually feels. There are no right or wrong answers, and nothing to score. At the end
+            Saati brings your reflections together into your own ikigai map, and a few words that
+            reflect what matters to you.
           </p>
 
           <div class="hero-actions">
@@ -589,7 +597,7 @@
             </button>
             <span class="meta">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-              About 4 minutes
+              About 6 minutes
             </span>
           </div>
 
@@ -740,7 +748,7 @@
     <div class="thread-panel">
       <h3>The thread running through it</h3>
       <p id="r-thread"></p>
-      <p class="ask" id="r-ask">Does that sound like you? If it doesn't, trust yourself over this page — you know your life better than four questions ever could.</p>
+      <p class="ask" id="r-ask">Does that sound like you? If it doesn't, trust yourself over this page — you know your life better than a few questions ever could.</p>
     </div>
 
     <div class="step-panel">
@@ -761,6 +769,33 @@
     </div>
 
     <p class="closing" id="r-closing"></p>
+
+    <!-- ── What ikigai actually means ─────────────────────────────────
+         Added 2026-08-30, when the founder lifted the rule that Saati never
+         explains the concept. It sits AFTER the reflection on purpose: people
+         arrive believing a Japanese tradition says their purpose has to pay,
+         and correcting that is worth more once they have already written
+         about a life that mostly doesn't. Short, and not a lesson.
+    ──────────────────────────────────────────────────────────────── -->
+    <div class="explainer">
+      <h3>One thing worth knowing about the word</h3>
+      <p>
+        <em>Ikigai</em> is an ordinary Japanese word — closer to "what makes the day worth getting
+        up for" than to a grand purpose. In Japan it is used about ordinary things: a garden, a
+        grandchild, the walk you take each morning.
+      </p>
+      <p>
+        The famous four-circle diagram, the one with <strong>"what you can be paid for"</strong> in
+        it, is not Japanese and did not come from ikigai research. It was drawn in 2011 as a
+        diagram about <em>purpose</em>, and in 2014 a blogger swapped the word in the middle for
+        "ikigai". It spread from there.
+      </p>
+      <p>
+        That is why the fourth circle above is <strong>what sustains you</strong>, not what pays
+        you. A retired eighty-two-year-old and a nineteen-year-old between jobs both score nothing
+        on a money circle, and both have plenty of reason to get up in the morning.
+      </p>
+    </div>
 
     <!-- ── The ONE call to action on this page ────────────────────────
          Everything that used to compete with it (a "Learn about Saati"
@@ -896,6 +931,66 @@ const CIRCLES = [
   { id:'sustains', label:'What sustains you',    color:'var(--c-sustain)', hex:'#9C4667' },
 ];
 
+/* ── THE DEPTH QUESTIONS ───────────────────────────────────────────────
+   Added 2026-08-30. These are NOT circles — they never appear in the Venn.
+   They exist because the four circles all ask about ikigai TAISHO (the
+   object: the garden, the grandchild) and none asked about ikigai KAN (the
+   felt sense), which is Kamiya's distinction and the reason a purpose quiz
+   can return a tidy inventory nobody recognises as their own life. See
+   knowledge_ikigai/ikigai_concept_reference.txt.
+
+     roots  — continuity. Ikigai in the Japanese sense is ordinary and
+              repeated, so what someone has KEPT doing says more than what
+              they are excited about this month.
+     feel   — ikigai-kan itself. The one question about how it is from the
+              inside rather than what it consists of.
+     ahead  — forward orientation. This is factor 2 of the Ikigai-9
+              ("active and positive attitudes towards one's future") and
+              nothing on the page asked about it at all.
+
+   Every one of them offers an honest negative option, in the chips and in
+   the hint. "Not much right now" is real data about a person's ikigai-kan,
+   and a quiz that makes it awkward to say gets a politer, falser answer. */
+const DEPTH_Q = {
+  roots: {
+    label: 'What has lasted',
+    youth: { q: "What's something you've stuck with, even when you didn't have to?",
+      hint: "A hobby, a friendship, a habit. It doesn't have to be impressive — just yours.",
+      chips:['Music','A sport','A friendship','Drawing or making','Gaming','Writing','Looking after someone','A routine I keep','Nothing has really stuck'] },
+    adult: { q: 'What have you kept doing for years, without ever really deciding to?',
+      hint: 'The things that survived the jobs, the moves and everything else. Those tend to be the real ones.',
+      chips:['Cooking','Walking','The garden','Reading','Making or fixing things','A friendship','Faith or practice','Looking after people','Not much has lasted'] },
+    senior: { q: "What have you kept up the longest?",
+      hint: 'Something you were doing thirty years ago and still do now, even in a smaller way.',
+      chips:['The garden','Cooking','Church or temple','Walking','Knitting or handwork','Letters and phone calls','Music','Looking after people','Less than I used to'] },
+  },
+  feel: {
+    label: 'How it feels',
+    youth: { q: 'When did you last feel properly settled — not buzzing, just okay?',
+      hint: 'Where were you, and who with? The feeling matters more than the activity here.',
+      chips:['Late at night','Outdoors','With one person','With music on','Somewhere quiet','After finishing something','With my hands busy','Honestly, not lately'] },
+    adult: { q: 'When did you last feel properly settled in yourself?',
+      hint: "Not happy exactly — settled. Where were you, and what was going on around you?",
+      chips:['Early morning','Outdoors','With one person','With my hands busy','Somewhere quiet','After a job is done','In the evening','Honestly, not lately'] },
+    senior: { q: 'When do you feel most like yourself these days?',
+      hint: 'A time of day, a place, a bit of the week. Not what you get done — how it feels.',
+      chips:['Early morning','In the garden','With family','Somewhere quiet','With the radio on','When the day has a shape','Sunday','Honestly, not often now'] },
+  },
+  ahead: {
+    label: 'What is ahead',
+    youth: { q: "Is there anything coming up you're actually looking forward to?",
+      hint: "Big or tiny. And 'nothing much' is a real answer — say so if that's the truth.",
+      chips:['Seeing someone','A trip','Finishing something','A break','Something I am making','Getting back to something','Honestly, not much'] },
+    adult: { q: "Is there anything you're looking forward to?",
+      hint: "This week, this year, or just vaguely. If the honest answer is 'not much right now', write that.",
+      chips:['Seeing someone','A trip','A season changing','Something I am making','A quieter week','Getting back to something','Honestly, not much'] },
+    senior: { q: "Is there anything you're looking forward to?",
+      hint: 'However small — a visit, a season, something coming up. If not much, say so; that is worth knowing too.',
+      chips:['A visit','The spring','Something growing','A phone call','Getting out again','A regular I look forward to','Honestly, not much'] },
+  },
+};
+const DEPTH_KEYS = ['roots','feel','ahead'];
+
 /* ── QUESTIONS, by age band ────────────────────────────────────────────
    Every question asks for a MOMENT, not a CATEGORY. "What are you
    passionate about?" makes people freeze; "when did you last lose track
@@ -962,9 +1057,15 @@ const PERSON_Q = {
    ════════════════════════════════════════════════════════════════════════ */
 const state = {
   band: 'adult',
-  idx: 0,                                   /* 0-3 = circles, 4 = person */
+  idx: 0,                                   /* index into buildFlow(band) */
   answers: { love:'', good:'', need:'', sustains:'' },
   chips:   { love:[], good:[], need:[], sustains:[] },
+  /* The depth answers are kept apart from `answers` on purpose: `answers` is
+     keyed by circle and drives the Venn and the result cards, and a fifth key
+     in there would silently become a fifth circle. */
+  depth:      { roots:'', feel:'', ahead:'' },
+  depthChips: { roots:[], feel:[], ahead:[] },
+  flow: [],
   person: '',
   result: null,
   plan: [],          /* server-resolved plan cards; display copy, not signed */
@@ -972,7 +1073,36 @@ const state = {
   source: '',
   submissionId: '',
 };
-const TOTAL = 5;
+/* The order interleaves circles and depth questions rather than running the
+   four circles back to back. Two reasons: the rhythm stops it reading as a
+   form, and `feel` lands after they have already described what they DO, which
+   is when a question about how it feels has something to attach to. */
+const FLOW_ORDER = [
+  { kind:'circle', key:'love'     },
+  { kind:'depth',  key:'roots'    },
+  { kind:'circle', key:'good'     },
+  { kind:'circle', key:'need'     },
+  { kind:'depth',  key:'feel'     },
+  { kind:'circle', key:'sustains' },
+  { kind:'depth',  key:'ahead'    },
+  { kind:'person', key:'person'   },
+];
+
+function buildFlow(band){
+  return FLOW_ORDER.map(step=>{
+    if(step.kind === 'circle'){
+      const item = QUESTIONS[band].find(x=>x.c === step.key);
+      return { kind:'circle', key:step.key, q:item.q, hint:item.hint, chips:item.chips };
+    }
+    if(step.kind === 'depth'){
+      const d = DEPTH_Q[step.key][band];
+      return { kind:'depth', key:step.key, q:d.q, hint:d.hint, chips:d.chips,
+               label:DEPTH_Q[step.key].label };
+    }
+    const pq = PERSON_Q[band];
+    return { kind:'person', key:'person', q:pq.q, hint:pq.hint, chips:[] };
+  });
+}
 
 function qs(id){ return document.getElementById(id); }
 function esc(s){ const d=document.createElement('div'); d.textContent=String(s==null?'':s); return d.innerHTML; }
@@ -985,6 +1115,7 @@ function go(id){
 
 function setBand(b){
   state.band = b;
+  state.flow = buildFlow(b);
   state.idx = 0;
   renderQ();
   go('s-q');
@@ -994,24 +1125,32 @@ function setBand(b){
    QUESTION RENDERING
    ════════════════════════════════════════════════════════════════════════ */
 function renderQ(){
-  const isPerson = state.idx === 4;
-  const pct = Math.round(((state.idx) / TOTAL) * 100);
-  qs('p-step').textContent = 'Question ' + (state.idx+1) + ' of ' + TOTAL;
+  const step  = state.flow[state.idx];
+  const total = state.flow.length;
+  const pct = Math.round((state.idx / total) * 100);
+  qs('p-step').textContent = 'Question ' + (state.idx+1) + ' of ' + total;
   qs('p-pct').textContent = pct + '%';
   qs('p-fill').style.width = pct + '%';
   qs('q-back').style.visibility = state.idx === 0 ? 'hidden' : 'visible';
 
-  if(isPerson){
-    const pq = PERSON_Q[state.band];
-    qs('q-eyebrow').style.display = 'none';
-    qs('q-text').textContent = pq.q;
-    qs('q-hint').textContent = pq.hint;
+  qs('q-text').textContent = step.q;
+  qs('q-hint').textContent = step.hint;
+
+  const ta = qs('q-input');
+  const eyebrow = qs('q-eyebrow');
+
+  if(step.kind === 'person'){
+    eyebrow.style.display = 'none';
     qs('chips-block').style.display = 'none';
+    /* Clear rather than just hide: the previous question's chips would
+       otherwise sit in the DOM under a hidden container, where a screen
+       reader can still reach them and the label still reads the old
+       question's name. */
+    qs('q-chips').innerHTML = '';
+    qs('q-circle-name').textContent = '';
     qs('q-skip-note').style.display = 'none';
     qs('q-next').textContent = 'See my circles  →';
-
-    /* swap the textarea for a single-line name field */
-    const ta = qs('q-input');
+    /* single-line name field rather than a textarea */
     ta.style.minHeight = '0';
     ta.style.height = '58px';
     ta.placeholder = 'A first name — e.g. Nadia';
@@ -1019,38 +1158,45 @@ function renderQ(){
     return;
   }
 
-  const item = QUESTIONS[state.band][state.idx];
-  const circle = CIRCLES.find(c=>c.id===item.c);
+  /* A depth question is deliberately NOT dressed as a circle — no dot, and a
+     neutral sage eyebrow — so nobody reads it as a fifth circle they will see
+     in the diagram. */
+  if(step.kind === 'depth'){
+    eyebrow.style.display = 'inline-flex';
+    eyebrow.style.background = 'rgba(74,100,90,.12)';
+    eyebrow.style.color = '#33473f';
+    qs('q-dot').style.display = 'none';
+    qs('q-circle-name').textContent = step.label;
+  } else {
+    const circle = CIRCLES.find(c=>c.id === step.key);
+    eyebrow.style.display = 'inline-flex';
+    eyebrow.style.background = hexA(circle.hex, .14);
+    eyebrow.style.color = shade(circle.hex, -38);
+    qs('q-dot').style.display = '';
+    qs('q-dot').style.background = circle.hex;
+    qs('q-circle-name').textContent = circle.label;
+  }
 
-  qs('q-eyebrow').style.display = 'inline-flex';
-  qs('q-eyebrow').style.background = hexA(circle.hex, .14);
-  qs('q-eyebrow').style.color = shade(circle.hex, -38);
-  qs('q-dot').style.background = circle.hex;
-  qs('q-circle-name').textContent = circle.label;
-  qs('q-text').textContent = item.q;
-  qs('q-hint').textContent = item.hint;
   qs('chips-block').style.display = 'block';
   qs('q-skip-note').style.display = 'block';
-  qs('q-next').textContent = state.idx === 3 ? 'Continue  →' : 'Continue  →';
+  qs('q-next').textContent = 'Continue  →';
 
-  const ta = qs('q-input');
   ta.style.minHeight = '120px';
   ta.style.height = 'auto';
   ta.placeholder = 'Whatever comes to mind. A sentence is plenty.';
-  ta.value = state.answers[item.c];
+  ta.value = (step.kind === 'depth' ? state.depth : state.answers)[step.key];
 
-  /* chips */
+  const chipStore = (step.kind === 'depth' ? state.depthChips : state.chips)[step.key];
   const box = qs('q-chips');
   box.innerHTML = '';
-  item.chips.forEach(label=>{
+  step.chips.forEach(label=>{
     const b = document.createElement('button');
     b.type = 'button';
-    b.className = 'chip' + (state.chips[item.c].indexOf(label) !== -1 ? ' on' : '');
+    b.className = 'chip' + (chipStore.indexOf(label) !== -1 ? ' on' : '');
     b.textContent = label;
     b.onclick = ()=>{
-      const arr = state.chips[item.c];
-      const i = arr.indexOf(label);
-      if(i === -1){ arr.push(label); } else { arr.splice(i,1); }
+      const i = chipStore.indexOf(label);
+      if(i === -1){ chipStore.push(label); } else { chipStore.splice(i,1); }
       b.classList.toggle('on');
     };
     box.appendChild(b);
@@ -1058,14 +1204,16 @@ function renderQ(){
 }
 
 function saveCurrent(){
-  const val = qs('q-input').value.trim();
-  if(state.idx === 4){ state.person = val.slice(0,60); }
-  else { state.answers[ QUESTIONS[state.band][state.idx].c ] = val.slice(0,600); }
+  const val  = qs('q-input').value.trim();
+  const step = state.flow[state.idx];
+  if(step.kind === 'person')     { state.person = val.slice(0,60); }
+  else if(step.kind === 'depth') { state.depth[step.key]   = val.slice(0,600); }
+  else                           { state.answers[step.key] = val.slice(0,600); }
 }
 
 function nextQ(){
   saveCurrent();
-  if(state.idx < 4){
+  if(state.idx < state.flow.length - 1){
     state.idx++;
     renderQ();
     window.scrollTo({top:0,behavior:'smooth'});
@@ -1212,6 +1360,8 @@ async function generate(){
     person: state.person,
     answers: state.answers,
     chips: state.chips,
+    depth: state.depth,
+    depth_chips: state.depthChips,
   };
 
   let data = null;
@@ -1416,7 +1566,8 @@ qs('x-link-foot').href = WELLNESS_LINK;
 
 /* keyboard: Enter advances on the single-line person question */
 qs('q-input').addEventListener('keydown', e=>{
-  if(e.key === 'Enter' && state.idx === 4){ e.preventDefault(); nextQ(); }
+  const step = state.flow[state.idx];
+  if(e.key === 'Enter' && step && step.kind === 'person'){ e.preventDefault(); nextQ(); }
 });
 </script>
 </body>

@@ -16,12 +16,14 @@
 import { NextResponse } from "next/server";
 import {
   CIRCLE_KEYS,
+  DEPTH_KEYS,
   generateReflection,
   hasCrisisLanguage,
   crisisResult,
   resolvePlan,
   type AgeBand,
   type CircleKey,
+  type DepthKey,
   type IkigaiInput,
 } from "@/lib/ikigai/reflection";
 import { signResult } from "@/lib/ikigai/signing";
@@ -79,13 +81,30 @@ export async function POST(request: Request) {
     chips[k] = list.slice(0, 12).map((c) => oneLine(c, 40)).filter(Boolean);
   }
 
-  const allText = CIRCLE_KEYS.map((k) => answers[k]).join(" ");
+  const depthIn = (b.depth ?? {}) as Record<string, unknown>;
+  const depthChipsIn = (b.depth_chips ?? {}) as Record<string, unknown>;
+  const depth = {} as Record<DepthKey, string>;
+  const depthChips = {} as Record<DepthKey, string[]>;
+  for (const k of DEPTH_KEYS) {
+    depth[k] = str(depthIn[k], 600);
+    const list = Array.isArray(depthChipsIn[k]) ? (depthChipsIn[k] as unknown[]) : [];
+    depthChips[k] = list.slice(0, 12).map((c) => oneLine(c, 40)).filter(Boolean);
+  }
+
+  /* The crisis screen must see the depth answers too. "How it feels" and "what
+     are you looking forward to" are the two questions on this page most likely
+     to surface something alarming, and screening only the circles would have
+     walked straight past it. */
+  const allText = [
+    ...CIRCLE_KEYS.map((k) => answers[k]),
+    ...DEPTH_KEYS.map((k) => depth[k]),
+  ].join(" ");
 
   /* Crisis screen runs before anything else and returns immediately. Fixed text,
      never model-generated. No signing token is issued, so the client cannot and
      must not offer to email this — support is not traded for an address. */
   if (hasCrisisLanguage(allText)) {
-    await sendCrisisAlert("", "", ageBand, answers);
+    await sendCrisisAlert("", "", ageBand, { ...answers, ...depth });
     return NextResponse.json({
       ok: true,
       crisis: true,
@@ -94,7 +113,7 @@ export async function POST(request: Request) {
     });
   }
 
-  const input: IkigaiInput = { ageBand, answers, chips, person };
+  const input: IkigaiInput = { ageBand, answers, chips, depth, depthChips, person };
   const { result, source } = await generateReflection(input);
 
   const token = signResult(result);
