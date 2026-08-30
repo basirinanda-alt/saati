@@ -4,6 +4,8 @@ import {
   CIRCLE_KEYS,
   CIRCLE_COLORS,
   crisisResult,
+  DEPTH_KEYS,
+  DEPTH_LABELS,
   fallbackResult,
   hasCrisisLanguage,
   isSupportKey,
@@ -312,5 +314,66 @@ describe("circle colours", () => {
     const values = CIRCLE_KEYS.map((k) => CIRCLE_COLORS[k]);
     expect(new Set(values).size).toBe(CIRCLE_KEYS.length);
     for (const v of values) expect(v).toMatch(/^#[0-9A-Fa-f]{6}$/);
+  });
+});
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   THE DEPTH QUESTIONS — roots / feel / ahead. Not circles; they must never
+   leak into the four, and the prompt has to actually use them.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+describe("depth questions in the prompt", () => {
+  const withDepth = () =>
+    baseInput({
+      depth: {
+        roots: "Woodworking, on and off since I was twenty.",
+        feel: "Honestly, not lately.",
+        ahead: "Honestly, not much.",
+      },
+      depthChips: { roots: ["Making or fixing things"], feel: [], ahead: [] },
+    });
+
+  it("puts every answered depth question in front of the model", () => {
+    const p = buildPrompt(withDepth());
+    for (const k of DEPTH_KEYS) expect(p).toContain(DEPTH_LABELS[k]);
+    expect(p).toContain("Woodworking, on and off since I was twenty.");
+    expect(p).toContain("Honestly, not lately.");
+    expect(p).toContain("Making or fixing things");
+  });
+
+  it("labels them as NOT circles, so they do not become a fifth circle", () => {
+    expect(buildPrompt(withDepth())).toContain("these are NOT circles");
+  });
+
+  it("tells the model to name the feeling rather than list activities", () => {
+    const p = buildPrompt(withDepth());
+    expect(p).toContain("Name the FEELING, not only the activity");
+    /* The load-bearing instruction: a full activity list plus "not much to look
+       forward to" is a real signal, and must not be smoothed over. */
+    expect(p).toContain("Never treat a long list of activities as proof that someone is doing well");
+  });
+
+  it("omits the section entirely when nothing was answered", () => {
+    const p = buildPrompt(baseInput());
+    expect(p).not.toContain("these are NOT circles");
+  });
+
+  it("still builds a prompt when depth is absent altogether", () => {
+    const p = buildPrompt(baseInput({ depth: undefined, depthChips: undefined }));
+    expect(p).toContain("WHAT THEY WROTE");
+  });
+});
+
+describe("crisis screening covers the depth answers", () => {
+  /* The two questions most likely to surface something alarming are "how does
+     it feel" and "what are you looking forward to". Screening only the four
+     circles walked straight past both. This asserts the text the route now
+     screens, which is circles + depth joined. */
+  it("catches crisis language written into a depth answer", () => {
+    const circlesOnly = ["gardening", "listening", "my kids", "no time"].join(" ");
+    expect(hasCrisisLanguage(circlesOnly)).toBe(false);
+    const withDepth = [circlesOnly, "", "", "honestly I want to die"].join(" ");
+    expect(hasCrisisLanguage(withDepth)).toBe(true);
   });
 });

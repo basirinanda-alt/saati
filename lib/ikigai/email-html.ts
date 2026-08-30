@@ -188,7 +188,7 @@ export function buildEmailHtml(greetingName: string, result: IkigaiResult): stri
       label("The thread running through it", SAGE) +
         `<div style="font-family:${SANS};font-size:16px;line-height:1.65;color:${INK};">${esc(result.thread)}</div>` +
         `<div style="font-family:${SANS};font-size:14px;line-height:1.6;color:${MUTED};padding-top:12px;">` +
-        `If that doesn't sound like you, trust yourself over the page. You know your life better than four questions ever could.</div>`,
+        `If that doesn't sound like you, trust yourself over the page. You know your life better than a few questions ever could.</div>`,
       LINEN,
     )}
     ${card(

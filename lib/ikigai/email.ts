@@ -67,7 +67,7 @@ export function buildEmailText(
     `YOUR FOUR CIRCLES\n\n${circleBlock}\n` +
     `THE THREAD RUNNING THROUGH IT\n  ${result.thread}\n\n` +
     `  If that doesn't sound like you, trust yourself over the page. You know your life\n` +
-    `  better than four questions ever could.\n\n` +
+    `  better than a few questions ever could.\n\n` +
     `ONE SMALL STEP THIS WEEK\n  ${result.step}\n\n` +
     `─────────────────────────────────────────────\n\n` +
     planText(result) +

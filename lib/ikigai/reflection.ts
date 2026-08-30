@@ -61,10 +61,36 @@ export const CIRCLE_COLORS: Record<CircleKey, string> = {
 
 export type AgeBand = "youth" | "adult" | "senior";
 
+/**
+ * The depth questions. NOT circles — they never reach the Venn.
+ *
+ * The four circles all ask about ikigai *taishō* (the object: the garden, the
+ * grandchild). None asked about ikigai *kan* (the felt sense), which is
+ * Kamiya's distinction and the reason a purpose quiz can hand someone a tidy
+ * inventory they do not recognise as their own life. These three close that:
+ *
+ *   roots — what has lasted. Ikigai in the Japanese sense is ordinary and
+ *           repeated, so what someone has KEPT doing says more than what they
+ *           are excited about this month.
+ *   feel  — ikigai-kan itself. How it is from the inside.
+ *   ahead — forward orientation; factor 2 of the Ikigai-9, and nothing on the
+ *           page asked about it at all.
+ */
+export const DEPTH_KEYS = ["roots", "feel", "ahead"] as const;
+export type DepthKey = (typeof DEPTH_KEYS)[number];
+
+export const DEPTH_LABELS: Record<DepthKey, string> = {
+  roots: "What has lasted",
+  feel: "How it feels",
+  ahead: "What is ahead",
+};
+
 export interface IkigaiInput {
   ageBand: AgeBand;
   answers: Record<CircleKey, string>;
   chips: Record<CircleKey, string[]>;
+  depth?: Record<DepthKey, string>;
+  depthChips?: Record<DepthKey, string[]>;
   person: string;
 }
 
@@ -285,17 +311,33 @@ export function buildPrompt(input: IkigaiInput): string {
     block += `\n${CIRCLE_LABELS[k]}:\n${v ? `"${v}"` : "(left blank)"}${chipStr}\n`;
   }
 
+  /* Rendered separately from the circles, and labelled as not being circles,
+     so the model does not fold them into the four one-sentence reflections. */
+  let depthBlock = "";
+  for (const k of DEPTH_KEYS) {
+    const v = input.depth?.[k]?.trim() ?? "";
+    const chips = input.depthChips?.[k] ?? [];
+    const chipStr = chips.length ? ` [also tapped: ${chips.join(", ")}]` : "";
+    if (v || chips.length) depthBlock += `\n${DEPTH_LABELS[k]}:\n${v ? `"${v}"` : "(left blank)"}${chipStr}\n`;
+  }
+
   const personLine = input.person
     ? `They named ONE person they want to make things easier for: "${input.person}". The step MUST point at ${input.person} by name.`
     : "They named no person. Do NOT invent one. Make the step about the smallest concrete piece of what they actually wrote.";
 
-  return `You are writing a short, honest reflection back to someone who has just answered four questions
-about their own life on a web page. You are not a coach, a guru, or a personality test.
+  return `You are writing a short, honest reflection back to someone who has just answered a
+handful of questions about their own life on a web page. You are not a coach, a guru, or a personality test.
 
 ${REGISTER[input.ageBand]}
 
-WHAT THEY WROTE:
-${block}
+WHAT THEY WROTE — the four circles:
+${block}${
+    depthBlock
+      ? `
+ALSO, and these are NOT circles — do not write a circle sentence for them:
+${depthBlock}`
+      : ""
+  }
 ${personLine}
 
 ═══════════════════════════════════════════════════════════════════
@@ -307,6 +349,19 @@ reflection — not "horticultural engagement", not "your love of nature". Quote 
 Describe what they DO, never what they ARE. "You keep ending up being the one who stays calm"
 is right. "You are a natural carer" is wrong. A title closes a conversation; an activity stays
 open. Purpose that is an identity breaks when the job or the health goes.
+
+Name the FEELING, not only the activity. This is the single thing that decides whether
+the thread reads as a recognition or as an inventory. "You keep ending up in the garden"
+is a list. "The garden seems to be where you stop bracing" is a recognition. If they told
+you when they last felt settled, or what they have kept doing for years, or what they are
+looking forward to, that material is where the feeling comes from — use it in the thread
+and the closing, and do not simply repeat it back as another activity.
+
+If what they wrote about how it feels, or about what is ahead, is thin or negative —
+"honestly, not much", "not lately" — say that plainly and gently rather than working
+around it. Someone with a full list of activities and nothing they look forward to has
+told you something true and important, and a reflection that papers over it is worthless
+to them. Never treat a long list of activities as proof that someone is doing well.
 
 Hedge the thread before you start it. "I might have this wrong, but..." / "What comes through is..."
 You are offering a guess, not a verdict, and you say so.
