@@ -30,6 +30,11 @@ const baseInput = (over: Partial<IkigaiInput> = {}): IkigaiInput => ({
   ...over,
 });
 
+/* The prompt is hard-wrapped prose. Asserting on wrapped substrings makes every
+   re-flow a false failure, so these tests match against a whitespace-collapsed
+   copy: they check that an instruction is PRESENT, not how it happens to wrap. */
+const flat = (s: string) => s.replace(/\s+/g, " ");
+
 const okResult = (over: Partial<IkigaiResult> = {}): IkigaiResult => ({
   centre: "fixing things for the people nearby",
   circles: {
@@ -195,9 +200,9 @@ describe("buildPrompt", () => {
     const p = buildPrompt(baseInput());
     /* The rule now has to hold across the plan lines and the closing too,
        which is where a product claim would be most tempting to improvise. */
-    expect(p).toContain("Never name Saati");
-    expect(p).toContain("including the plan lines and the closing");
-    expect(p).toContain("never describe, extend, or invent a capability");
+    expect(flat(p)).toContain("Never name Saati");
+    expect(flat(p)).toContain("including the plan lines and the closing");
+    expect(flat(p)).toContain("never describe, extend, or invent a capability");
   });
 });
 
@@ -343,11 +348,11 @@ describe("depth questions in the prompt", () => {
   });
 
   it("labels them as NOT circles, so they do not become a fifth circle", () => {
-    expect(buildPrompt(withDepth())).toContain("these are NOT circles");
+    expect(flat(buildPrompt(withDepth()))).toContain("NOT circles");
   });
 
   it("tells the model to name the feeling rather than list activities", () => {
-    const p = buildPrompt(withDepth());
+    const p = flat(buildPrompt(withDepth()));
     expect(p).toContain("Name the FEELING, not only the activity");
     /* The load-bearing instruction: a full activity list plus "not much to look
        forward to" is a real signal, and must not be smoothed over. */
@@ -355,8 +360,8 @@ describe("depth questions in the prompt", () => {
   });
 
   it("omits the section entirely when nothing was answered", () => {
-    const p = buildPrompt(baseInput());
-    expect(p).not.toContain("these are NOT circles");
+    const p = flat(buildPrompt(baseInput()));
+    expect(p).not.toContain("NOT circles");
   });
 
   it("still builds a prompt when depth is absent altogether", () => {
@@ -375,5 +380,34 @@ describe("crisis screening covers the depth answers", () => {
     expect(hasCrisisLanguage(circlesOnly)).toBe(false);
     const withDepth = [circlesOnly, "", "", "honestly I want to die"].join(" ");
     expect(hasCrisisLanguage(withDepth)).toBe(true);
+  });
+});
+
+
+describe("the rewritten prompt's load-bearing instructions", () => {
+  const p = () => flat(buildPrompt(baseInput({
+    depth: { roots: "Walking, fifteen years.", feel: "Not lately.", ahead: "Nothing planned." },
+    depthChips: { roots: [], feel: [], ahead: [] },
+  })));
+
+  it("asks for the tension rather than a summary", () => {
+    expect(p()).toContain("Read for the tension, not the summary");
+  });
+
+  it("tells the model the three answers form a timeline", () => {
+    expect(p()).toContain("Use the time in the material");
+  });
+
+  it("carries a worked example contrasting a weak reflection with a good one", () => {
+    expect(p()).toContain("A WORKED EXAMPLE");
+    expect(p()).toContain("WEAK");
+    expect(p()).toContain("GOOD");
+  });
+
+  it("no longer contradicts itself about mentioning circles", () => {
+    /* The old prompt banned mentioning "circles" while the JSON contract asked
+       for a field called `circles` and described "the middle of their diagram". */
+    expect(p()).not.toContain("mention Venn diagrams, circles, frameworks, or Japan");
+    expect(p()).not.toContain("this sits in the middle of their diagram");
   });
 });
