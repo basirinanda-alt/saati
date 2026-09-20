@@ -42,12 +42,18 @@ export default function RootLayout({
           src="https://www.googletagmanager.com/gtag/js?id=AW-17047925915"
           strategy="afterInteractive"
         />
+        {/* GA4 property for wellness.atlanticbuddhist.com. */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-B9TTWNG3SS"
+          strategy="afterInteractive"
+        />
         <Script id="google-ads-gtag" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
             gtag('config', 'AW-17047925915');
+            gtag('config', 'G-B9TTWNG3SS');
           `}
         </Script>
         {children}
