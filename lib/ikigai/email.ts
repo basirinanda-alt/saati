@@ -14,6 +14,7 @@ import {
   type IkigaiResult,
 } from "./reflection";
 import { buildEmailHtml } from "./email-html";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/appLinks";
 
 const SEND_TIMEOUT_MS = 8_000;
 
@@ -72,7 +73,9 @@ export function buildEmailText(
     `─────────────────────────────────────────────\n\n` +
     planText(result) +
     (result.closing ? `${result.closing}\n\n` : "") +
-    `You can read more at https://saati.ca\n\n` +
+    `Get the Saati app, free on iPhone and Android:\n` +
+    `iPhone: ${APP_STORE_URL}\n` +
+    `Android: ${PLAY_STORE_URL}\n\n` +
     `With warmth,\nSaati — a companion for life's quieter moments\nhttps://saati.ca\n\n` +
     `This is a reflection, not a diagnosis. Saati is a wellbeing companion, not a therapist or\n` +
     `medical service. In Canada you can call or text 9-8-8 any time if you need to talk to someone.\n`

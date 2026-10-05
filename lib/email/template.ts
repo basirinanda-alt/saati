@@ -1,4 +1,5 @@
 import type { ReportData } from "@/lib/report/getReportData";
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/appLinks";
 
 function escapeHtml(text: string): string {
   return text
@@ -92,6 +93,14 @@ export function buildResultsEmailHtml(
           </div>
 
           ${supportBlock}
+
+          <div style="margin-top:24px;padding:20px 16px;background:#134e4a;border-radius:8px;text-align:center;">
+            <p style="margin:0 0 6px;font-size:16px;font-weight:700;color:#ffffff;">Get the Saati app, free on iPhone and Android</p>
+            <p style="margin:0 0 14px;font-size:13px;color:#ccfbf1;">A few minutes a day: gentle conversation, check-ins and guided practice.</p>
+            <a href="${APP_STORE_URL}" style="display:inline-block;margin:4px;padding:12px 20px;background:#d97706;border-radius:999px;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;">App Store</a>
+            <a href="${PLAY_STORE_URL}" style="display:inline-block;margin:4px;padding:12px 20px;background:#d97706;border-radius:999px;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;">Google Play</a>
+            <p style="margin:12px 0 0;font-size:12px;color:#fde68a;">Founding 1000: the first 1,000 members get $49.99/year, locked for life.</p>
+          </div>
 
           <p style="margin:24px 0 0;font-size:12px;color:#737373;">
             This is a wellbeing reflection, not medical advice or a professional opinion.

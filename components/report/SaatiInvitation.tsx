@@ -9,9 +9,9 @@ import type { FocusArea } from "@/lib/report/focusArea";
  * lib/report/focusArea.ts) rather than model-generated, so the claim it
  * makes is reviewable and identical for every student who lands here.
  *
- * Deliberately has NO call to action of its own. The email capture that
- * follows it is the page's single CTA — a second button here competed with
- * it for the same click and sent that click off-site instead.
+ * Deliberately has NO call to action of its own. The app download CTA
+ * (AppDownloadCta) that follows it is the page's single CTA — a second
+ * button here would compete with it for the same click.
  */
 export function SaatiInvitation({ focusArea }: { focusArea: FocusArea }) {
   return (

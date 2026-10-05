@@ -12,7 +12,8 @@ import {
 import { AiSummaryCard } from "@/components/report/AiSummaryCard";
 import { SupportResources } from "@/components/report/SupportResources";
 import { EmailResultsForm } from "@/components/report/EmailResultsForm";
-import { UnlockForm } from "@/components/report/UnlockForm";
+import { AppDownloadCta } from "@/components/report/AppDownloadCta";
+import { TrackQuizComplete } from "@/components/report/TrackQuizComplete";
 import { SaatiInvitation } from "@/components/report/SaatiInvitation";
 import { selectFocusArea } from "@/lib/report/focusArea";
 
@@ -46,6 +47,8 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
   }
 
   const focusArea = selectFocusArea(report);
+  // The quick path stores no Saati Insight rows — see AssessmentFlow.
+  const quiz = report.insights.length > 0 ? "wellness_full" : "wellness_quick";
 
   const comparison: RadarComparisonSeries | undefined = report.previous
     ? {
@@ -62,6 +65,8 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
 
   return (
     <main className="mx-auto max-w-xl px-6 py-12">
+      <TrackQuizComplete sessionId={report.sessionId} quiz={quiz} />
+
       <h1 className="mb-2 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
         Your results
       </h1>
@@ -90,27 +95,21 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
 
       <SaatiInvitation focusArea={focusArea} />
 
-      {/* The page's single call to action, sitting directly under the
-          invitation it follows from — the student has just been told which
-          area needs attention and that Saati addresses it, and the next
-          thing they can do is hand over an address. The invitation used to
-          carry its own "See how Saati works" button, which competed for the
-          same click and sent it off-site. */}
-      {!report.hasEmail && (
-        <UnlockForm
-          sessionId={report.sessionId}
-          lockedItemLabel="full breakdown across all five areas"
-        />
-      )}
+      {/* The page's single call to action: get the app, directly under the
+          invitation that names the area Saati can help with. Nothing on this
+          page is gated any more (2026-10-05): the full breakdown below shows
+          for everyone, and email is a quiet secondary path inside the CTA. */}
+      <AppDownloadCta
+        sessionId={report.sessionId}
+        quiz={quiz}
+        focusLabel={focusArea.label}
+        hasEmail={report.hasEmail}
+      />
 
-      {/* Deliberately outside the gate. If a student's responses suggest
-          they need support, they see that whether or not they ever give us
-          an email — signposting to help is not a thing to be traded for. */}
+      {/* Signposting to help is never traded for anything. */}
       {report.belowThreshold && <SupportResources />}
 
-      {report.hasEmail ? (
-        <>
-          <h2 className="mt-12 mb-6 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
+      <h2 className="mt-12 mb-6 text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
             Your full breakdown
           </h2>
 
@@ -183,24 +182,18 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             ]}
             comparison={comparison}
           />
-        </>
-      ) : null}
 
       <div className="mt-10 flex flex-col gap-6 print:hidden">
-        {/* Both of these restate the whole report, so they belong on the
-            unlocked side of the gate. */}
-        {report.hasEmail && (
-          <>
-            <EmailResultsForm sessionId={report.sessionId} />
+        {/* An extra copy to a second address only makes sense once the
+            session has one; the first address is collected by the CTA. */}
+        {report.hasEmail && <EmailResultsForm sessionId={report.sessionId} />}
 
-            <a
-              href={`/api/assessments/${report.sessionId}/pdf`}
-              className="text-center text-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
-            >
-              Download as PDF
-            </a>
-          </>
-        )}
+        <a
+          href={`/api/assessments/${report.sessionId}/pdf`}
+          className="text-center text-sm font-medium text-teal-800 underline underline-offset-2 dark:text-teal-300"
+        >
+          Download as PDF
+        </a>
 
         <Link
           href="/progress"

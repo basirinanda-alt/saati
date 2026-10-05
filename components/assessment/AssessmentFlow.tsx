@@ -16,6 +16,7 @@ import { AnswerScale } from "@/components/assessment/AnswerScale";
 import { NumericScale } from "@/components/assessment/NumericScale";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Button } from "@/components/ui/Button";
+import { trackEvent } from "@/lib/analytics/gtag";
 
 type FlowInstrument = "who5" | "perma" | "insight";
 
@@ -148,6 +149,26 @@ export function AssessmentFlow({ variant }: { variant: AssessmentVariant }) {
   useEffect(() => {
     headingElementRef.current?.focus();
   }, [currentIndex, phase]);
+
+  // Funnel analytics (docs/analytics-funnel.md). This flow opens straight on
+  // question 1, so arriving here IS the start. A question counts the first
+  // time it is reached; going Back and forward again is not a new step.
+  const quizName = variant === "full" ? "wellness_full" : "wellness_quick";
+  const furthestStepRef = useRef(0);
+  useEffect(() => {
+    trackEvent("quiz_start", { quiz: quizName });
+  }, [quizName]);
+  useEffect(() => {
+    if (phase !== "questions") return;
+    const step = currentIndex + 1;
+    if (step <= furthestStepRef.current) return;
+    furthestStepRef.current = step;
+    trackEvent("quiz_step", {
+      quiz: quizName,
+      question_number: step,
+      total_steps: flowQuestions.length,
+    });
+  }, [currentIndex, phase, quizName, flowQuestions.length]);
 
   // Clear any pending auto-advance timer on unmount, so a stale timeout
   // can never fire after the component is gone.

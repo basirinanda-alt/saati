@@ -46,6 +46,56 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<!-- ── Analytics: GA4 with Consent Mode v2 ──────────────────────────────
+     Consent is DENIED by default and set before any Google tag can load, so
+     no analytics/advertising cookie is written until consent is granted.
+     Google still receives cookieless pings, giving traffic trends without
+     user-level identifiers. The tag injects on `load`, so it can never
+     block rendering.
+
+     Set GA4_MEASUREMENT_ID to null to switch all Google tag loading off on
+     this page without removing any markup.
+     Governs Google tags only; does NOT cover any Meta Pixel. -->
+<script>
+  /* One file, two hosts, two GA4 properties: wellness.atlanticbuddhist.com
+     reports to that site's own property (the same one its Next.js pages use),
+     wellness.saati.ai to Saati's. This picks a measurement ID only — the
+     form endpoints stay absolute paths, never host-sniffed (see ENDPOINT). */
+  window.GA4_MEASUREMENT_ID = location.hostname.indexOf('atlanticbuddhist') !== -1
+    ? "G-B9TTWNG3SS"
+    : "G-2G98TP7CLD";
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('consent', 'default', {
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: 'denied',
+    functionality_storage: 'granted',
+    security_storage: 'granted',
+    wait_for_update: 500
+  });
+  /* Re-apply an earlier "Allow" from the analytics banner (analytics only —
+     ads storage stays denied). See SAATI FUNNEL ANALYTICS below. */
+  try{
+    if(localStorage.getItem('saati_analytics_consent') === 'granted'){
+      gtag('consent', 'update', {analytics_storage: 'granted'});
+    }
+  }catch(e){}
+  gtag('set', 'ads_data_redaction', true);
+  gtag('set', 'url_passthrough', true);
+  window.addEventListener('load', function () {
+    var id = window.GA4_MEASUREMENT_ID;
+    if (!id) return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=' + id;
+    document.head.appendChild(s);
+    gtag('js', new Date());
+    /* ?debug_ga=1 on the URL → events show live in GA4 Admin › DebugView */
+    gtag('config', id, /[?&]debug_ga=1/.test(location.search) ? {debug_mode: true} : {});
+  });
+</script>
 <style>
   /* ═══════════════════════════════════════════════════════════════════
      SAATI DESIGN SYSTEM
@@ -545,6 +595,56 @@
       transition-duration:.001ms !important;
     }
   }
+
+  /* ── SAATI APP CTA (shared block — identical in wellness quick, wellness full, ikigai) ── */
+  .app-cta{
+    margin:26px 0 8px;padding:32px 26px;border-radius:20px;text-align:center;
+    background:linear-gradient(160deg,#2C4038,#3D5449);color:#fff;
+    box-shadow:0 20px 50px rgba(44,64,56,.28);font-family:'Inter',system-ui,sans-serif;
+  }
+  .app-cta[hidden],.app-cta [hidden]{display:none !important}
+  .app-cta .app-cta-badge{
+    display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+    background:rgba(212,135,44,.92);color:#fff;border-radius:999px;padding:5px 14px;margin-bottom:14px;
+  }
+  .app-cta h3{font-family:'DM Serif Display',serif;font-weight:400;font-size:1.5rem;line-height:1.25;margin:0 0 8px;color:#fff}
+  .app-cta p{color:#CFE0D6;font-size:.95rem;line-height:1.55;margin:0 auto 18px;max-width:440px}
+  .app-cta .app-cta-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;box-sizing:border-box;
+    width:100%;max-width:360px;min-height:52px;padding:15px 28px;border-radius:999px;border:none;cursor:pointer;
+    background:#D4872C;color:#fff;font-family:'Inter',system-ui,sans-serif;font-weight:700;font-size:1rem;
+    letter-spacing:normal;text-transform:none;text-decoration:none;
+    box-shadow:0 8px 22px rgba(212,135,44,.4);transition:background .2s ease, transform .2s ease;
+  }
+  .app-cta .app-cta-btn:hover{background:#B0701F;transform:translateY(-2px)}
+  .app-cta .app-cta-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+  .app-cta .app-cta-btn[disabled]{opacity:.6;cursor:not-allowed;transform:none}
+  .app-cta .app-cta-btn.secondary{background:transparent;border:1.5px solid rgba(255,255,255,.45);box-shadow:none}
+  .app-cta .app-cta-btn.secondary:hover{background:rgba(255,255,255,.1)}
+  .app-cta .app-cta-stores{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .app-cta .app-cta-stores .app-cta-btn{flex:1 1 150px;max-width:210px}
+  .app-cta p.app-cta-founding{font-size:.86rem;color:#F3D9B5;margin:14px auto 0}
+  .app-cta .app-cta-email{margin:16px auto 0;max-width:360px}
+  .app-cta .app-cta-email form{display:flex;flex-direction:column;gap:10px;margin:0}
+  .app-cta .app-cta-email input{
+    width:100%;box-sizing:border-box;min-height:48px;padding:12px 20px;border-radius:999px;
+    border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;
+    font-family:'Inter',system-ui,sans-serif;font-size:1rem;
+  }
+  .app-cta .app-cta-email input::placeholder{color:#8FB0A2}
+  .app-cta .app-cta-email input:focus{outline:none;border-color:#D4872C;box-shadow:0 0 0 3px rgba(212,135,44,.3)}
+  .app-cta .app-cta-email .app-cta-btn{max-width:none}
+  .app-cta .app-cta-link{
+    display:inline-block;background:none;border:none;color:#CFE0D6;cursor:pointer;
+    font-family:'Inter',system-ui,sans-serif;font-size:.88rem;text-decoration:underline;text-underline-offset:2px;
+    margin-top:14px;padding:6px;
+  }
+  .app-cta .app-cta-link:hover{color:#fff}
+  .app-cta .app-cta-msg{font-size:.9rem;font-weight:600;margin-top:10px}
+  .app-cta .app-cta-msg.ok{color:#B8D4C8}
+  .app-cta .app-cta-msg.err{color:#F0B9A9}
+  .app-cta p.app-cta-fine{font-size:.76rem;color:#A9C6B8;margin:10px auto 0}
+  @media(max-width:520px){.app-cta{padding:28px 18px}.app-cta h3{font-size:1.32rem}}
 </style>
 </head>
 <body>
@@ -591,7 +691,7 @@
           </p>
 
           <div class="hero-actions">
-            <button class="btn btn-lg" onclick="go('s-age')">
+            <button class="btn btn-lg" onclick="trackQuizStart('ikigai');go('s-age')">
               Begin
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
             </button>
@@ -797,40 +897,13 @@
       </p>
     </div>
 
-    <!-- ── The ONE call to action on this page ────────────────────────
-         Everything that used to compete with it (a "Learn about Saati"
-         button, a cross-link to the other quiz) is gone. Asked for AFTER
-         the results and never on the crisis path; the confirmation renders
-         off the real send result, never off the fact that an attempt was
-         made.
+    <!-- ── The ONE call to action on this page: get the app ────────────
+         Rendered by SaatiAppCTA (see the shared block in the script).
+         Phones get one store button; computers get both plus "email me
+         the link", which emails the full plan (deliver.php) with the
+         store links in it. Never shown on the crisis path.
     ──────────────────────────────────────────────────────────────── -->
-    <div class="gate" id="email-card">
-      <h2>Send me my complete plan</h2>
-      <p class="lead">
-        Your reflection, your four circles and the plan above — laid out properly, in your inbox,
-        to keep. Entirely optional: everything is already on this page.
-      </p>
-      <form class="gate-form" id="gate-form" onsubmit="deliverEmail(event)">
-        <input type="text" id="f-name" placeholder="Your first name (optional)" autocomplete="given-name">
-        <input type="email" id="f-email" placeholder="you@example.com" autocomplete="email" required>
-        <button class="btn" type="submit" id="gate-btn">Send my plan</button>
-      </form>
-      <p class="err" id="gate-err"></p>
-      <p class="muted">
-        Occasional notes from Saati. No spam, unsubscribe any time.
-        Your answers are stored privately and never shared.
-      </p>
-    </div>
-
-    <p class="muted" id="no-email-note" style="display:none;margin-top:26px">
-      We couldn't reach the server to prepare an emailable copy, so this one stays on the page —
-      it's still yours to keep or copy from above.
-    </p>
-
-    <div class="gate" id="email-done" style="display:none;text-align:center">
-      <h2 id="done-head">Sent</h2>
-      <p class="lead" id="done-body"></p>
-    </div>
+    <div id="appCta" hidden></div>
 
     <div class="disclaimer">
       A reflection, not a diagnosis. Saati is a wellbeing companion, not a therapist, counsellor,
@@ -872,6 +945,202 @@
 </footer>
 
 <script>
+/* ═══════════════════════ SAATI APP CTA (shared block) ═══════════════════════
+   The ONE call to action on the results screen: get the app. Identical copy in
+   wellness-root/index.html, wellness-root/full/index.html and
+   ikigai-root/index.html — when the store links exist, paste them into
+   SAATI_APP in ALL THREE files (and into wellness submit.php).
+
+   Behaviour:
+     · phone (iPhone / Android)           → one big button to that phone's store
+     · computer                           → both store buttons, plus "email me the link"
+     · a store link left blank            → email capture takes the button's place
+     · page.html#get-app opened on a phone jumps straight to that phone's store,
+       so the page doubles as a free smart link for bios, posters and QR codes.
+   Events: app_cta_view, app_cta_click, app_link_email_captured. No scores,
+   no email address and no answers are ever sent with them.
+   ═══════════════════════════════════════════════════════════════════════════ */
+var SAATI_APP = {
+  IOS_URL: 'https://apps.apple.com/ca/app/saati-ai/id6790037807',
+  ANDROID_URL: 'https://play.google.com/store/apps/details?id=org.atlantictheravada.saati'
+};
+
+(function(){
+  var ua = navigator.userAgent || '';
+  var isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var platform = isIOS ? 'ios' : (/Android/.test(ua) ? 'android' : 'desktop');
+
+  function storeUrl(p){ return p === 'ios' ? SAATI_APP.IOS_URL : (p === 'android' ? SAATI_APP.ANDROID_URL : ''); }
+  if(location.hash === '#get-app' && storeUrl(platform)){ location.replace(storeUrl(platform)); }
+
+  function t(ev, data){ try{ if(typeof track === 'function') track(ev, data); }catch(e){} }
+  function esc(s){ var d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+  function storeBtn(p, label){
+    return '<a class="app-cta-btn" data-store="' + p + '" href="' + esc(storeUrl(p)) + '" target="_blank" rel="noopener">' + label + '</a>';
+  }
+
+  /* o = { source, headline, body, onEmail(email) → Promise<bool>, emailEnabled,
+           emailButton, okText(email), fine } */
+  function mount(el, o){
+    var url = storeUrl(platform);
+    var anyUrl = SAATI_APP.IOS_URL || SAATI_APP.ANDROID_URL;
+    var canEmail = o.emailEnabled !== false && typeof o.onEmail === 'function';
+    var emailFirst = false;
+
+    var h = '<div class="app-cta-badge">' + 'Free on iPhone &amp; Android' + '</div>'
+          + '<h3>' + esc(o.headline) + '</h3><p>' + esc(o.body) + '</p>';
+
+    if(url){
+      h += storeBtn(platform, 'Get Saati free');
+    }else if(platform === 'desktop' && anyUrl){
+      h += '<div class="app-cta-stores">'
+         + (SAATI_APP.IOS_URL ? storeBtn('ios', 'App Store') : '')
+         + (SAATI_APP.ANDROID_URL ? storeBtn('android', 'Google Play') : '')
+         + '</div>';
+    }else if(canEmail){
+      emailFirst = true;
+    }else{
+      h += '<a class="app-cta-btn" data-store="site" href="https://saati.ca" target="_blank" rel="noopener">See Saati</a>';
+    }
+
+    h += '<p class="app-cta-founding">Founding 1000: the first 1,000 members get $49.99/year, locked for life.</p>';
+
+    if(canEmail){
+      var btnText = o.emailButton || 'Email me the link';
+      var form = '<form novalidate>'
+               + '<input type="email" autocomplete="email" placeholder="you@example.com" aria-label="Your email address">'
+               + '<button class="app-cta-btn' + (emailFirst ? '' : ' secondary') + '" type="submit">' + esc(btnText) + '</button>'
+               + '</form><div class="app-cta-msg" role="status"></div>'
+               + '<p class="app-cta-fine">' + esc(o.fine || 'Occasional notes from Saati. No spam, unsubscribe any time.') + '</p>';
+      if(emailFirst){
+        h += '<div class="app-cta-email">' + form + '</div>';
+      }else{
+        h += '<button type="button" class="app-cta-link">'
+           + (platform === 'desktop' ? 'On a computer? Email me the link' : 'Not ready? Email me the link')
+           + '</button><div class="app-cta-email" hidden>' + form + '</div>';
+      }
+    }
+
+    el.innerHTML = h;
+    el.classList.add('app-cta');
+    el.hidden = false;
+
+    var base = {app_source: o.source, app_platform: platform};
+    t('app_cta_view', base);
+
+    Array.prototype.forEach.call(el.querySelectorAll('a[data-store]'), function(a){
+      a.addEventListener('click', function(){ t('app_cta_click', Object.assign({store: a.getAttribute('data-store'), transport_type: 'beacon'}, base)); });
+    });
+
+    var reveal = el.querySelector('.app-cta-link');
+    if(reveal) reveal.addEventListener('click', function(){
+      reveal.hidden = true;
+      el.querySelector('.app-cta-email').hidden = false;
+      el.querySelector('.app-cta-email input').focus();
+    });
+
+    var f = el.querySelector('.app-cta-email form');
+    if(f) f.addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var input = f.querySelector('input'), btn = f.querySelector('button');
+      var msg = el.querySelector('.app-cta-msg');
+      var email = input.value.trim();
+      msg.className = 'app-cta-msg';
+      if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+        msg.textContent = 'That email doesn\'t look right. Mind checking it?';
+        msg.classList.add('err');
+        return;
+      }
+      btn.disabled = true;
+      var label = btn.textContent;
+      btn.textContent = 'Sending…';
+      Promise.resolve().then(function(){ return o.onEmail(email); }).catch(function(){ return false; }).then(function(ok){
+        if(ok){
+          f.hidden = true;
+          msg.textContent = o.okText ? o.okText(email) : 'Sent. Check your inbox for the download link.';
+          msg.classList.add('ok');
+          t('app_link_email_captured', base);
+        }else{
+          btn.disabled = false;
+          btn.textContent = label;
+          msg.textContent = 'We couldn\'t send that just now. Please try again in a moment.';
+          msg.classList.add('err');
+        }
+      });
+    });
+  }
+
+  window.SaatiAppCTA = {mount: mount, platform: platform};
+})();
+/* ═════════════════════════════ end SAATI APP CTA ═════════════════════════════ */
+/* ═══════════════════════ SAATI FUNNEL ANALYTICS (shared block) ═══════════════════════
+   Identical in wellness quick, wellness full and ikigai. See landing-page/ANALYTICS.md.
+
+   Funnel events (all carry `quiz`: wellness_quick | wellness_full | ikigai):
+     quiz_start        → Begin pressed
+     quiz_step         → a question was reached for the first time  {question_number, total_steps}
+     quiz_complete     → results shown (never fired on the crisis path)
+     app_cta_view / app_cta_click / app_link_email_captured  (from the app CTA block)
+
+   Never sent: answers, scores, names, email addresses, anything crisis-related.
+
+   Consent: analytics_storage starts DENIED (set in <head>). Without a grant,
+   Google gets cookieless pings that standard GA4 reports do not show at this
+   traffic level — so this banner is what makes the funnel visible at all.
+   It grants analytics only; ad_storage / ad_user_data / ad_personalization
+   stay denied. The choice is remembered per browser.
+   ═══════════════════════════════════════════════════════════════════════════ */
+var _quizStepMax = 0;
+function trackQuizStart(quiz){ _quizStepMax = 0; track('quiz_start', {quiz: quiz}); }
+function trackQuizStep(quiz, step, total){
+  if(step <= _quizStepMax) return;          // Back + Next again is not a new step
+  _quizStepMax = step;
+  track('quiz_step', {quiz: quiz, question_number: step, total_steps: total});
+}
+
+(function(){
+  var KEY = 'saati_analytics_consent';
+  var saved = null;
+  try{ saved = localStorage.getItem(KEY); }catch(e){}
+  if(saved) return;                          // already chose; <head> applied it
+
+  var css = document.createElement('style');
+  css.textContent =
+    '.sa-consent{position:fixed;left:16px;right:16px;bottom:16px;z-index:9999;max-width:460px;margin:0 auto;'
+  + 'background:#FFF8F4;color:#1F1B17;border:1px solid #C2C8C4;border-radius:16px;padding:16px 18px;'
+  + 'box-shadow:0 12px 36px rgba(44,64,56,.22);font-family:Inter,system-ui,sans-serif;font-size:.88rem;line-height:1.5}'
+  + '.sa-consent p{margin:0 0 12px;color:#424845}'
+  + '.sa-consent strong{color:#2C4038}'
+  + '.sa-consent .sa-row{display:flex;gap:10px;justify-content:flex-end}'
+  + '.sa-consent button{font:inherit;font-weight:600;border-radius:999px;padding:9px 18px;min-height:40px;cursor:pointer}'
+  + '.sa-consent .sa-yes{background:#4A645A;color:#fff;border:1px solid #4A645A}'
+  + '.sa-consent .sa-no{background:transparent;color:#424845;border:1px solid #C2C8C4}'
+  + '.sa-consent button:focus-visible{outline:3px solid #D4872C;outline-offset:2px}';
+  document.head.appendChild(css);
+
+  var box = document.createElement('div');
+  box.className = 'sa-consent';
+  box.setAttribute('role', 'region');
+  box.setAttribute('aria-label', 'Analytics choice');
+  box.innerHTML =
+    '<p><strong>Help us improve this page?</strong> We use Google Analytics to see which steps people '
+  + 'finish. Your answers and scores are never sent.</p>'
+  + '<div class="sa-row"><button type="button" class="sa-no">No thanks</button>'
+  + '<button type="button" class="sa-yes">Allow</button></div>';
+
+  function choose(granted){
+    try{ localStorage.setItem(KEY, granted ? 'granted' : 'denied'); }catch(e){}
+    if(granted && typeof gtag === 'function') gtag('consent', 'update', {analytics_storage: 'granted'});
+    box.remove();
+  }
+  box.querySelector('.sa-yes').addEventListener('click', function(){ choose(true); });
+  box.querySelector('.sa-no').addEventListener('click', function(){ choose(false); });
+
+  function mountBox(){ document.body.appendChild(box); }
+  if(document.body) mountBox(); else document.addEventListener('DOMContentLoaded', mountBox);
+})();
+/* ═════════════════════════════ end SAATI FUNNEL ANALYTICS ═════════════════════════════ */
+
 /* ════════════════════════════════════════════════════════════════════════
    CONFIG
    ════════════════════════════════════════════════════════════════════════ */
@@ -905,10 +1174,24 @@ const DELIVER_ENDPOINT = '/ikigai/deliver.php';
 /* Analytics fires where each thing ACTUALLY happens — quiz completion at
    generation, and the conversion only where an address is really captured.
    No-ops until a tag manager is installed. */
+/* The GTM-style dataLayer push is kept so a future GTM container still
+   works. The gtag forward is new and necessary: GA4's gtag ignores
+   object-form dataLayer pushes, so before this every track() call on this
+   page went nowhere at all.
+
+   TRACK_NO_EXPORT lists events that stay on this page and never reach
+   Google. 'ikigai_crisis_shown' records that a person was shown crisis
+   resources — health-sensitive, so it is deliberately NOT exported even
+   though it still fires locally. Delete it from this array to send it. */
+var TRACK_NO_EXPORT = ['ikigai_crisis_shown'];
+
 function track(event, data){
   try{
     window.dataLayer = window.dataLayer || [];
     window.dataLayer.push(Object.assign({event: event}, data || {}));
+    if(typeof gtag === 'function' && TRACK_NO_EXPORT.indexOf(event) === -1){
+      gtag('event', event, data || {});
+    }
   }catch(e){ /* analytics must never break the page */ }
 }
 
@@ -1114,6 +1397,7 @@ function go(id){
 }
 
 function setBand(b){
+  track('ikigai_age_selected', {age_band: b});
   state.band = b;
   state.flow = buildFlow(b);
   state.idx = 0;
@@ -1129,6 +1413,7 @@ function renderQ(){
   const total = state.flow.length;
   const pct = Math.round((state.idx / total) * 100);
   qs('p-step').textContent = 'Question ' + (state.idx+1) + ' of ' + total;
+  trackQuizStep('ikigai', state.idx+1, total);
   qs('p-pct').textContent = pct + '%';
   qs('p-fill').style.width = pct + '%';
   qs('q-back').style.visibility = state.idx === 0 ? 'hidden' : 'visible';
@@ -1403,34 +1688,15 @@ async function generate(){
 
   renderResult();
   track('ikigai_quiz_complete', {ikigai_source: state.source});
+  track('quiz_complete', {quiz: 'ikigai'});
   go('s-result');
 }
 
-/* STEP 2 — deliver. A separate, explicit POST that captures the address. The
-   confirmation shown afterwards is rendered off the REAL outcome. */
-async function deliverEmail(ev){
-  ev.preventDefault();
-  const email = qs('f-email').value.trim();
-  const name  = qs('f-name').value.trim();
-  const err   = qs('gate-err');
-  const btn   = qs('gate-btn');
-  err.classList.remove('on');
-
-  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    err.textContent = 'That email doesn\'t look right — mind checking it?';
-    err.classList.add('on');
-    return;
-  }
-
-  if(!state.token){
-    err.textContent = 'We can\'t email this one, sorry — your reflection is still yours to '
-                    + 'copy from the page above.';
-    err.classList.add('on');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.textContent = 'Sending…';
+/* STEP 2 — deliver. A separate, explicit POST that captures the address.
+   Called by the app CTA's "email me the link"; returns the REAL outcome so the
+   confirmation is never rendered off the mere attempt. */
+async function deliverTo(email){
+  if(!state.token) return false;
 
   let data = null, httpOk = false;
   try{
@@ -1439,7 +1705,7 @@ async function deliverEmail(ev){
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         email: email,
-        name: name,
+        name: '',
         age_band: state.band,
         source: state.source,
         submission_id: state.submissionId,
@@ -1453,26 +1719,14 @@ async function deliverEmail(ev){
     data = null;
   }
 
-  btn.disabled = false;
-  btn.textContent = 'Email me a copy';
-
   if(httpOk && data && data.delivered){
-    qs('email-card').style.display = 'none';
-    const done = qs('email-done');
-    done.style.display = 'block';
-    qs('done-head').textContent = 'On its way';
-    qs('done-body').textContent = 'We\'ve emailed your reflection to ' + email
-                                + '. If it doesn\'t arrive in a few minutes, check your spam folder.';
     /* The conversion fires HERE — where an address was actually captured —
        not on quiz completion, which happens whether or not one is ever given. */
     track('ikigai_email_captured', {ikigai_contact_added: !!(data && data.contactAdded)});
-  } else {
-    err.textContent = (data && data.message)
-      ? data.message
-      : 'We couldn\'t send that just now. Your reflection is still on screen — try again in a moment.';
-    err.classList.add('on');
-    track('ikigai_email_failed');
+    return true;
   }
+  track('ikigai_email_failed');
+  return false;
 }
 
 /* Client-side safety net. The server has a better one; this covers the
@@ -1550,12 +1804,19 @@ function renderResult(){
 
   qs('r-closing').textContent = r.closing || '';
 
-  /* No token means the reflection was never signed, so deliver.php will refuse
-     it. Withdraw the CTA rather than leave it promising a plan we cannot send;
-     the reflection itself is still on the page, which is the part that matters. */
-  const canEmail = !!state.token;
-  qs('email-card').style.display = canEmail ? '' : 'none';
-  qs('no-email-note').style.display = canEmail ? 'none' : 'block';
+  /* The one call to action: get the app. No token means the reflection was
+     never signed, so deliver.php would refuse it — the "email me" option is
+     withdrawn rather than left promising a plan we cannot send. */
+  SaatiAppCTA.mount(qs('appCta'), {
+    source: 'ikigai',
+    headline: 'Don\'t let this stay on a page.',
+    body: 'Saati is a companion app that helps you follow through on the one small step above: a few quiet minutes a day, at your own pace.',
+    onEmail: deliverTo,
+    emailEnabled: !!state.token,
+    emailButton: 'Email me my plan + the app link',
+    okText: email => 'Sent to ' + email + '. If it doesn\'t arrive in a few minutes, check your spam folder.',
+    fine: 'Occasional notes from Saati. No spam, unsubscribe any time. Your answers are stored privately and never shared.'
+  });
 
   buildVenn('venn-final-wrap', true);
 }

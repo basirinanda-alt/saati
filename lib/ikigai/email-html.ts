@@ -20,6 +20,7 @@
  * on that constant before changing one.
  */
 
+import { APP_STORE_URL, PLAY_STORE_URL } from "@/lib/appLinks";
 import {
   CIRCLE_KEYS,
   CIRCLE_LABELS,
@@ -215,8 +216,12 @@ export function buildEmailHtml(greetingName: string, result: IkigaiResult): stri
 
   <tr><td align="center" style="padding:10px 4px 4px 4px;">
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-      <td style="background:${SAGE};border-radius:999px;">
-        <a href="https://saati.ca" style="display:inline-block;padding:16px 34px;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:1.4px;text-transform:uppercase;color:#ffffff;text-decoration:none;">Read more about Saati</a>
+      <td style="background:${AMBER};border-radius:999px;">
+        <a href="${APP_STORE_URL}" style="display:inline-block;padding:16px 26px;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:1.4px;text-transform:uppercase;color:#ffffff;text-decoration:none;">Get Saati on iPhone</a>
+      </td>
+      <td style="width:10px;">&nbsp;</td>
+      <td style="background:${AMBER};border-radius:999px;">
+        <a href="${PLAY_STORE_URL}" style="display:inline-block;padding:16px 26px;font-family:${SANS};font-size:12px;font-weight:bold;letter-spacing:1.4px;text-transform:uppercase;color:#ffffff;text-decoration:none;">Get Saati on Android</a>
       </td>
     </tr></table>
   </td></tr>
