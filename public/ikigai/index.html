@@ -75,11 +75,12 @@
     security_storage: 'granted',
     wait_for_update: 500
   });
-  /* Re-apply an earlier "Allow" from the analytics banner (analytics only —
-     ads storage stays denied). See SAATI FUNNEL ANALYTICS below. */
+  /* Re-apply an earlier "Allow" from the consent banner: analytics + ad
+     conversion measurement. Ad personalisation always stays denied. See
+     SAATI FUNNEL ANALYTICS below. */
   try{
     if(localStorage.getItem('saati_analytics_consent') === 'granted'){
-      gtag('consent', 'update', {analytics_storage: 'granted'});
+      gtag('consent', 'update', {analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted'});
     }
   }catch(e){}
   gtag('set', 'ads_data_redaction', true);
@@ -1087,8 +1088,10 @@ var SAATI_APP = {
    Consent: analytics_storage starts DENIED (set in <head>). Without a grant,
    Google gets cookieless pings that standard GA4 reports do not show at this
    traffic level — so this banner is what makes the funnel visible at all.
-   It grants analytics only; ad_storage / ad_user_data / ad_personalization
-   stay denied. The choice is remembered per browser.
+   "Allow" grants analytics_storage, ad_storage and ad_user_data (GA plus
+   Google Ads conversion measurement); ad_personalization always stays
+   denied. The choice is remembered per browser, per site — and shared with
+   the Next.js pages on wellness.atlanticbuddhist.com (same storage key).
    ═══════════════════════════════════════════════════════════════════════════ */
 var _quizStepMax = 0;
 function trackQuizStart(quiz){ _quizStepMax = 0; track('quiz_start', {quiz: quiz}); }
@@ -1123,14 +1126,14 @@ function trackQuizStep(quiz, step, total){
   box.setAttribute('role', 'region');
   box.setAttribute('aria-label', 'Analytics choice');
   box.innerHTML =
-    '<p><strong>Help us improve this page?</strong> We use Google Analytics to see which steps people '
-  + 'finish. Your answers and scores are never sent.</p>'
+    '<p><strong>Help us improve this page?</strong> We use Google Analytics and ad measurement to see '
+  + 'which steps people finish and which ads bring them here. Your answers and scores are never sent.</p>'
   + '<div class="sa-row"><button type="button" class="sa-no">No thanks</button>'
   + '<button type="button" class="sa-yes">Allow</button></div>';
 
   function choose(granted){
     try{ localStorage.setItem(KEY, granted ? 'granted' : 'denied'); }catch(e){}
-    if(granted && typeof gtag === 'function') gtag('consent', 'update', {analytics_storage: 'granted'});
+    if(granted && typeof gtag === 'function') gtag('consent', 'update', {analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted'});
     box.remove();
   }
   box.querySelector('.sa-yes').addEventListener('click', function(){ choose(true); });

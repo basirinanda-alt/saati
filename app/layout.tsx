@@ -4,6 +4,7 @@ import Script from "next/script";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo/jsonld";
 import { SITE_URL } from "@/lib/seo/site";
+import { ConsentBanner } from "@/components/ConsentBanner";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -36,6 +37,33 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         <JsonLd data={organizationJsonLd()} />
         <JsonLd data={websiteJsonLd()} />
+        {/* Consent Mode v2 — must run before any Google tag or event, so it
+            is beforeInteractive. Everything starts denied; ConsentBanner's
+            "Allow" (remembered in localStorage, shared with /ikigai) grants
+            analytics + ad conversion measurement. ad_personalization always
+            stays denied. Same behaviour as the wellness.saati.ai quiz pages. */}
+        <Script id="consent-default" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: 'denied',
+              functionality_storage: 'granted',
+              security_storage: 'granted',
+              wait_for_update: 500
+            });
+            gtag('set', 'ads_data_redaction', true);
+            gtag('set', 'url_passthrough', true);
+            try {
+              if (localStorage.getItem('saati_analytics_consent') === 'granted') {
+                gtag('consent', 'update', {analytics_storage: 'granted', ad_storage: 'granted', ad_user_data: 'granted'});
+              }
+            } catch (e) {}
+          `}
+        </Script>
         {/* Google Ads conversion tracking — see docs/09-security.md and
             /privacy for third-party disclosure. */}
         <Script
@@ -57,6 +85,7 @@ export default function RootLayout({
           `}
         </Script>
         {children}
+        <ConsentBanner />
       </body>
     </html>
   );

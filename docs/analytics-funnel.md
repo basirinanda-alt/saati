@@ -22,6 +22,15 @@ and picks this property by hostname.
 
 Never sent: answers, scores, names, email addresses, crisis-screen events.
 
+## Consent
+
+Consent Mode v2, set `beforeInteractive` in `app/layout.tsx`: everything starts denied.
+`components/ConsentBanner.tsx` asks once; **Allow** grants `analytics_storage`, `ad_storage`
+and `ad_user_data` (GA + Google Ads conversions); `ad_personalization` always stays denied.
+The choice is stored in `localStorage` under `saati_analytics_consent`, shared with `/ikigai`,
+and is identical to the wellness.saati.ai quiz pages (decided 2026-10-05). Only visitors
+who allow appear in reports; Google models the rest.
+
 ## GA4 setup
 
 1. Admin › Custom definitions: event-scoped dimensions `quiz`, `question_number`,

@@ -109,12 +109,15 @@ export default function PrivacyPage() {
         <p className="mt-3 max-w-prose text-neutral-700 dark:text-neutral-300">
           We run ad campaigns to let students know Saati exists, and we use{" "}
           <strong>Google Ads</strong> conversion tracking to measure whether
-          those campaigns are working. This sets a cookie and shares
-          general visit information (such as the page you landed on and
-          whether you arrived from an ad) with Google — it never includes
-          your assessment answers, scores, or email address. You can control
-          or opt out of this tracking through your browser&rsquo;s cookie
-          settings or{" "}
+          those campaigns are working, along with <strong>Google Analytics</strong>{" "}
+          to see which steps of a check-in people finish. Both stay off until
+          you choose &ldquo;Allow&rdquo; on the banner we show on your first
+          visit (ad personalisation stays off either way). If you allow it,
+          this sets cookies and shares general visit information (such as the
+          page you landed on, which step you reached, and whether you arrived
+          from an ad) with Google — it never includes your assessment
+          answers, scores, or email address. You can change your mind by
+          clearing this site&rsquo;s data in your browser, or through{" "}
           <a
             href="https://myadcenter.google.com/"
             className="underline underline-offset-2 hover:text-teal-800 dark:hover:text-teal-300"
