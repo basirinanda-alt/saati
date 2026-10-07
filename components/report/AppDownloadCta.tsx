@@ -63,6 +63,9 @@ export function AppDownloadCta({ sessionId, quiz, focusLabel, hasEmail }: AppDow
       transport_type: "beacon",
       app_source: quiz,
       app_platform: platform,
+      // Distinguishes this CTA from the top-of-page AppShowcase badges,
+      // which send the same event with app_placement: "showcase".
+      app_placement: "results_cta",
     });
   }
 

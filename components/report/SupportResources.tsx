@@ -9,7 +9,7 @@ export function SupportResources() {
   return (
     <section
       aria-labelledby="support-resources-heading"
-      className="mt-6 rounded-xl border border-neutral-200 bg-white p-6 sm:p-8 dark:border-neutral-700 dark:bg-neutral-900"
+      className="mt-6 rounded-2xl border border-neutral-200 bg-white p-6 sm:p-8 dark:border-neutral-700 dark:bg-neutral-900"
     >
       <h2
         id="support-resources-heading"

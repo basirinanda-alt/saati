@@ -35,3 +35,65 @@ body {
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* Results-page palette (wellness.atlanticbuddhist.com, approved 2026-10-06).
+   Scoped to .report-theme so no other page changes. Calm on purpose: one
+   teal accent, neutral surfaces, and five muted PERMA hues used only as
+   small tints (letter badges, bars, chart points, the focus-area box) —
+   never as large fills. Dark values follow Tailwind's default `dark:`
+   variant, which is prefers-color-scheme. */
+.report-theme {
+  --r-bg: #f6f8f8;
+  --r-card: #ffffff;
+  --r-ink: #171717;
+  --r-soft: #525252;
+  --r-line: #e5e7e7;
+  --r-brand: #115e59;
+  --r-accent: #0f766e;
+  --r-accent-ink: #115e59;
+  --r-glow: rgba(15, 118, 110, 0.14);
+  --r-track: rgba(31, 27, 23, 0.08);
+  --r-insight: #b45309;
+
+  --perma-P: #b9802f;
+  --perma-P-bg: #f6eee2;
+  --perma-E: #4f7f9e;
+  --perma-E-bg: #eaf0f3;
+  --perma-R: #a8697a;
+  --perma-R-bg: #f4eaec;
+  --perma-M: #7a6d9e;
+  --perma-M-bg: #eeebf3;
+  --perma-A: #56876b;
+  --perma-A-bg: #e8f0eb;
+  --perma-who5: #4a7c78;
+  --perma-who5-bg: #e6efee;
+}
+
+@media (prefers-color-scheme: dark) {
+  .report-theme {
+    --r-bg: #0a0a0a;
+    --r-card: #151717;
+    --r-ink: #ededed;
+    --r-soft: #a3a3a3;
+    --r-line: #2a2e2e;
+    --r-brand: #5eead4;
+    --r-accent: #2dd4bf;
+    --r-accent-ink: #5eead4;
+    --r-glow: rgba(45, 212, 191, 0.1);
+    --r-track: rgba(255, 255, 255, 0.09);
+    --r-insight: #fbbf24;
+
+    --perma-P: #d6a766;
+    --perma-P-bg: #2e2820;
+    --perma-E: #8eb2c9;
+    --perma-E-bg: #222a2f;
+    --perma-R: #cc9aa6;
+    --perma-R-bg: #2e2427;
+    --perma-M: #afa3cc;
+    --perma-M-bg: #28252f;
+    --perma-A: #8db89d;
+    --perma-A-bg: #222b25;
+    --perma-who5: #87b3ae;
+    --perma-who5-bg: #212a29;
+  }
+}

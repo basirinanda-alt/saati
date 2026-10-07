@@ -14,12 +14,25 @@ import type { FocusArea } from "@/lib/report/focusArea";
  * button here would compete with it for the same click.
  */
 export function SaatiInvitation({ focusArea }: { focusArea: FocusArea }) {
+  // A light tint of the focus area's own hue (the same one its letter badge
+  // and bar use in PermaProfile), so the box visibly points back at that
+  // row. Tokens live in app/globals.css (.report-theme).
+  const hue = `var(--perma-${focusArea.key})`;
   return (
     <section
       aria-labelledby="saati-invitation-heading"
-      className="mt-10 rounded-xl border border-teal-200 bg-teal-50/60 p-6 dark:border-teal-900 dark:bg-teal-950/40"
+      className="mt-10 rounded-2xl border p-6"
+      style={{
+        backgroundColor: `var(--perma-${focusArea.key}-bg)`,
+        borderColor: `color-mix(in oklab, ${hue} 28%, transparent)`,
+      }}
     >
-      <p className="text-xs font-medium tracking-wide text-teal-800 uppercase dark:text-teal-300">
+      {/* Eyebrow mixed toward the ink colour so it keeps AA contrast on the
+          tint in both themes (the raw hue alone is ~3:1). */}
+      <p
+        className="text-xs font-semibold tracking-wide uppercase"
+        style={{ color: `color-mix(in oklab, ${hue}, var(--r-ink) 35%)` }}
+      >
         Where to put your attention
       </p>
 

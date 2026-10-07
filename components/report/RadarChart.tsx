@@ -34,6 +34,17 @@ const CENTER = SIZE / 2;
 const RADIUS = 140;
 const GRID_RINGS = [0.25, 0.5, 0.75, 1];
 
+const DOMAIN_HUE_KEYS = new Set(["who5", "P", "E", "R", "M", "A"]);
+
+/** Validated points take their domain's muted hue (the same one used for
+ * its letter badge and bar in PermaProfile); anything else falls back to
+ * the accent. Tokens live in app/globals.css (.report-theme). */
+function pointColor(axis: RadarAxis) {
+  return DOMAIN_HUE_KEYS.has(axis.key)
+    ? `var(--perma-${axis.key})`
+    : "var(--r-accent)";
+}
+
 function pointFor(index: number, total: number, fraction: number) {
   // Start at the top (12 o'clock) and go clockwise.
   const angle = (Math.PI * 2 * index) / total - Math.PI / 2;
@@ -111,7 +122,7 @@ export function RadarChart({ axes, comparison }: RadarChartProps) {
                 return `${x},${y}`;
               })
               .join(" ")}
-            className="fill-none stroke-neutral-200 dark:stroke-neutral-700"
+            className="fill-none stroke-(--r-line)"
             strokeWidth={1}
           />
         ))}
@@ -126,7 +137,7 @@ export function RadarChart({ axes, comparison }: RadarChartProps) {
               y1={CENTER}
               x2={x}
               y2={y}
-              className="stroke-neutral-200 dark:stroke-neutral-700"
+              className="stroke-(--r-line)"
               strokeWidth={1}
             />
           );
@@ -148,26 +159,33 @@ export function RadarChart({ axes, comparison }: RadarChartProps) {
         {/* Current data shape */}
         <polygon
           points={polygonPoints(axes)}
-          className="fill-[#2a78d6]/15 stroke-[#2a78d6] dark:fill-[#3987e5]/20 dark:stroke-[#3987e5]"
+          className="fill-(--r-accent)/12 stroke-(--r-accent)"
           strokeWidth={2}
           strokeLinejoin="round"
         />
 
-        {/* Vertex markers: filled circle = validated, hollow = insight. */}
+        {/* Vertex markers: filled circle = validated, hollow = insight.
+            The shape carries the distinction; the per-domain hue is extra. */}
         {axes.map((axis, i) => {
           const { x, y } = pointFor(i, axes.length, axis.percentageScore / 100);
-          return (
+          return axis.type === "validated" ? (
+            <circle
+              key={axis.key}
+              cx={x}
+              cy={y}
+              r={6}
+              strokeWidth={2}
+              style={{ fill: pointColor(axis) }}
+              className="stroke-(--r-card)"
+            />
+          ) : (
             <circle
               key={axis.key}
               cx={x}
               cy={y}
               r={5}
               strokeWidth={2}
-              className={
-                axis.type === "validated"
-                  ? "fill-[#2a78d6] stroke-[#2a78d6] dark:fill-[#3987e5] dark:stroke-[#3987e5]"
-                  : "fill-white stroke-[#2a78d6] dark:fill-neutral-900 dark:stroke-[#3987e5]"
-              }
+              className="fill-(--r-card) stroke-(--r-accent)"
             />
           );
         })}
@@ -200,7 +218,7 @@ export function RadarChart({ axes, comparison }: RadarChartProps) {
         <div className="flex items-center gap-2">
           <span
             aria-hidden="true"
-            className="inline-block h-2.5 w-2.5 rounded-full bg-[#2a78d6] dark:bg-[#3987e5]"
+            className="inline-block h-2.5 w-2.5 rounded-full bg-(--r-accent)"
           />
           Solid marker = Validated Measure (WHO-5, PERMA)
         </div>
@@ -208,7 +226,7 @@ export function RadarChart({ axes, comparison }: RadarChartProps) {
           <div className="flex items-center gap-2">
             <span
               aria-hidden="true"
-              className="inline-block h-2.5 w-2.5 rounded-full border-2 border-[#2a78d6] bg-white dark:border-[#3987e5] dark:bg-neutral-900"
+              className="inline-block h-2.5 w-2.5 rounded-full border-2 border-(--r-accent) bg-(--r-card)"
             />
             Outline marker = Saati Insight (not a validated clinical instrument)
           </div>
@@ -218,7 +236,7 @@ export function RadarChart({ axes, comparison }: RadarChartProps) {
             <div className="mt-1 flex items-center gap-2">
               <span
                 aria-hidden="true"
-                className="inline-block h-0.5 w-4 bg-[#2a78d6] dark:bg-[#3987e5]"
+                className="inline-block h-0.5 w-4 bg-(--r-accent)"
               />
               Solid line = this check-in
             </div>

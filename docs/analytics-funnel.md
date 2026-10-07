@@ -12,7 +12,7 @@ wellness.saati.ai (property G-2G98TP7CLD), so a funnel report reads the same on 
 | `quiz_step` | a question is reached for the first time (Back + forward is not a new step) | `quiz`, `question_number`, `total_steps` |
 | `quiz_complete` | results page, once per session per tab (`TrackQuizComplete`) | `quiz` |
 | `app_cta_view` | `AppDownloadCta` renders | `app_source`, `app_platform` |
-| `app_cta_click` | App Store / Google Play button | `store` (`ios`/`android`), `transport_type: beacon`, `app_source`, `app_platform` |
+| `app_cta_click` | App Store / Google Play button | `store` (`ios`/`android`), `transport_type: beacon`, `app_source`, `app_platform`, `app_placement` (`results_cta` = `AppDownloadCta`, `showcase` = the `AppShowcase` badges at the top of the results page) |
 | `app_link_email_captured` | "Email me my report + the app link" succeeded | `app_source`, `app_platform` |
 | `conversion` (Google Ads) | unchanged: only when a session's first email is captured | `send_to` |
 
@@ -34,7 +34,7 @@ who allow appear in reports; Google models the rest.
 ## GA4 setup
 
 1. Admin › Custom definitions: event-scoped dimensions `quiz`, `question_number`,
-   `total_steps`, `store`, `app_platform`, `app_source`.
+   `total_steps`, `store`, `app_platform`, `app_source`, `app_placement`.
 2. Mark `app_cta_click`, `app_link_email_captured`, `quiz_complete` as key events.
 3. Explore › Funnel exploration: `quiz_start` → `quiz_step` (question_number = 5) →
    (= 10) → `quiz_complete` → `app_cta_click`, broken down by device category.

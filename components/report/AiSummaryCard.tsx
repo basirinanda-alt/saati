@@ -20,7 +20,7 @@ export function AiSummaryCard({ summary, source }: AiSummaryCardProps) {
   return (
     <section
       aria-labelledby="ai-summary-heading"
-      className="mt-6 rounded-xl border border-slate-300 bg-slate-50 p-6 sm:p-8 dark:border-slate-600 dark:bg-slate-900/60"
+      className="mt-6 rounded-2xl border border-slate-300 bg-slate-50 p-6 sm:p-8 dark:border-slate-600 dark:bg-slate-900/60"
     >
       <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-700 px-3 py-1 text-xs font-semibold tracking-wide text-white uppercase dark:bg-slate-600">
         AI Summary

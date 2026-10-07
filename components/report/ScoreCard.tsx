@@ -2,6 +2,7 @@
 
 import { useId } from "react";
 import { TypeBadge } from "./TypeBadge";
+import { ScoreGauge } from "./ScoreGauge";
 
 interface ScoreCardProps {
   instrumentType: "validated" | "insight";
@@ -32,41 +33,42 @@ export function ScoreCard({
   return (
     <section
       aria-labelledby={headingId}
-      className={`rounded-xl border p-6 sm:p-8 ${
+      className={`rounded-2xl border p-6 sm:p-7 ${
         isValidated
-          ? "border-teal-700/30 bg-teal-50/60 dark:border-teal-400/30 dark:bg-teal-950/40"
-          : "border-amber-700/30 bg-amber-50/60 dark:border-amber-400/30 dark:bg-amber-950/40"
+          ? "border-(--r-line) bg-(--r-bg)"
+          : "border-amber-700/25 bg-amber-50/50 dark:border-amber-400/25 dark:bg-amber-950/30"
       }`}
     >
       <TypeBadge type={instrumentType} />
 
-      <h2
-        id={headingId}
-        className="mt-4 text-lg font-medium text-neutral-700 dark:text-neutral-300"
-      >
-        {instrumentName}
-      </h2>
+      <div className="mt-4 flex flex-col items-center gap-5 text-center sm:flex-row sm:items-center sm:text-left">
+        {/* Validated measures fill in the page's single teal accent; Saati
+            Insights keep their amber, alongside the badge and the copy
+            below, so the two never read as the same kind of score. */}
+        <ScoreGauge
+          shape="arc"
+          percentageScore={percentageScore}
+          label={`${instrumentName}: ${Math.round(percentageScore)} out of 100`}
+          color={isValidated ? "var(--r-accent)" : "var(--r-insight)"}
+          className="shrink-0"
+        />
 
-      <p
-        className={`mt-2 text-5xl font-semibold ${
-          isValidated
-            ? "text-teal-900 dark:text-teal-200"
-            : "text-amber-900 dark:text-amber-200"
-        }`}
-      >
-        {Math.round(percentageScore)}
-        <span className="text-2xl font-normal text-neutral-500 dark:text-neutral-400">
-          {" "}
-          / 100
-        </span>
-      </p>
+        <div className="min-w-0">
+          <h2
+            id={headingId}
+            className="text-lg font-semibold text-neutral-900 dark:text-neutral-100"
+          >
+            {instrumentName}
+          </h2>
 
-      <p className="mt-4 max-w-prose text-base text-neutral-800 dark:text-neutral-200">
-        {description}
-      </p>
+          <p className="mt-2 max-w-prose text-base text-neutral-700 dark:text-neutral-300">
+            {description}
+          </p>
+        </div>
+      </div>
 
       {!isValidated && (
-        <p className="mt-3 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-4 max-w-prose text-sm text-neutral-600 dark:text-neutral-400">
           This is a Saati Insight — a set of questions we designed to help you
           reflect on your {instrumentName.toLowerCase()}, not a clinical or
           validated psychological test.
