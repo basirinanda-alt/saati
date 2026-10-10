@@ -3,8 +3,7 @@
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/Button";
 import {
-  APP_STORE_URL,
-  PLAY_STORE_URL,
+  WELLNESS_DOWNLOAD_URL,
   detectPlatform,
   type AppPlatform,
 } from "@/lib/appLinks";
@@ -118,7 +117,7 @@ export function AppDownloadCta({ sessionId, quiz, focusLabel, hasEmail }: AppDow
       <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
         {platform !== "android" && (
           <a
-            href={APP_STORE_URL}
+            href={WELLNESS_DOWNLOAD_URL}
             target="_blank"
             rel="noopener"
             onClick={() => onStoreClick("ios")}
@@ -129,7 +128,7 @@ export function AppDownloadCta({ sessionId, quiz, focusLabel, hasEmail }: AppDow
         )}
         {platform !== "ios" && (
           <a
-            href={PLAY_STORE_URL}
+            href={WELLNESS_DOWNLOAD_URL}
             target="_blank"
             rel="noopener"
             onClick={() => onStoreClick("android")}

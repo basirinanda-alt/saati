@@ -1051,8 +1051,13 @@
    no email address and no answers are ever sent with them.
    ═══════════════════════════════════════════════════════════════════════════ */
 var SAATI_APP = {
-  IOS_URL: 'https://apps.apple.com/ca/app/saati-ai/id6790037807',
-  ANDROID_URL: 'https://play.google.com/store/apps/details?id=org.atlantictheravada.saati'
+  /* Both point at the same tracked redirector (2026-10-10) instead of the
+     raw store URLs, so download attribution survives the store's own
+     referrer-stripping. This file is shared byte-identical between
+     wellness.saati.ai/ikigai/ and wellness.atlanticbuddhist.com/ikigai, so
+     the change applies to both hosts' Ikigai results page. */
+  IOS_URL: 'https://saati.ai/download?utm_source=ikigai&utm_medium=referral&utm_campaign=saati_download',
+  ANDROID_URL: 'https://saati.ai/download?utm_source=ikigai&utm_medium=referral&utm_campaign=saati_download'
 };
 
 (function(){

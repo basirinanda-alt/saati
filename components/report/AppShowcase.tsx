@@ -3,8 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import {
-  APP_STORE_URL,
-  PLAY_STORE_URL,
+  WELLNESS_DOWNLOAD_URL,
   detectPlatform,
   type AppPlatform,
 } from "@/lib/appLinks";
@@ -211,7 +210,7 @@ export function AppShowcase({ quiz }: AppShowcaseProps) {
 
         <div className="mt-2 flex flex-wrap justify-center gap-2.5 min-[560px]:justify-start">
           <a
-            href={APP_STORE_URL}
+            href={WELLNESS_DOWNLOAD_URL}
             target="_blank"
             rel="noopener"
             onClick={() => onStoreClick("ios")}
@@ -238,7 +237,7 @@ export function AppShowcase({ quiz }: AppShowcaseProps) {
             </span>
           </a>
           <a
-            href={PLAY_STORE_URL}
+            href={WELLNESS_DOWNLOAD_URL}
             target="_blank"
             rel="noopener"
             onClick={() => onStoreClick("android")}
