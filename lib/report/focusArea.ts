@@ -10,7 +10,8 @@
  * the therapeutic summary; this file writes the invitation. Keeping the
  * two apart is what stops the pitch leaking into the care language.
  *
- * Wording approved by the founder 2026-08-28.
+ * Wording approved by the founder 2026-08-28; the app pitch was replaced by
+ * a personal next step on 2026-10-12 (advice first, Saati second).
  */
 
 import type { ReportData } from "./getReportData";
@@ -19,62 +20,105 @@ import type { ReportData } from "./getReportData";
  * lib/scoring/perma.ts and PERMA_CORE_DOMAIN_LABELS (P/E/R/M/A). */
 export type FocusAreaKey = "who5" | "P" | "E" | "R" | "M" | "A";
 
+export interface NextStep {
+  /** The area in plain words for "Your lowest area was …". */
+  areaName: string;
+  /** One small thing to do, with or without Saati. */
+  step: string;
+  /** The one Saati practice that fits that step, and what it does. */
+  saatiHelp: string;
+  /** Button label: names the practice, not the app. */
+  buttonLabel: string;
+}
+
 export interface FocusArea {
   key: FocusAreaKey;
   /** Human label for the dimension, as shown to the student. */
   label: string;
   /** What the score is describing, in the student's terms. */
   plainDescription: string;
-  /** How Saati addresses this specific area. */
-  saatiOffer: string;
+  /** The personal next step for this area (2026-10-12). Every practice it
+   * names exists in the live app: Body Scan, Loving-Kindness, Find a Way,
+   * Find Your Purpose and the companion chat. Name nothing else here. */
+  nextStep: NextStep;
   percentageScore: number;
 }
 
 const COPY: Record<
   FocusAreaKey,
-  { label: string; plainDescription: string; saatiOffer: string }
+  { label: string; plainDescription: string; nextStep: NextStep }
 > = {
   who5: {
     label: "day-to-day wellbeing",
     plainDescription:
       "how you have been feeling in yourself over the last two weeks — your energy, your mood, how rested you feel.",
-    saatiOffer:
-      "Saati can help you improve this. It checks in with you daily, notices how your mood moves over time, and gives you short grounding practices to use in the moments that are hardest.",
+    nextStep: {
+      areaName: "rest and energy",
+      step: "Tonight, give yourself a few slow minutes to wind down before sleep.",
+      saatiHelp:
+        "Saati has a short guided Body Scan for exactly that: lie down, press play, and let it walk you through settling your body for the night.",
+      buttonLabel: "Try the Body Scan in Saati",
+    },
   },
   P: {
     label: "emotional wellbeing",
     plainDescription:
       "how much of your ordinary day carries some warmth, ease or enjoyment in it.",
-    saatiOffer:
-      "Saati can help you improve your emotional wellbeing. Through daily companion conversations and guided practices drawn from thirty years of contemplative training, it helps you build back the small good moments that make a day feel liveable.",
+    nextStep: {
+      areaName: "emotional wellbeing",
+      step: "Before bed tonight, name one moment from today that was even a little bit good.",
+      saatiHelp:
+        "Saati has a short guided Loving-Kindness practice for the days that feel heavy. It helps you meet yourself a little more gently.",
+      buttonLabel: "Try Loving-Kindness in Saati",
+    },
   },
   E: {
     label: "engagement",
     plainDescription:
       "how absorbed you get in what you are doing — whether time disappears, or drags.",
-    saatiOffer:
-      "Saati can help you improve your engagement. It works with you on attention and focus, and helps you find your way back into the activities that genuinely absorb you.",
+    nextStep: {
+      areaName: "engagement",
+      step: "Pick one thing that used to absorb you, and give it twenty uninterrupted minutes this week.",
+      saatiHelp:
+        "Saati's guided Body Scan is a short attention practice. A few minutes of it first makes it easier to settle into what you are doing.",
+      buttonLabel: "Try the Body Scan in Saati",
+    },
   },
   R: {
     label: "relationships",
     plainDescription:
       "how supported and connected you feel to the people around you.",
-    saatiOffer:
-      "Saati can help you improve your relationships. It is deliberately built to move you toward people rather than away from them — helping you prepare for hard conversations, and encouraging the calls and visits that matter.",
+    nextStep: {
+      areaName: "relationships",
+      step: "Think of one person you would like to hear from, and send them a message this week.",
+      saatiHelp:
+        "If you are not sure what to say, talk it through with Saati first. It is built to move you toward people, not away from them.",
+      buttonLabel: "Talk it through with Saati",
+    },
   },
   M: {
     label: "sense of meaning",
     plainDescription:
       "how much your days feel like they are pointing somewhere you care about.",
-    saatiOffer:
-      "Saati can help you improve your sense of meaning. Its Find Your Ikigai conversation is built for exactly this — an unhurried, resumable exploration of what matters to you and why.",
+    nextStep: {
+      areaName: "sense of meaning",
+      step: "Write down one thing you did this week that felt worth doing, however small.",
+      saatiHelp:
+        "Saati's Find Your Purpose conversation picks up from there, at your own pace. You can stop any time and come back where you left off.",
+      buttonLabel: "Try Find Your Purpose in Saati",
+    },
   },
   A: {
     label: "sense of accomplishment",
     plainDescription:
       "how often you finish something and feel you actually got somewhere.",
-    saatiOffer:
-      "Saati can help you improve your sense of accomplishment. It helps you set goals that fit the week you are actually having, and notices your progress with you rather than keeping score.",
+    nextStep: {
+      areaName: "sense of accomplishment",
+      step: "Choose one thing that has been sitting undone, and shrink it to a piece you could finish in ten minutes.",
+      saatiHelp:
+        "Saati's Find a Way does exactly that with you: it turns a stuck situation into one small step, kept in your Journal with one gentle check-in.",
+      buttonLabel: "Try Find a Way in Saati",
+    },
   },
 };
 

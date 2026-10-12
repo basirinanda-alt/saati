@@ -15,7 +15,6 @@ import { EmailResultsForm } from "@/components/report/EmailResultsForm";
 import { AppDownloadCta } from "@/components/report/AppDownloadCta";
 import { AppShowcase } from "@/components/report/AppShowcase";
 import { TrackQuizComplete } from "@/components/report/TrackQuizComplete";
-import { SaatiInvitation } from "@/components/report/SaatiInvitation";
 import { selectFocusArea } from "@/lib/report/focusArea";
 
 interface ResultsPageProps {
@@ -113,16 +112,15 @@ export default async function ResultsPage({ params }: ResultsPageProps) {
             />
           </div>
 
-          <SaatiInvitation focusArea={focusArea} />
-
-          {/* The page's single call to action: get the app, directly under the
-          invitation that names the area Saati can help with. Nothing on this
-          page is gated any more (2026-10-05): the full breakdown below shows
-          for everyone, and email is a quiet secondary path inside the CTA. */}
+          {/* The page's single call to action, as a personal next step
+          (2026-10-12): the lowest area, one small thing to do, and the one
+          Saati practice that fits it. Nothing on this page is gated: the full
+          breakdown below shows for everyone, and email is a quiet secondary
+          path inside it. */}
           <AppDownloadCta
             sessionId={report.sessionId}
             quiz={quiz}
-            focusLabel={focusArea.label}
+            focusArea={focusArea}
             hasEmail={report.hasEmail}
           />
 

@@ -22,3 +22,10 @@ export function detectPlatform(userAgent: string, maxTouchPoints = 0): AppPlatfo
   if (/Android/.test(userAgent)) return "android";
   return "desktop";
 }
+
+/** The download link carrying which next step sent the visitor
+ * (utm_content), e.g. "focus_who5" or "ikigai_next_step". A category, never
+ * a score. */
+export function downloadUrlFor(content: string): string {
+  return `${WELLNESS_DOWNLOAD_URL}&utm_content=${encodeURIComponent(content)}`;
+}

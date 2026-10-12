@@ -83,7 +83,10 @@ describe("selectFocusArea", () => {
       const area = selectFocusArea(withPerma({ [domain]: 5 }));
       expect(area.key).toBe(domain);
       expect(area.label.length).toBeGreaterThan(0);
-      expect(area.saatiOffer).toContain("Saati");
+      expect(area.nextStep.areaName.length).toBeGreaterThan(0);
+      expect(area.nextStep.step.length).toBeGreaterThan(0);
+      expect(area.nextStep.saatiHelp).toContain("Saati");
+      expect(area.nextStep.buttonLabel).toContain("Saati");
       expect(area.plainDescription.length).toBeGreaterThan(0);
     }
   });

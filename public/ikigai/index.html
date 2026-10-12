@@ -624,6 +624,9 @@
   .app-cta .app-cta-btn.secondary:hover{background:rgba(255,255,255,.1)}
   .app-cta .app-cta-stores{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
   .app-cta .app-cta-stores .app-cta-btn{flex:1 1 150px;max-width:210px}
+  .app-cta .app-cta-quote{margin:4px auto 16px;max-width:440px;padding:12px 16px;border-left:3px solid #D4872C;border-radius:0 10px 10px 0;
+    background:rgba(255,255,255,.08);color:#fff;font-style:italic;font-size:1rem;line-height:1.55;text-align:left}
+  .app-cta p.app-cta-sub{font-size:.8rem;color:#A9C6B8;margin:10px auto 0}
   .app-cta p.app-cta-founding{font-size:.86rem;color:#F3D9B5;margin:14px auto 0}
   .app-cta .app-cta-email{margin:16px auto 0;max-width:360px}
   .app-cta .app-cta-email form{display:flex;flex-direction:column;gap:10px;margin:0}
@@ -987,11 +990,12 @@
       </p>
     </div>
 
-    <!-- ── The ONE call to action on this page: get the app ────────────
-         Rendered by SaatiAppCTA (see the shared block in the script).
-         Phones get one store button; computers get both plus "email me
-         the link", which emails the full plan (deliver.php) with the
-         store links in it. Never shown on the crisis path.
+    <!-- ── The ONE call to action on this page: their next step ────────
+         Rendered by SaatiAppCTA (see the shared block in the script) as a
+         personal next step: their own step, then one button to the
+         download link. "Email me the link" emails the full plan
+         (deliver.php) with the store links in it. Never shown on the
+         crisis path.
     ──────────────────────────────────────────────────────────────── -->
     <div id="appCta" hidden></div>
 
@@ -1075,17 +1079,27 @@ var SAATI_APP = {
   }
 
   /* o = { source, headline, body, onEmail(email) → Promise<bool>, emailEnabled,
-           emailButton, okText(email), fine } */
+           emailButton, okText(email), fine,
+           badge, quote, url, buttonLabel, subline, founding }
+     The last six (2026-10-12) turn the block into a personal next step:
+     `url` + `buttonLabel` give one button for every platform (the download
+     redirector picks the store), `quote` repeats the person's own step,
+     `badge` replaces the "Free on iPhone & Android" pill, and
+     `founding: false` drops the pricing line. Omit them for the old block. */
   function mount(el, o){
-    var url = storeUrl(platform);
+    var url = o.url || storeUrl(platform);
     var anyUrl = SAATI_APP.IOS_URL || SAATI_APP.ANDROID_URL;
     var canEmail = o.emailEnabled !== false && typeof o.onEmail === 'function';
     var emailFirst = false;
 
-    var h = '<div class="app-cta-badge">' + 'Free on iPhone &amp; Android' + '</div>'
-          + '<h3>' + esc(o.headline) + '</h3><p>' + esc(o.body) + '</p>';
+    var h = '<div class="app-cta-badge">' + (o.badge ? esc(o.badge) : 'Free on iPhone &amp; Android') + '</div>'
+          + '<h3>' + esc(o.headline) + '</h3>'
+          + (o.quote ? '<blockquote class="app-cta-quote">' + esc(o.quote) + '</blockquote>' : '')
+          + '<p>' + esc(o.body) + '</p>';
 
-    if(url){
+    if(o.url){
+      h += '<a class="app-cta-btn" data-store="' + (platform === 'desktop' ? 'site' : platform) + '" href="' + esc(o.url) + '" target="_blank" rel="noopener">' + esc(o.buttonLabel || 'Get Saati free') + '</a>';
+    }else if(url){
       h += storeBtn(platform, 'Get Saati free');
     }else if(platform === 'desktop' && anyUrl){
       h += '<div class="app-cta-stores">'
@@ -1098,7 +1112,8 @@ var SAATI_APP = {
       h += '<a class="app-cta-btn" data-store="site" href="https://saati.ca" target="_blank" rel="noopener">See Saati</a>';
     }
 
-    h += '<p class="app-cta-founding">Founding 1000: the first 1,000 members get $2.99/month, locked for life.</p>';
+    if(o.subline) h += '<p class="app-cta-sub">' + esc(o.subline) + '</p>';
+    if(o.founding !== false) h += '<p class="app-cta-founding">Founding 1000: the first 1,000 members get $2.99/month, locked for life.</p>';
 
     if(canEmail){
       var btnText = o.emailButton || 'Email me the link';
@@ -1903,13 +1918,21 @@ function renderResult(){
 
   qs('r-closing').textContent = r.closing || '';
 
-  /* The one call to action: get the app. No token means the reflection was
-     never signed, so deliver.php would refuse it — the "email me" option is
-     withdrawn rather than left promising a plan we cannot send. */
+  /* The one call to action, as a personal next step (2026-10-12): their own
+     step back to them, then how Saati helps keep it. No store badges or
+     pricing here. No token means the reflection was never signed, so
+     deliver.php would refuse it — the "email me" option is withdrawn rather
+     than left promising a plan we cannot send. */
   SaatiAppCTA.mount(qs('appCta'), {
     source: 'ikigai',
-    headline: 'Don\'t let this stay on a page.',
-    body: 'Saati is a companion app that helps you follow through on the one small step above: a few quiet minutes a day, at your own pace.',
+    badge: 'Your next step',
+    headline: 'Saati can help you keep this step.',
+    quote: r.step || '',
+    body: 'Its Find Your Purpose conversation picks up where this page stops, at your own pace, and your step is kept in your Journal with one gentle check-in.',
+    url: SAATI_APP.IOS_URL + '&utm_content=ikigai_next_step',
+    buttonLabel: 'Keep this step with Saati',
+    subline: 'Free download for iPhone and Android.',
+    founding: false,
     onEmail: deliverTo,
     emailEnabled: !!state.token,
     emailButton: 'Email me my plan + the app link',

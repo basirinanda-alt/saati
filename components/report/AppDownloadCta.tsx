@@ -2,11 +2,8 @@
 
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { Button } from "@/components/ui/Button";
-import {
-  WELLNESS_DOWNLOAD_URL,
-  detectPlatform,
-  type AppPlatform,
-} from "@/lib/appLinks";
+import { detectPlatform, downloadUrlFor, type AppPlatform } from "@/lib/appLinks";
+import type { FocusArea } from "@/lib/report/focusArea";
 import {
   reportEmailSignupConversion,
   trackEvent,
@@ -18,23 +15,31 @@ const noopSubscribe = () => () => {};
 interface AppDownloadCtaProps {
   sessionId: string;
   quiz: QuizName;
-  /** The focus area the invitation above just named, e.g. "relationships". */
-  focusLabel: string;
+  /** The lowest-scoring area, with its next step (lib/report/focusArea.ts). */
+  focusArea: FocusArea;
   /** Whether this session already has an address (then the email option is
    * an extra copy, not a capture, and the Ads conversion must not fire). */
   hasEmail: boolean;
 }
 
 /**
- * The results page's single call to action: get the app (2026-10-05 —
- * replaces UnlockForm, which held the full breakdown back until an email
- * was given). Results are no longer gated; the one ask is the download.
+ * The results page's single call to action, written as a personal next step
+ * (2026-10-12): it names the visitor's lowest area, gives one small thing to
+ * do, then the one Saati practice that fits it. Advice first, Saati second —
+ * no store badges, screenshots or pricing here. Replaces the separate
+ * SaatiInvitation box and the "get the app" CTA under it.
  *
- * Phones get one button to their own store; computers get both. Email is a
- * quiet secondary path ("email me the link") that sends the report — whose
- * email now carries both store links — via the existing email route.
+ * One button, to the tracked download link tagged with the focus area
+ * (utm_content=focus_<key>). Email stays a quiet secondary path that sends
+ * the report, whose email carries both store links.
  */
-export function AppDownloadCta({ sessionId, quiz, focusLabel, hasEmail }: AppDownloadCtaProps) {
+export function AppDownloadCta({ sessionId, quiz, focusArea, hasEmail }: AppDownloadCtaProps) {
+  const { nextStep } = focusArea;
+  const downloadUrl = downloadUrlFor(`focus_${focusArea.key}`);
+  // A light tint of the focus area's own hue (the same one its letter badge
+  // and bar use in PermaProfile), so the box points back at that row.
+  // Tokens live in app/globals.css (.report-theme).
+  const hue = `var(--perma-${focusArea.key})`;
   const inputId = useId();
   // "desktop" on the server and during hydration, so both buttons render;
   // on the client it narrows to the visitor's own store. The user agent
@@ -56,9 +61,9 @@ export function AppDownloadCta({ sessionId, quiz, focusLabel, hasEmail }: AppDow
     });
   }, [quiz]);
 
-  function onStoreClick(store: "ios" | "android") {
+  function onStoreClick() {
     trackEvent("app_cta_click", {
-      store,
+      store: platform === "desktop" ? "site" : platform,
       transport_type: "beacon",
       app_source: quiz,
       app_platform: platform,
@@ -95,68 +100,70 @@ export function AppDownloadCta({ sessionId, quiz, focusLabel, hasEmail }: AppDow
     }
   }
 
-  const storeButton =
-    "inline-flex min-h-12 w-full items-center justify-center rounded-full bg-amber-600 px-6 py-3 text-base font-semibold text-white shadow-md transition-colors hover:bg-amber-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white sm:w-auto sm:min-w-44";
-
   return (
     <section
-      aria-labelledby="app-cta-heading"
-      className="mt-6 rounded-xl bg-gradient-to-br from-teal-950 to-teal-800 p-6 text-center text-white shadow-lg"
+      aria-labelledby="next-step-heading"
+      className="mt-10 rounded-2xl border p-6"
+      style={{
+        backgroundColor: `var(--perma-${focusArea.key}-bg)`,
+        borderColor: `color-mix(in oklab, ${hue} 28%, transparent)`,
+      }}
     >
-      <p className="inline-block rounded-full bg-amber-600 px-3 py-1 text-xs font-semibold tracking-wide uppercase">
-        Free on iPhone &amp; Android
+      {/* Eyebrow mixed toward the ink colour so it keeps AA contrast on the
+          tint in both themes (the raw hue alone is ~3:1). */}
+      <p
+        className="text-xs font-semibold tracking-wide uppercase"
+        style={{ color: `color-mix(in oklab, ${hue}, var(--r-ink) 35%)` }}
+      >
+        Your next step
       </p>
-      <h2 id="app-cta-heading" className="mt-3 text-xl font-semibold">
-        Work on your {focusLabel} with Saati.
+
+      <h2
+        id="next-step-heading"
+        className="mt-2 text-xl font-semibold text-neutral-900 dark:text-neutral-100"
+      >
+        Your lowest area was {nextStep.areaName}.
       </h2>
-      <p className="mx-auto mt-2 max-w-prose text-sm text-teal-100">
-        A few minutes a day: gentle conversation, check-ins and guided practice,
-        built around where you are.
+
+      <p className="mt-2 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+        That score reflects {focusArea.plainDescription}
       </p>
 
-      <div className="mt-5 flex flex-col items-center justify-center gap-3 sm:flex-row">
-        {platform !== "android" && (
-          <a
-            href={WELLNESS_DOWNLOAD_URL}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onStoreClick("ios")}
-            className={storeButton}
-          >
-            {platform === "ios" ? "Get Saati free" : "App Store"}
-          </a>
-        )}
-        {platform !== "ios" && (
-          <a
-            href={WELLNESS_DOWNLOAD_URL}
-            target="_blank"
-            rel="noopener"
-            onClick={() => onStoreClick("android")}
-            className={storeButton}
-          >
-            {platform === "android" ? "Get Saati free" : "Google Play"}
-          </a>
-        )}
-      </div>
+      <p className="mt-4 max-w-prose text-base font-medium text-neutral-900 dark:text-neutral-100">
+        {nextStep.step}
+      </p>
 
-      <p className="mt-4 text-sm text-amber-200">
-        Founding 1000: the first 1,000 members get $49.99/year, locked for life.
+      <p className="mt-2 max-w-prose text-sm text-neutral-700 dark:text-neutral-300">
+        {nextStep.saatiHelp}
+      </p>
+
+      <a
+        href={downloadUrl}
+        target="_blank"
+        rel="noopener"
+        onClick={onStoreClick}
+        className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-teal-800 px-6 py-3 text-base font-semibold text-white shadow-md transition-colors hover:bg-teal-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 sm:w-auto"
+      >
+        {nextStep.buttonLabel}
+      </a>
+      <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+        Free download for iPhone and Android.
       </p>
 
       {status === "sent" ? (
-        <p role="status" className="mt-4 text-sm font-medium text-teal-100">
-          Sent to {email}. Your report and the download link are on their way.
+        <p role="status" className="mt-4 text-sm font-medium text-neutral-700 dark:text-neutral-300">
+          Sent to {email}. Your report and the link are on their way.
         </p>
       ) : !showEmail ? (
         <button
           type="button"
           onClick={() => setShowEmail(true)}
-          className="mt-4 text-sm text-teal-100 underline underline-offset-2 hover:text-white"
+          className="mt-4 block text-sm text-teal-800 underline underline-offset-2 hover:text-teal-950 dark:text-teal-300"
         >
-          {platform === "desktop" ? "On a computer? Email me the link" : "Not ready? Email me the link"}
+          {platform === "desktop" ? "On a computer? Email me the link" : "Not now? Email me the link"}
         </button>
       ) : (
-        <form onSubmit={handleSubmit} className="mx-auto mt-4 flex max-w-sm flex-col gap-2">
+        <form onSubmit={handleSubmit} className="mt-4 flex max-w-sm flex-col gap-2">
           <label htmlFor={inputId} className="sr-only">
             Email address
           </label>
@@ -169,23 +176,18 @@ export function AppDownloadCta({ sessionId, quiz, focusLabel, hasEmail }: AppDow
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@university.edu"
             disabled={status === "sending"}
-            className="w-full rounded-full border border-white/30 bg-white/10 px-4 py-2.5 text-base text-white placeholder:text-teal-200 focus:outline focus:outline-2 focus:outline-amber-500 disabled:opacity-50"
+            className="w-full rounded-full border border-neutral-300 bg-white px-4 py-2.5 text-base text-neutral-900 focus:outline focus:outline-2 focus:outline-teal-700 disabled:opacity-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100"
           />
-          <Button
-            type="submit"
-            variant="secondary"
-            disabled={status === "sending"}
-            className="rounded-full border-white/50 text-white hover:bg-white/10 dark:text-white"
-          >
-            {status === "sending" ? "Sending..." : "Email me my report + the app link"}
+          <Button type="submit" variant="secondary" disabled={status === "sending"} className="rounded-full">
+            {status === "sending" ? "Sending..." : "Email me my report + the link"}
           </Button>
           {errorMessage && (
-            <p role="alert" className="text-sm text-red-200">
+            <p role="alert" className="text-sm text-red-700 dark:text-red-300">
               {errorMessage}
             </p>
           )}
-          <p className="text-xs text-teal-200">
-            We&rsquo;ll email your report and the app link, plus occasional notes from
+          <p className="text-xs text-neutral-600 dark:text-neutral-400">
+            We&rsquo;ll email your report and the link, plus occasional notes from
             Saati. Unsubscribe any time.{" "}
             <a href="/privacy" target="_blank" rel="noreferrer" className="underline underline-offset-2">
               Privacy policy
@@ -194,6 +196,13 @@ export function AppDownloadCta({ sessionId, quiz, focusLabel, hasEmail }: AppDow
           </p>
         </form>
       )}
+
+      {/* Saati is not a clinical service and this page must never read as
+          though a score has been treated. See docs/06-ai.md. */}
+      <p className="mt-5 text-xs text-neutral-500 dark:text-neutral-500">
+        Saati is a wellbeing companion, not a medical service, therapy, or
+        crisis support.
+      </p>
     </section>
   );
 }
