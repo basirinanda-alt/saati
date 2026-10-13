@@ -112,25 +112,19 @@ export function AnxietyTest({ region, children }: { region: Region; children?: R
   if (phase === "intro") {
     return (
       <>
-        <section className="mx-auto flex max-w-2xl flex-col items-center px-4 pt-12 pb-10 text-center sm:px-6 sm:pt-16">
+        <section className="mx-auto flex min-h-[78vh] max-w-2xl flex-col items-center justify-center px-4 py-12 text-center sm:px-6">
           <div className="calm-breath" aria-hidden="true" />
-          <p className="mt-6 text-sm font-medium tracking-wide text-(--c-accent-ink)">
-            Free · 4 minutes · No sign-up
-          </p>
-          <h1 className="mt-3 text-4xl font-semibold text-balance text-(--c-ink) sm:text-5xl">
+          <h1 className="mt-8 text-4xl font-semibold text-balance text-(--c-ink) sm:text-5xl">
             Anxiety Test
           </h1>
-          <p className="mx-auto mt-4 max-w-prose text-lg text-balance text-(--c-soft)">
-            Do I have anxiety? Take the GAD‑7, the questionnaire doctors use, then see how anxiety
-            actually shows up in your life, in your own words.
+          <p className="mt-3 text-lg text-balance text-(--c-soft)">
+            Do I have anxiety? Find out in 4 minutes.
           </p>
-          <p className="mt-6 text-sm text-(--c-soft) italic">Take one slow breath with the circle. Then begin whenever you&rsquo;re ready.</p>
-          <button type="button" onClick={start} className="calm-button mt-6">
+          <button type="button" onClick={start} className="calm-button mt-8">
             Start the test
           </button>
-          <p className="mx-auto mt-5 max-w-prose text-xs text-(--c-soft)">
-            Your answers stay in your browser. We don&rsquo;t store them or send them anywhere. This
-            test can&rsquo;t diagnose anxiety; only a health professional can.
+          <p className="mt-4 text-xs text-(--c-soft)">
+            Free · Private · Not a diagnosis
           </p>
         </section>
         {children}

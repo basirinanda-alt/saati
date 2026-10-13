@@ -69,19 +69,19 @@ export default async function AnxietyTestPage() {
     <div className="calm-theme flex-1">
       <JsonLd data={faqJsonLd} />
       <AnxietyTest region={region}>
-        <div className="mx-auto flex max-w-2xl flex-col gap-12 px-4 pb-16 text-(--c-soft) sm:px-6">
-          <section>
-            <h2 className="text-2xl font-semibold text-(--c-ink)">What this anxiety test measures</h2>
+        <div className="mx-auto flex max-w-2xl flex-col px-4 pb-16 text-(--c-soft) sm:px-6">
+          <details className="group border-t border-(--c-line) py-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-(--c-ink) [&::-webkit-details-marker]:hidden"><h2>What this anxiety test measures</h2><span aria-hidden="true" className="text-(--c-accent-ink) transition-transform duration-300 group-open:rotate-45">+</span></summary>
             <p className="mt-3 leading-relaxed">
               Part one is the <strong>GAD-7</strong>, the seven questions doctors use to check for anxiety, word for word. It
               gives you a score out of 21. Part two is a short set of everyday scenes, like lying awake at 3am or replaying a
               conversation, that shows <em>how</em> anxiety shows up for you: in your head, your body, your sleep, around
               people, or as things you put off. At the end you get one small, evidence-based step that fits your pattern.
             </p>
-          </section>
+          </details>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-(--c-ink)">Signs of anxiety</h2>
+          <details className="group border-t border-(--c-line) py-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-(--c-ink) [&::-webkit-details-marker]:hidden"><h2>Signs of anxiety</h2><span aria-hidden="true" className="text-(--c-accent-ink) transition-transform duration-300 group-open:rotate-45">+</span></summary>
             <p className="mt-3 leading-relaxed">Anxiety shows up differently for everyone. Common signs include:</p>
             <div className="mt-4 grid gap-6 sm:grid-cols-3">
               {SIGNS.map((s) => (
@@ -93,10 +93,10 @@ export default async function AnxietyTestPage() {
                 </div>
               ))}
             </div>
-          </section>
+          </details>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-(--c-ink)">How the GAD-7 is scored</h2>
+          <details className="group border-t border-(--c-line) py-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-(--c-ink) [&::-webkit-details-marker]:hidden"><h2>How the GAD-7 is scored</h2><span aria-hidden="true" className="text-(--c-accent-ink) transition-transform duration-300 group-open:rotate-45">+</span></summary>
             <p className="mt-3 leading-relaxed">
               Each question is scored from 0 (not at all) to 3 (nearly every day), for a total between 0 and 21.
             </p>
@@ -116,10 +116,10 @@ export default async function AnxietyTestPage() {
                 </tbody>
               </table>
             </div>
-          </section>
+          </details>
 
-          <section>
-            <h2 className="text-2xl font-semibold text-(--c-ink)">Questions people ask</h2>
+          <details className="group border-t border-(--c-line) py-4">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-lg font-semibold text-(--c-ink) [&::-webkit-details-marker]:hidden"><h2>Questions people ask</h2><span aria-hidden="true" className="text-(--c-accent-ink) transition-transform duration-300 group-open:rotate-45">+</span></summary>
             <div className="mt-4 flex flex-col gap-5">
               {FAQ.map((f) => (
                 <div key={f.q}>
@@ -128,9 +128,9 @@ export default async function AnxietyTestPage() {
                 </div>
               ))}
             </div>
-          </section>
+          </details>
 
-          <p className="text-xs text-(--c-soft) opacity-80">
+          <p className="border-t border-(--c-line) pt-6 text-xs text-(--c-soft) opacity-80">
             GAD-7 developed by Drs. Robert L. Spitzer, Janet B.W. Williams, Kurt Kroenke and colleagues, with an educational
             grant from Pfizer Inc. No permission required to reproduce, translate, display or distribute. Saati is a wellbeing
             companion, not a medical service, therapy, or crisis support.
