@@ -97,3 +97,87 @@ body {
     --perma-who5-bg: #212a29;
   }
 }
+
+/* Anxiety test palette (2026-10-13): Saati cream + sage, deliberately calm.
+   Scoped to .calm-theme. It also re-points the results tokens (--r-*) so the
+   results page shares it. Unlayered on purpose, so it wins over Tailwind's
+   utility layer for the shared AnswerScale and ProgressBar. */
+.calm-theme {
+  --c-bg: #f7f3ec;
+  --c-bg2: #edf3ef;
+  --c-card: #fffdf9;
+  --c-ink: #2b3a35;
+  --c-soft: #5c6a64;
+  --c-line: #e4ddd1;
+  --c-accent: #4f7f6e;
+  --c-accent-ink: #3d6758;
+  --c-tint: #e5eee9;
+  --c-track: rgba(61, 103, 88, 0.12);
+
+  --r-bg: transparent;
+  --r-card: var(--c-card);
+  --r-ink: var(--c-ink);
+  --r-soft: var(--c-soft);
+  --r-line: var(--c-line);
+  --r-accent-ink: var(--c-accent-ink);
+  --r-track: var(--c-track);
+
+  background: linear-gradient(180deg, var(--c-bg) 0%, var(--c-bg2) 100%);
+  color: var(--c-ink);
+}
+
+@media (prefers-color-scheme: dark) {
+  .calm-theme {
+    --c-bg: #131917;
+    --c-bg2: #16201c;
+    --c-card: #1b2420;
+    --c-ink: #e4ebe7;
+    --c-soft: #a3b1ab;
+    --c-line: #2b3631;
+    --c-accent: #8fc0ad;
+    --c-accent-ink: #a9d3c2;
+    --c-tint: #1f2c27;
+    --c-track: rgba(169, 211, 194, 0.14);
+  }
+}
+
+.calm-theme fieldset legend { color: var(--c-ink); font-weight: 500; line-height: 1.35; }
+.calm-theme fieldset label {
+  border-radius: 16px;
+  border-color: var(--c-line);
+  background: var(--c-card);
+  padding: 14px 18px;
+  color: var(--c-ink);
+  transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+.calm-theme fieldset label:hover { background: var(--c-tint); }
+.calm-theme fieldset label:has(input:checked) { border-color: var(--c-accent); background: var(--c-tint); }
+.calm-theme fieldset input { accent-color: var(--c-accent); }
+.calm-theme [role="progressbar"] { background: var(--c-track); height: 6px; }
+.calm-theme [role="progressbar"] > div { background: var(--c-accent); transition-duration: 0.7s; }
+
+.calm-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 52px; padding: 14px 40px; border-radius: 999px;
+  background: var(--c-accent); color: #fff; font-weight: 600; font-size: 1.05rem;
+  box-shadow: 0 10px 30px rgba(61, 103, 88, 0.22);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.calm-button:hover { transform: translateY(-1px); box-shadow: 0 14px 34px rgba(61, 103, 88, 0.28); }
+.calm-button:focus-visible { outline: 3px solid var(--c-accent-ink); outline-offset: 3px; }
+@media (prefers-color-scheme: dark) { .calm-button { color: #10201a; } }
+
+/* A slow breathing circle: 4s in, 4s out. Still under reduced motion. */
+@keyframes calm-breathe {
+  0%, 100% { transform: scale(0.82); opacity: 0.55; }
+  50% { transform: scale(1); opacity: 0.95; }
+}
+.calm-breath {
+  width: 112px; height: 112px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, var(--c-tint), color-mix(in oklab, var(--c-accent) 35%, transparent));
+  animation: calm-breathe 8s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) { .calm-breath { animation: none; opacity: 0.8; } }
+.calm-fade { animation: calm-fade 0.6s ease both; }
+@keyframes calm-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .calm-fade { animation: none; } }
