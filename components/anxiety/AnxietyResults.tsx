@@ -3,9 +3,15 @@
 import { useEffect, useState } from "react";
 import { downloadUrlFor, detectPlatform } from "@/lib/appLinks";
 import { trackEvent } from "@/lib/analytics/gtag";
+import { useAbVariant } from "@/lib/analytics/abTest";
+import { StoreMiniBadges } from "@/components/report/StoreMiniBadges";
 import { GAD7_ATTRIBUTION, GAD7_BAND_LABELS, scoreGad7, type Gad7Band } from "@/lib/anxiety/gad7";
 import { buildStory, recommend, scorePatterns, type ProfileAnswers } from "@/lib/anxiety/profile";
 import { CRISIS, PREVALENCE, REGION_LABELS, type Region } from "@/lib/anxiety/regions";
+
+// Shared with the Wellness/Ikigai results CTA (components/report/AppDownloadCta.tsx)
+// so one GA4 Explore slices all three. See lib/analytics/abTest.ts.
+const CTA_TEST_ID = "cta_visual_weight_v1";
 
 const BAND_TEXT: Record<Gad7Band, string> = {
   minimal: "Your answers suggest little anxiety over the last two weeks. That's good to know, and worth protecting.",
@@ -53,6 +59,7 @@ export function AnxietyResults({ headingRef, gad, difficulty, profile, initialRe
   // A generic tag only: the loudest pattern is health information and must
   // not travel in a URL that analytics could record as an outbound click.
   const downloadUrl = downloadUrlFor("anxiety_test");
+  const variant = useAbVariant(CTA_TEST_ID);
 
   // The results page always ends in the Saati next-step CTA, so a view is
   // logged once on mount, the same event the Wellness/Ikigai CTAs send.
@@ -61,15 +68,20 @@ export function AnxietyResults({ headingRef, gad, difficulty, profile, initialRe
     trackEvent("app_cta_view", {
       app_source: "anxiety",
       app_platform: detectPlatform(navigator.userAgent, navigator.maxTouchPoints),
+      cta_variant: variant,
+      ab_test: CTA_TEST_ID,
     });
-  }, []);
+  }, [variant]);
 
-  function onCta() {
+  function onCta(explicitStore?: "ios" | "android") {
+    const platform = detectPlatform(navigator.userAgent, navigator.maxTouchPoints);
     trackEvent("app_cta_click", {
-      store: detectPlatform(navigator.userAgent, navigator.maxTouchPoints) === "desktop" ? "site" : detectPlatform(navigator.userAgent, navigator.maxTouchPoints),
+      store: explicitStore ?? (platform === "desktop" ? "site" : platform),
       transport_type: "beacon",
       app_source: "anxiety",
       app_placement: "results_cta",
+      cta_variant: variant,
+      ab_test: CTA_TEST_ID,
     });
   }
 
@@ -222,12 +234,16 @@ export function AnxietyResults({ headingRef, gad, difficulty, profile, initialRe
             href={downloadUrl}
             target="_blank"
             rel="noopener"
-            onClick={onCta}
-            className="calm-button mt-5 w-full sm:w-auto"
+            onClick={() => onCta()}
+            className={`calm-button mt-5 w-full sm:w-auto${variant === "challenger" ? " calm-button--challenger" : ""}`}
           >
             {rec.buttonLabel}
           </a>
           <p className="mt-2 text-xs text-(--r-soft)">Free download for iPhone and Android.</p>
+
+          {variant === "challenger" && (
+            <StoreMiniBadges downloadUrl={downloadUrl} onClick={onCta} />
+          )}
         </section>
 
         {!supportFirst && crisisCard}

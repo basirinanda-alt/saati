@@ -167,6 +167,30 @@ body {
 .calm-button:focus-visible { outline: 3px solid var(--c-accent-ink); outline-offset: 3px; }
 @media (prefers-color-scheme: dark) { .calm-button { color: #10201a; } }
 
+/* CTA visual-weight experiment (cta_visual_weight_v1, 2026-10-18): same
+   copy and tone as the control button, just a larger target and stronger
+   shadow — see lib/analytics/abTest.ts. */
+.calm-button--challenger, .cta-btn--challenger {
+  min-height: 58px; padding-left: 44px; padding-right: 44px;
+  font-size: 1.12rem; box-shadow: 0 14px 38px rgba(61, 103, 88, 0.32);
+}
+
+/* The small store-badge pair the challenger variant adds under the main
+   button. Secondary in weight: outlined, not filled, so the one button
+   stays the primary action. */
+.store-mini-badges {
+  margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;
+}
+.store-mini-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; padding: 8px 14px; border-radius: 999px;
+  border: 1.5px solid var(--r-line, rgba(0,0,0,0.14));
+  color: var(--r-soft, inherit); font-size: 0.82rem; font-weight: 600;
+  text-decoration: none; transition: background-color 0.2s ease;
+}
+.store-mini-badge:hover { background: var(--r-glow, rgba(0,0,0,0.04)); }
+.store-mini-badge svg { height: 16px; width: 16px; flex: none; }
+
 /* A slow breathing circle: 4s in, 4s out. Still under reduced motion. */
 @keyframes calm-breathe {
   0%, 100% { transform: scale(0.82); opacity: 0.55; }

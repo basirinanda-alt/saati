@@ -624,6 +624,13 @@
   .app-cta .app-cta-btn.secondary:hover{background:rgba(255,255,255,.1)}
   .app-cta .app-cta-stores{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
   .app-cta .app-cta-stores .app-cta-btn{flex:1 1 150px;max-width:210px}
+  /* cta_visual_weight_v1 (2026-10-18): the challenger arm keeps this exact
+     copy, just a bigger button and a secondary, outlined store-badge pair
+     under it. See the assignVariant()/mount() changes below. */
+  .app-cta .app-cta-btn--challenger{max-width:420px;min-height:58px;padding:17px 32px;font-size:1.1rem;box-shadow:0 14px 34px rgba(212,135,44,.5)}
+  .app-cta .app-cta-stores--mini{margin-top:12px}
+  .app-cta .app-cta-stores--mini .app-cta-btn{min-height:44px;padding:10px 18px;font-size:.86rem;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+  .app-cta .app-cta-stores--mini .app-cta-btn:hover{background:rgba(255,255,255,.16)}
   .app-cta .app-cta-quote{margin:4px auto 16px;max-width:440px;padding:12px 16px;border-left:3px solid #D4872C;border-radius:0 10px 10px 0;
     background:rgba(255,255,255,.08);color:#fff;font-style:italic;font-size:1rem;line-height:1.55;text-align:left}
   .app-cta p.app-cta-sub{font-size:.8rem;color:#A9C6B8;margin:10px auto 0}
@@ -1069,6 +1076,23 @@ var SAATI_APP = {
   var isIOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
   var platform = isIOS ? 'ios' : (/Android/.test(ua) ? 'android' : 'desktop');
 
+  /* cta_visual_weight_v1 (2026-10-18): a visitor is bucketed once per
+     testId and the bucket persists in localStorage, so the same visitor
+     sees the same version on return visits. Falls back to "control"
+     wherever storage is blocked — an experiment must never break the page.
+     See lib/analytics/abTest.ts (the React twin of this function, used by
+     the Wellness + anxiety-test results pages on wellness.atlanticbuddhist.com). */
+  function assignVariant(testId){
+    try{
+      var key = 'saati_ab_' + testId;
+      var v = localStorage.getItem(key);
+      if(v === 'control' || v === 'challenger') return v;
+      v = Math.random() < 0.5 ? 'control' : 'challenger';
+      localStorage.setItem(key, v);
+      return v;
+    }catch(e){ return 'control'; }
+  }
+
   function storeUrl(p){ return p === 'ios' ? SAATI_APP.IOS_URL : (p === 'android' ? SAATI_APP.ANDROID_URL : ''); }
   if(location.hash === '#get-app' && storeUrl(platform)){ location.replace(storeUrl(platform)); }
 
@@ -1091,14 +1115,25 @@ var SAATI_APP = {
     var anyUrl = SAATI_APP.IOS_URL || SAATI_APP.ANDROID_URL;
     var canEmail = o.emailEnabled !== false && typeof o.onEmail === 'function';
     var emailFirst = false;
+    // o.abTest: a test id opts this card into cta_visual_weight_v1. o.bodyByVariant
+    // lets the caller supply a shorter challenger-only body paragraph without
+    // mount() needing to know the copy for every surface that uses it.
+    var variant = o.abTest ? assignVariant(o.abTest) : null;
+    var body = (variant && o.bodyByVariant && o.bodyByVariant[variant]) || o.body;
 
     var h = '<div class="app-cta-badge">' + (o.badge ? esc(o.badge) : 'Free on iPhone &amp; Android') + '</div>'
           + '<h3>' + esc(o.headline) + '</h3>'
           + (o.quote ? '<blockquote class="app-cta-quote">' + esc(o.quote) + '</blockquote>' : '')
-          + '<p>' + esc(o.body) + '</p>';
+          + '<p>' + esc(body) + '</p>';
 
     if(o.url){
-      h += '<a class="app-cta-btn" data-store="' + (platform === 'desktop' ? 'site' : platform) + '" href="' + esc(o.url) + '" target="_blank" rel="noopener">' + esc(o.buttonLabel || 'Get Saati free') + '</a>';
+      h += '<a class="app-cta-btn' + (variant === 'challenger' ? ' app-cta-btn--challenger' : '') + '" data-store="' + (platform === 'desktop' ? 'site' : platform) + '" href="' + esc(o.url) + '" target="_blank" rel="noopener">' + esc(o.buttonLabel || 'Get Saati free') + '</a>';
+      if(variant === 'challenger' && anyUrl){
+        h += '<div class="app-cta-stores app-cta-stores--mini">'
+           + (SAATI_APP.IOS_URL ? storeBtn('ios', 'App Store') : '')
+           + (SAATI_APP.ANDROID_URL ? storeBtn('android', 'Google Play') : '')
+           + '</div>';
+      }
     }else if(url){
       h += storeBtn(platform, 'Get Saati free');
     }else if(platform === 'desktop' && anyUrl){
@@ -1136,6 +1171,7 @@ var SAATI_APP = {
     el.hidden = false;
 
     var base = {app_source: o.source, app_platform: platform};
+    if(variant){ base.cta_variant = variant; base.ab_test = o.abTest; }
     t('app_cta_view', base);
 
     Array.prototype.forEach.call(el.querySelectorAll('a[data-store]'), function(a){
@@ -1929,6 +1965,13 @@ function renderResult(){
     headline: 'You found what matters. Now comes keeping it up.',
     quote: r.step || '',
     body: 'This is where most people slip. The week gets busy and the step quietly drops away. Saati can be your life coach: it helps you keep up with your steps a little each day, and keeps them in your Journal so you can see how far you have come.',
+    // cta_visual_weight_v1 (2026-10-18): challenger keeps the same voice,
+    // just tighter — two sentences instead of three — to match its bigger
+    // button and the store badges mount() adds underneath. See abTest.ts.
+    bodyByVariant: {
+      challenger: 'This is where most people slip — the step quietly drops away. Saati helps you keep it up, a little each day, right in your Journal.'
+    },
+    abTest: 'cta_visual_weight_v1',
     url: SAATI_APP.IOS_URL + '&utm_content=ikigai_next_step',
     buttonLabel: 'Learn more',
     subline: 'Free download for iPhone and Android.',

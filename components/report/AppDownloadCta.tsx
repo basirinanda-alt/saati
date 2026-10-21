@@ -9,8 +9,15 @@ import {
   trackEvent,
   type QuizName,
 } from "@/lib/analytics/gtag";
+import { useAbVariant } from "@/lib/analytics/abTest";
+import { StoreMiniBadges } from "@/components/report/StoreMiniBadges";
 
 const noopSubscribe = () => () => {};
+
+// Shared across Wellness and the anxiety test (components/anxiety/AnxietyResults.tsx)
+// so one GA4 Explore slices both: same button, same copy, bigger target plus
+// a small store-badge pair underneath. See lib/analytics/abTest.ts.
+const CTA_TEST_ID = "cta_visual_weight_v1";
 
 interface AppDownloadCtaProps {
   sessionId: string;
@@ -32,6 +39,10 @@ interface AppDownloadCtaProps {
  * One button, to the tracked download link tagged with the focus area
  * (utm_content=focus_<key>). Email stays a quiet secondary path that sends
  * the report, whose email carries both store links.
+ *
+ * Carries the cta_visual_weight_v1 experiment (2026-10-18): the challenger
+ * arm keeps this exact copy and still no pricing, just a bigger button and
+ * a small store-badge pair under it. See lib/analytics/abTest.ts.
  */
 export function AppDownloadCta({ sessionId, quiz, focusArea, hasEmail }: AppDownloadCtaProps) {
   const { nextStep } = focusArea;
@@ -49,6 +60,7 @@ export function AppDownloadCta({ sessionId, quiz, focusArea, hasEmail }: AppDown
     () => detectPlatform(navigator.userAgent, navigator.maxTouchPoints),
     () => "desktop",
   );
+  const variant = useAbVariant(CTA_TEST_ID);
   const [showEmail, setShowEmail] = useState(false);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -58,18 +70,24 @@ export function AppDownloadCta({ sessionId, quiz, focusArea, hasEmail }: AppDown
     trackEvent("app_cta_view", {
       app_source: quiz,
       app_platform: detectPlatform(navigator.userAgent, navigator.maxTouchPoints),
+      cta_variant: variant,
+      ab_test: CTA_TEST_ID,
     });
-  }, [quiz]);
+  }, [quiz, variant]);
 
-  function onStoreClick() {
+  // `store` defaults to the visitor's own platform (the main button); the
+  // mini badges below override it with the one they actually clicked.
+  function onStoreClick(explicitStore?: "ios" | "android") {
     trackEvent("app_cta_click", {
-      store: platform === "desktop" ? "site" : platform,
+      store: explicitStore ?? (platform === "desktop" ? "site" : platform),
       transport_type: "beacon",
       app_source: quiz,
       app_platform: platform,
       // Distinguishes this CTA from the top-of-page AppShowcase badges,
       // which send the same event with app_placement: "showcase".
       app_placement: "results_cta",
+      cta_variant: variant,
+      ab_test: CTA_TEST_ID,
     });
   }
 
@@ -141,14 +159,20 @@ export function AppDownloadCta({ sessionId, quiz, focusArea, hasEmail }: AppDown
         href={downloadUrl}
         target="_blank"
         rel="noopener"
-        onClick={onStoreClick}
-        className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-teal-800 px-6 py-3 text-base font-semibold text-white shadow-md transition-colors hover:bg-teal-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 sm:w-auto"
+        onClick={() => onStoreClick()}
+        className={`mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full bg-teal-800 px-6 py-3 text-base font-semibold text-white shadow-md transition-colors hover:bg-teal-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-800 sm:w-auto${
+          variant === "challenger" ? " cta-btn--challenger" : ""
+        }`}
       >
         {nextStep.buttonLabel}
       </a>
       <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
         Free download for iPhone and Android.
       </p>
+
+      {variant === "challenger" && (
+        <StoreMiniBadges downloadUrl={downloadUrl} onClick={onStoreClick} />
+      )}
 
       {status === "sent" ? (
         <p role="status" className="mt-4 text-sm font-medium text-neutral-700 dark:text-neutral-300">
