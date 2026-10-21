@@ -167,6 +167,10 @@ body {
 .calm-button:focus-visible { outline: 3px solid var(--c-accent-ink); outline-offset: 3px; }
 @media (prefers-color-scheme: dark) { .calm-button { color: #10201a; } }
 
+/* The bold FREE tag inside every results CTA button (both A/B arms,
+   added 2026-10-21), so the test still isolates size + store badges. */
+.cta-free { margin-left: 0.45em; font-weight: 800; letter-spacing: 0.05em; }
+
 /* CTA visual-weight experiment (cta_visual_weight_v1, 2026-10-18): same
    copy and tone as the control button, just a larger target and stronger
    shadow — see lib/analytics/abTest.ts. */

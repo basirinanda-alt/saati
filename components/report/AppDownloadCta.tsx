@@ -165,6 +165,7 @@ export function AppDownloadCta({ sessionId, quiz, focusArea, hasEmail }: AppDown
         }`}
       >
         {nextStep.buttonLabel}
+        <strong className="cta-free">FREE</strong>
       </a>
       <p className="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
         Free download for iPhone and Android.

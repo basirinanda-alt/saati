@@ -629,6 +629,8 @@
      under it. See the assignVariant()/mount() changes below. */
   .app-cta .app-cta-btn--challenger{max-width:420px;min-height:58px;padding:17px 32px;font-size:1.1rem;box-shadow:0 14px 34px rgba(212,135,44,.5)}
   .app-cta .app-cta-stores--mini{margin-top:12px}
+  /* Bold FREE tag in the main button, both A/B arms (2026-10-21). */
+  .app-cta .app-cta-free{margin-left:.4em;font-weight:800;letter-spacing:.05em}
   .app-cta .app-cta-stores--mini .app-cta-btn{min-height:44px;padding:10px 18px;font-size:.86rem;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
   .app-cta .app-cta-stores--mini .app-cta-btn:hover{background:rgba(255,255,255,.16)}
   .app-cta .app-cta-quote{margin:4px auto 16px;max-width:440px;padding:12px 16px;border-left:3px solid #D4872C;border-radius:0 10px 10px 0;
@@ -1127,7 +1129,7 @@ var SAATI_APP = {
           + '<p>' + esc(body) + '</p>';
 
     if(o.url){
-      h += '<a class="app-cta-btn' + (variant === 'challenger' ? ' app-cta-btn--challenger' : '') + '" data-store="' + (platform === 'desktop' ? 'site' : platform) + '" href="' + esc(o.url) + '" target="_blank" rel="noopener">' + esc(o.buttonLabel || 'Get Saati free') + '</a>';
+      h += '<a class="app-cta-btn' + (variant === 'challenger' ? ' app-cta-btn--challenger' : '') + '" data-store="' + (platform === 'desktop' ? 'site' : platform) + '" href="' + esc(o.url) + '" target="_blank" rel="noopener">' + esc(o.buttonLabel || 'Get Saati free') + (o.buttonLabel && !/free/i.test(o.buttonLabel) ? ' <strong class="app-cta-free">FREE</strong>' : '') + '</a>';
       if(variant === 'challenger' && anyUrl){
         h += '<div class="app-cta-stores app-cta-stores--mini">'
            + (SAATI_APP.IOS_URL ? storeBtn('ios', 'App Store') : '')

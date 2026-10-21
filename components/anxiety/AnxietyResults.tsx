@@ -238,6 +238,7 @@ export function AnxietyResults({ headingRef, gad, difficulty, profile, initialRe
             className={`calm-button mt-5 w-full sm:w-auto${variant === "challenger" ? " calm-button--challenger" : ""}`}
           >
             {rec.buttonLabel}
+            <strong className="cta-free">FREE</strong>
           </a>
           <p className="mt-2 text-xs text-(--r-soft)">Free download for iPhone and Android.</p>
 
