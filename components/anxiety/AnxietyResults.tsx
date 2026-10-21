@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { downloadUrlFor, detectPlatform } from "@/lib/appLinks";
 import { trackEvent } from "@/lib/analytics/gtag";
 import { GAD7_ATTRIBUTION, GAD7_BAND_LABELS, scoreGad7, type Gad7Band } from "@/lib/anxiety/gad7";
@@ -53,6 +53,16 @@ export function AnxietyResults({ headingRef, gad, difficulty, profile, initialRe
   // A generic tag only: the loudest pattern is health information and must
   // not travel in a URL that analytics could record as an outbound click.
   const downloadUrl = downloadUrlFor("anxiety_test");
+
+  // The results page always ends in the Saati next-step CTA, so a view is
+  // logged once on mount, the same event the Wellness/Ikigai CTAs send.
+  // Without it the anxiety funnel showed clicks but zero views in GA4.
+  useEffect(() => {
+    trackEvent("app_cta_view", {
+      app_source: "anxiety",
+      app_platform: detectPlatform(navigator.userAgent, navigator.maxTouchPoints),
+    });
+  }, []);
 
   function onCta() {
     trackEvent("app_cta_click", {
