@@ -11,6 +11,7 @@ import {
 } from "@/lib/analytics/gtag";
 import { useAbVariant } from "@/lib/analytics/abTest";
 import { StoreMiniBadges } from "@/components/report/StoreMiniBadges";
+import { DesktopAppQr } from "@/components/report/DesktopAppQr";
 
 const noopSubscribe = () => () => {};
 
@@ -174,6 +175,8 @@ export function AppDownloadCta({ sessionId, quiz, focusArea, hasEmail }: AppDown
       {variant === "challenger" && (
         <StoreMiniBadges downloadUrl={downloadUrl} onClick={onStoreClick} />
       )}
+
+      <DesktopAppQr url={downloadUrlFor(`qr_focus_${focusArea.key}`)} />
 
       {status === "sent" ? (
         <p role="status" className="mt-4 text-sm font-medium text-neutral-700 dark:text-neutral-300">

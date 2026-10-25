@@ -5,6 +5,7 @@ import { downloadUrlFor, detectPlatform } from "@/lib/appLinks";
 import { trackEvent } from "@/lib/analytics/gtag";
 import { useAbVariant } from "@/lib/analytics/abTest";
 import { StoreMiniBadges } from "@/components/report/StoreMiniBadges";
+import { DesktopAppQr } from "@/components/report/DesktopAppQr";
 import { GAD7_ATTRIBUTION, GAD7_BAND_LABELS, scoreGad7, type Gad7Band } from "@/lib/anxiety/gad7";
 import { buildStory, recommend, scorePatterns, type ProfileAnswers } from "@/lib/anxiety/profile";
 import { CRISIS, PREVALENCE, REGION_LABELS, type Region } from "@/lib/anxiety/regions";
@@ -245,6 +246,8 @@ export function AnxietyResults({ headingRef, gad, difficulty, profile, initialRe
           {variant === "challenger" && (
             <StoreMiniBadges downloadUrl={downloadUrl} onClick={onCta} />
           )}
+
+          <DesktopAppQr url={downloadUrlFor("qr_anxiety_test")} />
         </section>
 
         {!supportFirst && crisisCard}
